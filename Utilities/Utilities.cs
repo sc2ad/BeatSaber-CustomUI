@@ -17,9 +17,7 @@ namespace CustomUI.Utilities
             {
                 Texture2D Tex2D = new Texture2D(2, 2);
                 if (Tex2D.LoadImage(file))
-                {
                     return Tex2D;
-                }
             }
             return null;
         }
@@ -27,9 +25,8 @@ namespace CustomUI.Utilities
         public static Texture2D LoadTextureFromFile(string FilePath)
         {
             if (File.Exists(FilePath))
-            {
                 return LoadTextureRaw(File.ReadAllBytes(FilePath));
-            }
+
             return null;
         }
 
@@ -63,7 +60,6 @@ namespace CustomUI.Utilities
 
         public static byte[] GetResource(Assembly asm, string ResourceName)
         {
-            //System.Reflection.Assembly asm = Assembly.GetExecutingAssembly();
             System.IO.Stream stream = asm.GetManifestResourceStream(ResourceName);
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);

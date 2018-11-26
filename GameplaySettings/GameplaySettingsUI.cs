@@ -127,8 +127,8 @@ namespace CustomUI.GameplaySettings
                 //Create up button
                 _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
                 _pageUpButton.transform.parent = container.parent;
-                _pageUpButton.transform.localScale = Vector3.one;
-                _pageUpButton.transform.localPosition -= new Vector3(0, 4.5f);
+                _pageUpButton.transform.localScale = Vector3.one/2;
+                _pageUpButton.transform.localPosition -= new Vector3(0, 2f);
                 //(_pageUpButton.transform as RectTransform).sizeDelta = new Vector2((_pageUpButton.transform.parent as RectTransform).sizeDelta.x, 3.5f);
                 _pageUpButton.onClick.RemoveAllListeners();
                 _pageUpButton.onClick.AddListener(delegate ()
@@ -143,8 +143,8 @@ namespace CustomUI.GameplaySettings
                 //Create down button
                 _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
                 _pageDownButton.transform.parent = container.parent;
-                _pageDownButton.transform.localScale = Vector3.one;
-                _pageDownButton.transform.localPosition -= new Vector3(0, 6.5f);
+                _pageDownButton.transform.localScale = Vector3.one/2;
+                _pageDownButton.transform.localPosition -= new Vector3(0, 7f);
                 //(_pageDownButton.transform as RectTransform).sizeDelta = new Vector2((_pageDownButton.transform.parent as RectTransform).sizeDelta.x, (_pageDownButton.transform as RectTransform).sizeDelta.y);
                 _pageDownButton.onClick.RemoveAllListeners();
                 _pageDownButton.onClick.AddListener(delegate ()
