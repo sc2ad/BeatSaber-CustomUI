@@ -1,3 +1,6 @@
+# Mod Info
+This mod allows for Beat Saber mod developers to implement custom settings user interfaces in a simple and easy way. This mod does nothing on its own!
+
 # Example Usage
 *It's important that you setup your settings options in the SceneManager_sceneLoaded event when the "Menu" scene is loaded! It can't be the SceneManager_activeSceneChanged event!*
 ```cs
