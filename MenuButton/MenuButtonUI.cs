@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using CustomUI.BeatSaber;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace CustomUI.MenuButton
 {
@@ -12,12 +13,12 @@ namespace CustomUI.MenuButton
         const int ButtonsPerRow = 4;
         const float RowSeparator = 9f;
         
-        private static RectTransform bottomPanel;
-        private static RectTransform menuButtonsOriginal;
+        private RectTransform bottomPanel;
+        private RectTransform menuButtonsOriginal;
 
-        private static int rowCount = 0;
-        private static RectTransform currentRow;
-        private static int buttonsInCurrentRow;
+        private int rowCount = 0;
+        private RectTransform currentRow;
+        private int buttonsInCurrentRow;
 
         private static MenuButtonUI _instance = null;
         public static MenuButtonUI Instance
@@ -27,7 +28,7 @@ namespace CustomUI.MenuButton
                 if (_instance == null)
                 {
                     _instance = new GameObject("MenuButtonUI").AddComponent<MenuButtonUI>();
-                    Init();
+                    _instance.Init();
                 }
                 return _instance;
             }
@@ -40,9 +41,25 @@ namespace CustomUI.MenuButton
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
+            SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
         }
 
-        private static void Init()
+        void OnDestroy()
+        {
+            SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
+        }
+
+        private void SceneManager_activeSceneChanged(Scene from, Scene to)
+        {
+            if (to.name == "EmptyTransition")
+            {
+                if (Instance)
+                    Destroy(Instance.gameObject);
+                Instance = null;
+            }
+        }
+
+        private void Init()
         {
             // Find Menu buttons
             bottomPanel = GameObject.Find("BottomPanel").transform as RectTransform;
@@ -50,7 +67,7 @@ namespace CustomUI.MenuButton
             buttonsInCurrentRow = ButtonsPerRow;
         }
         
-        private static RectTransform AddRow()
+        private RectTransform AddRow()
         {
             RectTransform newRow = RectTransform.Instantiate(menuButtonsOriginal, bottomPanel);
             foreach (Transform child in newRow)
@@ -67,13 +84,13 @@ namespace CustomUI.MenuButton
             yield return new WaitForSeconds(0.1f);
             lock (Instance)
             {
-                if (buttonsInCurrentRow >= ButtonsPerRow)
+                if (Instance.buttonsInCurrentRow >= ButtonsPerRow)
                 {
-                    currentRow = AddRow();
-                    buttonsInCurrentRow = 0;
+                    Instance.currentRow = Instance.AddRow();
+                    Instance.buttonsInCurrentRow = 0;
                 }
-                Button newButton = BeatSaberUI.CreateUIButton(currentRow as RectTransform, "QuitButton", onClick, text, icon);
-                buttonsInCurrentRow++;
+                Button newButton = BeatSaberUI.CreateUIButton(Instance.currentRow as RectTransform, "QuitButton", onClick, text, icon);
+                Instance.buttonsInCurrentRow++;
             }
         }
 
