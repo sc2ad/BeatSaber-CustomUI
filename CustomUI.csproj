@@ -76,6 +76,7 @@
     <Compile Include="BeatSaber\BeatSaberUIExtensions.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsTypes.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsUI.cs" />
+    <Compile Include="MenuButton\MenuButtonUI.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />

@@ -129,6 +129,7 @@ namespace CustomUI.GameplaySettings
                 _pageUpButton.transform.parent = container.parent;
                 _pageUpButton.transform.localScale = Vector3.one/2;
                 _pageUpButton.transform.localPosition -= new Vector3(0, 2f);
+                _pageUpButton.interactable = true;
                 //(_pageUpButton.transform as RectTransform).sizeDelta = new Vector2((_pageUpButton.transform.parent as RectTransform).sizeDelta.x, 3.5f);
                 _pageUpButton.onClick.RemoveAllListeners();
                 _pageUpButton.onClick.AddListener(delegate ()
@@ -136,8 +137,8 @@ namespace CustomUI.GameplaySettings
                     Instance.ChangePage(--Instance._listIndex, container, noFail, noObstacles, noBombs, slowerSong);
 
                     //Nice responsive scroll buttons
-                    if (Instance._listIndex <= 0) _pageUpButton.interactable = false;
-                    if (Instance.customOptions.Count > 0) _pageDownButton.interactable = true;
+                    if (Instance._listIndex <= 0) _pageUpButton.gameObject.SetActive(false);
+                    if (Instance.customOptions.Count > 0) _pageDownButton.gameObject.SetActive(true);
                 });
 
                 //Create down button
@@ -145,6 +146,7 @@ namespace CustomUI.GameplaySettings
                 _pageDownButton.transform.parent = container.parent;
                 _pageDownButton.transform.localScale = Vector3.one/2;
                 _pageDownButton.transform.localPosition -= new Vector3(0, 7f);
+                _pageDownButton.interactable = true;
                 //(_pageDownButton.transform as RectTransform).sizeDelta = new Vector2((_pageDownButton.transform.parent as RectTransform).sizeDelta.x, (_pageDownButton.transform as RectTransform).sizeDelta.y);
                 _pageDownButton.onClick.RemoveAllListeners();
                 _pageDownButton.onClick.AddListener(delegate ()
@@ -152,12 +154,12 @@ namespace CustomUI.GameplaySettings
                     Instance.ChangePage(++Instance._listIndex, container, noFail, noObstacles, noBombs, slowerSong);
 
                     //Nice responsive scroll buttons
-                    if (Instance._listIndex >= 0) _pageUpButton.interactable = true;
-                    if (((Instance.customOptions.Count + 4 - 1) / 4) - Instance._listIndex <= 0) _pageDownButton.interactable = false;
+                    if (Instance._listIndex >= 0) _pageUpButton.gameObject.SetActive(true);
+                    if (((Instance.customOptions.Count + 4 - 1) / 4) - Instance._listIndex <= 0) _pageDownButton.gameObject.SetActive(false);
                 });
 
-                _pageUpButton.interactable = false;
-                _pageDownButton.interactable = Instance.customOptions.Count > 0;
+                _pageUpButton.gameObject.SetActive(false);
+                _pageDownButton.gameObject.SetActive(Instance.customOptions.Count > 0);
 
                 //Unfortunately, due to weird object creation for versioning, this doesn't always
                 //happen when the scene changes
