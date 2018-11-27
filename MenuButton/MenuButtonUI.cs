@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using CustomUI.BeatSaber;
+using System.Collections;
 
 namespace CustomUI.MenuButton
 {
@@ -24,7 +25,10 @@ namespace CustomUI.MenuButton
             get
             {
                 if (_instance == null)
+                {
                     _instance = new GameObject("MenuButtonUI").AddComponent<MenuButtonUI>();
+                    Init();
+                }
                 return _instance;
             }
             private set
@@ -36,14 +40,16 @@ namespace CustomUI.MenuButton
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
+        }
 
+        private static void Init()
+        {
             // Find Menu buttons
             bottomPanel = GameObject.Find("BottomPanel").transform as RectTransform;
             menuButtonsOriginal = bottomPanel.Find("Buttons") as RectTransform;
-
             buttonsInCurrentRow = ButtonsPerRow;
         }
-
+        
         private static RectTransform AddRow()
         {
             RectTransform newRow = RectTransform.Instantiate(menuButtonsOriginal, bottomPanel);
@@ -56,8 +62,9 @@ namespace CustomUI.MenuButton
             return newRow;
         }
 
-        public static void AddButton(string buttonText, UnityAction onClick, Sprite icon = null)
+        private static IEnumerator AddButtonDelayed(string text, UnityAction onClick, Sprite icon)
         {
+            yield return new WaitForSeconds(0.1f);
             lock (Instance)
             {
                 if (buttonsInCurrentRow >= ButtonsPerRow)
@@ -65,9 +72,14 @@ namespace CustomUI.MenuButton
                     currentRow = AddRow();
                     buttonsInCurrentRow = 0;
                 }
-                Button newButton = BeatSaberUI.CreateUIButton(currentRow as RectTransform, "QuitButton", onClick, buttonText, icon);
+                Button newButton = BeatSaberUI.CreateUIButton(currentRow as RectTransform, "QuitButton", onClick, text, icon);
                 buttonsInCurrentRow++;
             }
+        }
+
+        public static void AddButton(string buttonText, UnityAction onClick, Sprite icon = null)
+        {
+            SharedCoroutineStarter.instance.StartCoroutine(AddButtonDelayed(buttonText, onClick, icon));
         }
     }
 }
