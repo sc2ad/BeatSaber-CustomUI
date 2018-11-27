@@ -46,7 +46,6 @@ namespace CustomUI.MenuButton
 
         private static RectTransform AddRow()
         {
-            Console.WriteLine("adding row: ");
             RectTransform newRow = RectTransform.Instantiate(menuButtonsOriginal, bottomPanel);
             foreach (Transform child in newRow)
             {
