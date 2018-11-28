@@ -18,31 +18,33 @@ namespace CustomUI.GameplaySettings
         public Sprite optionIcon;
         public string hintText;
         public bool initialized;
+        public float multiplier;
         protected List<string> conflicts = new List<string>();
         public abstract void Instantiate();
-        public void AddConflict(string gameplayModifierToggleName)
+        public void AddConflict(string modifierName)
         {
-            conflicts.Add(gameplayModifierToggleName);
+            if (modifierName == optionName) return;
+            conflicts.Add(modifierName);
         }
     }
-
-
+    
     public class ToggleOption : GameOption
     {
         public event Action<bool> OnToggle;
         public bool GetValue = false;
 
-        public ToggleOption(string optionName, string hintText, Sprite optionIcon)
+        public ToggleOption(string optionName, string hintText, Sprite optionIcon, float multiplier)
         {
             this.optionName = optionName;
             this.hintText = hintText;
             this.optionIcon = optionIcon;
+            this.multiplier = multiplier;
         }
 
         public override void Instantiate()
         {
             if (initialized) return;
-
+            
             //We have to find our own target
             //TODO: Clean up time complexity issue. This is called for each new option
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
@@ -57,48 +59,67 @@ namespace CustomUI.GameplaySettings
             gameObject.transform.localScale = Vector3.one;
             gameObject.transform.rotation = Quaternion.identity;
             gameObject.SetActive(false);
-            
-            var gmt = gameObject.GetComponent<GameplayModifierToggle>();
-            if (gmt != null)
-            {
-                gmt.toggle.isOn = GetValue;
-                gmt.toggle.onValueChanged.RemoveAllListeners();
-                gmt.toggle.onValueChanged.AddListener((bool e) => { OnToggle?.Invoke(e); });
-                gmt.name = optionName;
 
-                foreach (string conflict in conflicts)
-                {
-                    if (conflict != optionName)
+            string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
+            var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
+            if (currentToggle != null)
+            {
+                currentToggle.toggle.isOn = GetValue;
+                currentToggle.toggle.onValueChanged.RemoveAllListeners();
+                currentToggle.toggle.onValueChanged.AddListener((bool e) => { OnToggle?.Invoke(e); });
+                currentToggle.name = optionName.Replace(" ", "");
+
+                GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
+
+                if (conflicts.Count > 0) {
+                    hintText += ConflictText;
+                    foreach (string conflict in conflicts)
                     {
-                        var conflictingModifier = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().Where(t => t.name == conflict).First();
+                        var conflictingModifier = gameplayModifierToggles.Where(t => t?.gameplayModifier?.modifierName == conflict).FirstOrDefault();
                         if (conflictingModifier)
                         {
-                            conflictingModifier.toggle.onValueChanged.AddListener((e) => { if(e) gmt.toggle.isOn = false; });
+                            if (!hintText.Contains(ConflictText))
+                                hintText += ConflictText;
+
+                            hintText += Char.ConvertFromUtf32((char)0xE069) + conflict + Char.ConvertFromUtf32((char)0xE069);
                         }
-                        gmt.toggle.onValueChanged.AddListener((e) => { if(e) conflictingModifier.toggle.isOn = false; });
                     }
                 }
 
                 GameplayModifierParamsSO _gameplayModifier = new GameplayModifierParamsSO();
                 _gameplayModifier.SetPrivateField("_modifierName", optionName);
                 _gameplayModifier.SetPrivateField("_hintText", hintText);
-                _gameplayModifier.SetPrivateField("_multiplier", 0.0f);
-                _gameplayModifier.SetPrivateField("_icon", optionIcon == null ? gmt.GetPrivateField<GameplayModifierParamsSO>("_gameplayModifier").icon : optionIcon);
-                gmt.SetPrivateField("_gameplayModifier", _gameplayModifier);
+                _gameplayModifier.SetPrivateField("_multiplier", multiplier);
+                _gameplayModifier.SetPrivateField("_icon", optionIcon == null ? currentToggle.GetPrivateField<GameplayModifierParamsSO>("_gameplayModifier").icon : optionIcon);
+                currentToggle.SetPrivateField("_gameplayModifier", _gameplayModifier);
+
+                string currentDisplayName = Char.ConvertFromUtf32((char)0xE069) + optionName + Char.ConvertFromUtf32((char)0xE069);
+                foreach (string conflictingModifierName in conflicts)
+                {
+                    GameplayModifierToggle conflictToggle = gameplayModifierToggles.Where(t => t?.gameplayModifier?.modifierName == conflictingModifierName).FirstOrDefault();
+                    if (conflictToggle)
+                    {
+                        if (!conflictToggle.gameplayModifier.hintText.Contains(ConflictText))
+                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + ConflictText);
+
+                        if (!conflictToggle.gameplayModifier.hintText.Contains(currentDisplayName))
+                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + currentDisplayName);
+
+                        conflictToggle.toggle.onValueChanged.AddListener((e) => { if (e) currentToggle.toggle.isOn = false; });
+                        currentToggle.toggle.onValueChanged.AddListener((e) => { if (e) conflictToggle.toggle.isOn = false; });
+                    }
+                }
 
                 if (hintText != String.Empty)
                 {
-                    var hoverHint = gmt.GetPrivateField<HoverHint>("_hoverHint");
+                    HoverHint hoverHint = currentToggle.GetPrivateField<HoverHint>("_hoverHint");
                     hoverHint.text = hintText;
                     hoverHint.name = optionName;
                     hoverHint.enabled = true;
-                    var hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
+                    HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
                     hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
                 }
             }
-
-           
-
             initialized = true;
         }
     }
