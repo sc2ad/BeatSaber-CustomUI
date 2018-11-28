@@ -14,6 +14,9 @@ namespace CustomUI.Settings
         public delegate void SetBool(bool value);
         public event SetBool SetValue;
 
+        public string EnabledText = "ON";
+        public string DisabledText = "OFF";
+        
         protected override bool GetInitValue()
         {
             bool value = false;
@@ -34,7 +37,7 @@ namespace CustomUI.Settings
 
         protected override string TextForValue(bool value)
         {
-            return (value) ? "ON" : "OFF";
+            return (value) ? EnabledText : DisabledText;
         }
     }
 

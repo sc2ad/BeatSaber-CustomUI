@@ -51,10 +51,11 @@ namespace CustomUI.GameplaySettings
                 if (Instance)
                     Destroy(Instance.gameObject);
                 initialized = false;
-                Instance = null;
             }
-            else
+            else if (to.name == "Menu")
+            {
                 Build();
+            }
         }
 
         //Returns a list of options for the current page index

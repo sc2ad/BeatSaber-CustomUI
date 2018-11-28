@@ -58,7 +58,6 @@ namespace CustomUI.Settings
                 if (Instance)
                     Destroy(Instance.gameObject);
                 initialized = false;
-                Instance = null;
             }
         }
 

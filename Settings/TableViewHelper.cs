@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace CustomUI.Settings
 {
-    class TableViewHelper : MonoBehaviour
+    public class TableViewHelper : MonoBehaviour
     {
         TableView table;
         RectTransform viewport;

@@ -62,8 +62,6 @@ namespace CustomUI.MenuButton
         private void Init()
         {
             // Find Menu buttons
-            bottomPanel = GameObject.Find("BottomPanel").transform as RectTransform;
-            menuButtonsOriginal = bottomPanel.Find("Buttons") as RectTransform;
             buttonsInCurrentRow = ButtonsPerRow;
         }
         
@@ -81,9 +79,11 @@ namespace CustomUI.MenuButton
 
         private static IEnumerator AddButtonDelayed(string text, UnityAction onClick, Sprite icon)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitUntil(() => GameObject.Find("MainMenuViewController/BottomPanel"));
             lock (Instance)
             {
+                Instance.bottomPanel = GameObject.Find("MainMenuViewController/BottomPanel").transform as RectTransform;
+                Instance.menuButtonsOriginal = Instance.bottomPanel.Find("Buttons") as RectTransform;
                 if (Instance.buttonsInCurrentRow >= ButtonsPerRow)
                 {
                     Instance.currentRow = Instance.AddRow();
