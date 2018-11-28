@@ -92,7 +92,7 @@ namespace CustomUI.GameplaySettings
             }
         }
 
-        public static ToggleOption CreateToggleOption(string optionName, string hintText = "", Sprite optionIcon = null, float multiplier = 0f)
+        public static ToggleOption CreateToggleOption(string optionName, string hintText, Sprite optionIcon, float multiplier)
         {
             lock (Instance)
             {
@@ -102,12 +102,12 @@ namespace CustomUI.GameplaySettings
             }
         }
         
-        public static ToggleOption CreateToggleOption(string optionName, string hintText = "", Sprite optionIcon = null)
+        public static ToggleOption CreateToggleOption(string optionName, string hintText, Sprite optionIcon)
         {
             return CreateToggleOption(optionName, hintText, optionIcon, 0f);
         }
 
-        public static ToggleOption CreateToggleOption(string optionName, string hintText = "")
+        public static ToggleOption CreateToggleOption(string optionName, string hintText)
         {
             return CreateToggleOption(optionName, hintText, null, 0f);
         }
