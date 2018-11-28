@@ -3,6 +3,7 @@ This mod allows for Beat Saber mod developers to implement custom settings user 
 
 # Example Usage
 *It's important that you setup your settings options in the SceneManager_sceneLoaded event when the "Menu" scene is loaded! It can't be the SceneManager_activeSceneChanged event!*
+
 ```cs
 bool toggleValue = false;
 private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1) 
@@ -23,4 +24,5 @@ private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
     
     MenuButtonUI.AddButton("Test Button", delegate { Console.WriteLine("Pushed test button!"); });
   }
-}```
+}
+```
