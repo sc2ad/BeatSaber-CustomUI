@@ -23,4 +23,4 @@ private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
     
     MenuButtonUI.AddButton("Test Button", delegate { Console.WriteLine("Pushed test button!"); });
   }
-}
+}```
