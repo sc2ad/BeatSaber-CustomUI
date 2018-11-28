@@ -18,7 +18,12 @@ namespace CustomUI.GameplaySettings
         public Sprite optionIcon;
         public string hintText;
         public bool initialized;
+        protected List<string> conflicts = new List<string>();
         public abstract void Instantiate();
+        public void AddConflict(string gameplayModifierToggleName)
+        {
+            conflicts.Add(gameplayModifierToggleName);
+        }
     }
 
 
@@ -59,6 +64,20 @@ namespace CustomUI.GameplaySettings
                 gmt.toggle.isOn = GetValue;
                 gmt.toggle.onValueChanged.RemoveAllListeners();
                 gmt.toggle.onValueChanged.AddListener((bool e) => { OnToggle?.Invoke(e); });
+                gmt.name = optionName;
+
+                foreach (string conflict in conflicts)
+                {
+                    if (conflict != optionName)
+                    {
+                        var conflictingModifier = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().Where(t => t.name == conflict).First();
+                        if (conflictingModifier)
+                        {
+                            conflictingModifier.toggle.onValueChanged.AddListener((e) => { if(e) gmt.toggle.isOn = false; });
+                        }
+                        gmt.toggle.onValueChanged.AddListener((e) => { if(e) conflictingModifier.toggle.isOn = false; });
+                    }
+                }
 
                 GameplayModifierParamsSO _gameplayModifier = new GameplayModifierParamsSO();
                 _gameplayModifier.SetPrivateField("_modifierName", optionName);
