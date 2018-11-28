@@ -79,7 +79,10 @@ namespace CustomUI.MenuButton
 
         private static IEnumerator AddButtonDelayed(string text, UnityAction onClick, Sprite icon)
         {
-            yield return new WaitUntil(() => GameObject.Find("MainMenuViewController/BottomPanel"));
+            yield return new WaitUntil(() => GameObject.Find("MainMenuViewController/BottomPanel") || SceneManager.GetActiveScene().name == "EmptyTransition");
+            if (SceneManager.GetActiveScene().name == "EmptyTransition")
+                yield break;
+
             lock (Instance)
             {
                 Instance.bottomPanel = GameObject.Find("MainMenuViewController/BottomPanel").transform as RectTransform;
