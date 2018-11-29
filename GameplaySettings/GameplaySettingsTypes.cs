@@ -185,6 +185,11 @@ namespace CustomUI.GameplaySettings
             //Initialize the controller, as if we had just opened the settings menu
             newListSettingsController.Init();
             var value = newListSettingsController.gameObject.transform.Find("Value");
+            var valueText = value.Find("ValueText");
+            TMP_Text valueTextObject = valueText.GetComponent<TMP_Text>();
+            valueTextObject.lineSpacing = -50;
+            valueTextObject.alignment = TextAlignmentOptions.CenterGeoAligned;
+
             var nameText = newListSettingsController.gameObject.transform.Find("NameText");
             nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
             value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
@@ -201,12 +206,12 @@ namespace CustomUI.GameplaySettings
             dec.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             var inc = value.Find("IncButton");
             inc.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            value.localPosition -= new Vector3(8, 0.3f);
 
-            value.localPosition -= new Vector3(8, 0);
             gameObject.SetActive(false);
             initialized = true;
         }
-
+        
         public void AddOption(float value)
         {
             _options.Add(value, Convert.ToString(value));
