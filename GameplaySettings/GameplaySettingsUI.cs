@@ -77,42 +77,44 @@ namespace CustomUI.GameplaySettings
             var options = Instance.GetOptionsForPage(Instance._listIndex);
             bool defaultsActive = options == null;
             defaults?.ToList().ForEach(x => x.gameObject.SetActive(defaultsActive));
-
-
+            
             if (defaultsActive)
             {
                 for (int i = 0; i < defaultSeparators.Count; i++)
                     defaultSeparators[i].gameObject.SetActive(true);
 
-                customOptions.ElementAt(0)?.separator.SetActive(false);
+                customOptions.ForEach(o => o.separator.SetActive(false));
             }
             else
             {
-                for (int i = 0; i < defaultSeparators.Count; i++)
-                    defaultSeparators[i].gameObject.SetActive(false);
-
                 foreach (GameOption g in customOptions)
                     g.separator.SetActive(false);
 
                 options[options.Count-1].separator.SetActive(false);
                 for (int i = 0; i < options.Count-1; i++)
                     options[i].separator.SetActive(true);
+
+                defaultSeparators.ForEach(s => s.gameObject.SetActive(false));
             }
-
-
+            
             //Custom options
             Instance.customOptions?.ToList().ForEach(x => x.gameObject.SetActive(false));
             if (!defaultsActive) options?.ToList().ForEach(x => x.gameObject.SetActive(true));
         }
 
-        public static MultiSelectOption CreateListOption(string optionName)
+        public static MultiSelectOption CreateListOption(string optionName, string hintText)
         {
             lock (Instance)
             {
-                MultiSelectOption ret = new MultiSelectOption(optionName);
+                MultiSelectOption ret = new MultiSelectOption(optionName, hintText);
                 Instance.customOptions.Add(ret);
                 return ret;
             }
+        }
+
+        public static MultiSelectOption CreateListOption(string optionName)
+        {
+            return CreateListOption(optionName, "");
         }
 
         public static ToggleOption CreateToggleOption(string optionName, string hintText, Sprite optionIcon, float multiplier)
@@ -151,18 +153,12 @@ namespace CustomUI.GameplaySettings
 
             if (!initialized)
             {
-                //container.sizeDelta = new Vector2(container.sizeDelta.x, container.sizeDelta.y + 7f); //Grow container so it aligns properly with text
-                
                 //Get references to the original switches, so we can later duplicate then destroy them
                 Transform noFail = container.Find("NoFail");
                 Transform noObstacles = container.Find("NoObstacles");
                 Transform noBombs = container.Find("NoBombs");
                 Transform slowerSong = container.Find("SlowerSong");
-
-                //Get references to other UI elements we need to hide
-                //Transform divider = (RectTransform)_govc.transform.Find("Switches").Find("Separator");
-                //Transform defaults = (RectTransform)_govc.transform.Find("Switches").Find("DefaultsButton");
-
+                
                 foreach (Transform t in container)
                 {
                     if (t.name.StartsWith("Separator"))

@@ -18,7 +18,6 @@ namespace CustomUI.GameplaySettings
         public Sprite optionIcon;
         public string hintText;
         public bool initialized;
-        public float multiplier;
         public GameObject separator;
         protected List<string> conflicts = new List<string>();
         public abstract void Instantiate();
@@ -33,6 +32,8 @@ namespace CustomUI.GameplaySettings
     {
         public event Action<bool> OnToggle;
         public bool GetValue = false;
+
+        public float multiplier;
 
         public ToggleOption(string optionName, string hintText, Sprite optionIcon, float multiplier)
         {
@@ -120,7 +121,6 @@ namespace CustomUI.GameplaySettings
                     HoverHint hoverHint = currentToggle.GetPrivateField<HoverHint>("_hoverHint");
                     hoverHint.text = hintText;
                     hoverHint.name = optionName;
-                    hoverHint.enabled = true;
                     HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
                     hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
                 }
@@ -135,9 +135,10 @@ namespace CustomUI.GameplaySettings
         public Func<float> GetValue;
         public event Action<float> OnChange;
 
-        public MultiSelectOption(string optionName)
+        public MultiSelectOption(string optionName, string hintText)
         {
             this.optionName = optionName;
+            this.hintText = hintText;
         }
 
         public override void Instantiate()
@@ -161,6 +162,7 @@ namespace CustomUI.GameplaySettings
 
             //Slim down the toggle option so it fits in the space we have before the divider
             (gameObject.transform as RectTransform).sizeDelta = new Vector2(50, (gameObject.transform as RectTransform).sizeDelta.y);
+            
 
             //This magical nonsense is courtesy of Taz and his SettingsUI class
             VolumeSettingsController volume = gameObject.GetComponent<VolumeSettingsController>();
@@ -182,6 +184,24 @@ namespace CustomUI.GameplaySettings
 
             //Initialize the controller, as if we had just opened the settings menu
             newListSettingsController.Init();
+            var value = newListSettingsController.gameObject.transform.Find("Value");
+            var nameText = newListSettingsController.gameObject.transform.Find("NameText");
+            value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            if (hintText != String.Empty)
+            {
+                var hoverHint = nameText.gameObject.AddComponent<HoverHint>();
+                hoverHint.text = hintText;
+                hoverHint.name = optionName;
+                HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
+                hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
+            }
+
+            var dec = value.Find("DecButton");
+            dec.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            var inc = value.Find("IncButton");
+            inc.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+
+            value.localPosition -= new Vector3(8, 0);
             gameObject.SetActive(false);
             initialized = true;
         }
