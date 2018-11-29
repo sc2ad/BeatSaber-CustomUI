@@ -217,10 +217,10 @@ namespace CustomUI.GameplaySettings
             }
 
             //Create custom options
-            foreach (object option in Instance.customOptions)
+            foreach (GameOption option in Instance.customOptions)
             {
                 //Due to possible "different" types (due to cross-plugin support), we need to do this through reflection
-                option.InvokeMethod("Instantiate");
+                option.Instantiate();
             }
         }
     }

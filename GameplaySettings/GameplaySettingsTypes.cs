@@ -71,7 +71,7 @@ namespace CustomUI.GameplaySettings
             {
                 currentToggle.toggle.isOn = GetValue;
                 currentToggle.toggle.onValueChanged.RemoveAllListeners();
-                currentToggle.toggle.onValueChanged.AddListener((bool e) => { OnToggle?.Invoke(e); });
+                currentToggle.toggle.onValueChanged.AddListener((bool e) => OnToggle?.Invoke(e));
                 currentToggle.name = optionName.Replace(" ", "");
 
                 GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
