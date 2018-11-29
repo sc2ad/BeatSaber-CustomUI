@@ -55,7 +55,7 @@ namespace CustomUI.GameplaySettings
             gameObject = UnityEngine.Object.Instantiate(container.Find("NoFail").gameObject, container);
             gameObject.name = optionName;
             gameObject.layer = container.gameObject.layer;
-            gameObject.transform.parent = container;
+            gameObject.transform.SetParent(container);
             gameObject.transform.localPosition = Vector3.zero;
             gameObject.transform.localScale = Vector3.one;
             gameObject.transform.rotation = Quaternion.identity;
@@ -154,6 +154,10 @@ namespace CustomUI.GameplaySettings
             gameObject = UnityEngine.Object.Instantiate(volumeSettings.gameObject, container);
             gameObject.name = optionName;
             gameObject.GetComponentInChildren<TMP_Text>().text = optionName;
+
+            separator = UnityEngine.Object.Instantiate(container.Find("Separator").gameObject, container);
+            separator.name = "ExtraSeparator";
+            separator.SetActive(false);
 
             //Slim down the toggle option so it fits in the space we have before the divider
             (gameObject.transform as RectTransform).sizeDelta = new Vector2(50, (gameObject.transform as RectTransform).sizeDelta.y);

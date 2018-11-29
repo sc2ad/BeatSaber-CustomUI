@@ -109,7 +109,7 @@ namespace CustomUI.Settings
                 {
                     _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
 
-                    _pageUpButton.transform.parent = container.parent;
+                    _pageUpButton.transform.SetParent(container.parent);
                     _pageUpButton.transform.localScale = Vector3.one;
                     _pageUpButton.transform.localPosition -= new Vector3(0, 4.5f);
                     _pageUpButton.interactable = false;
@@ -123,7 +123,7 @@ namespace CustomUI.Settings
                 {
                     _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
 
-                    _pageDownButton.transform.parent = container.parent;
+                    _pageDownButton.transform.SetParent(container.parent);
                     _pageDownButton.transform.localScale = Vector3.one;
                     _pageDownButton.transform.localPosition -= new Vector3(0, 6.5f);
                     _pageDownButton.interactable = false;
