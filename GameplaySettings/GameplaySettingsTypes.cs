@@ -19,6 +19,7 @@ namespace CustomUI.GameplaySettings
         public string hintText;
         public bool initialized;
         public float multiplier;
+        public GameObject separator;
         protected List<string> conflicts = new List<string>();
         public abstract void Instantiate();
         public void AddConflict(string modifierName)
@@ -50,7 +51,7 @@ namespace CustomUI.GameplaySettings
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
             RectTransform container = (RectTransform)gsvc.transform.Find("GameplayModifiers").Find("RightColumn");
-
+            
             gameObject = UnityEngine.Object.Instantiate(container.Find("NoFail").gameObject, container);
             gameObject.name = optionName;
             gameObject.layer = container.gameObject.layer;
@@ -59,6 +60,10 @@ namespace CustomUI.GameplaySettings
             gameObject.transform.localScale = Vector3.one;
             gameObject.transform.rotation = Quaternion.identity;
             gameObject.SetActive(false);
+
+            separator = UnityEngine.Object.Instantiate(container.Find("Separator").gameObject, container);
+            separator.name = "ExtraSeparator";
+            separator.SetActive(false);
 
             string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
             var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();

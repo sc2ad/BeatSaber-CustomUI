@@ -70,6 +70,7 @@ namespace CustomUI.MenuButton
             RectTransform newRow = RectTransform.Instantiate(menuButtonsOriginal, bottomPanel);
             foreach (Transform child in newRow)
             {
+                child.name = String.Empty;
                 GameObject.Destroy(child.gameObject);
             }
             rowCount++;

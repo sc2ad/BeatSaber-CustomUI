@@ -16,7 +16,8 @@ namespace CustomUI.GameplaySettings
         private Button _pageDownButton = null;
         private Button _pageUpButton = null;
         private int _listIndex = 0;
-        private IList<object> customOptions = new List<object>();
+        private List<GameOption> customOptions = new List<GameOption>();
+        private List<Transform> defaultSeparators = new List<Transform>();
 
         private static GameplaySettingsUI _instance = null;
         public static GameplaySettingsUI Instance
@@ -59,13 +60,13 @@ namespace CustomUI.GameplaySettings
         }
 
         //Returns a list of options for the current page index
-        private IList<object> GetOptionsForPage(int page)
+        private List<GameOption> GetOptionsForPage(int page)
         {
             //Default options
             if (page == 0) return null;
 
             page--; //If the page isn't 0, we should pick from the 0th pagination of our list
-
+            
             //Get 4 custom options and return them
             return customOptions.Skip(4 * page).Take(4).ToList();
         }
@@ -77,9 +78,31 @@ namespace CustomUI.GameplaySettings
             bool defaultsActive = options == null;
             defaults?.ToList().ForEach(x => x.gameObject.SetActive(defaultsActive));
 
+
+            if (defaultsActive)
+            {
+                for (int i = 0; i < defaultSeparators.Count; i++)
+                    defaultSeparators[i].gameObject.SetActive(true);
+
+                customOptions.ElementAt(0)?.separator.SetActive(false);
+            }
+            else
+            {
+                for (int i = 0; i < defaultSeparators.Count; i++)
+                    defaultSeparators[i].gameObject.SetActive(false);
+
+                foreach (GameOption g in customOptions)
+                    g.separator.SetActive(false);
+
+                options[options.Count-1].separator.SetActive(false);
+                for (int i = 0; i < options.Count-1; i++)
+                    options[i].separator.SetActive(true);
+            }
+
+
             //Custom options
-            Instance.customOptions?.ToList().ForEach(x => x.GetField<GameObject>("gameObject").SetActive(false));
-            if (!defaultsActive) options?.ToList().ForEach(x => x.GetField<GameObject>("gameObject").SetActive(true));
+            Instance.customOptions?.ToList().ForEach(x => x.gameObject.SetActive(false));
+            if (!defaultsActive) options?.ToList().ForEach(x => x.gameObject.SetActive(true));
         }
 
         public static MultiSelectOption CreateListOption(string optionName)
@@ -139,6 +162,15 @@ namespace CustomUI.GameplaySettings
                 //Get references to other UI elements we need to hide
                 //Transform divider = (RectTransform)_govc.transform.Find("Switches").Find("Separator");
                 //Transform defaults = (RectTransform)_govc.transform.Find("Switches").Find("DefaultsButton");
+
+                foreach (Transform t in container)
+                {
+                    if (t.name.StartsWith("Separator"))
+                    {
+                        defaultSeparators.Add(t);
+                    }
+                }
+                defaultSeparators.Reverse();
 
                 //Create up button
                 _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
