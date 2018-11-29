@@ -10,15 +10,19 @@ private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
 {
   if (arg0.name == "Menu")
   {
-    var toggle = GameplaySettingsUI.CreateToggleOption("Test Option", "This is a short description of the option, which will be displayed as a tooltip when you hover over it");
+    Sprite icon = UIUtilities.LoadSpriteFromResources("TestNamespace.TestFolderName.TestImageName.png");
+  
+    ToggleOption toggle = GameplaySettingsUI.CreateToggleOption("Test Option", "This is a short description of the option, which will be displayed as a tooltip when you hover over it", icon);
+    toggle.AddConflict("Another Gameplay Option");
+
     toggle.GetValue = toggleValue;
     toggle.OnToggle += ((bool e) =>
     {
       toggleValue = e;
     });
 
-    var settingsSubmenu = SettingsUI.CreateSubMenu("Test Submenu");
-    var testInt = settingsSubmenu.AddInt("Test Int", 0, 100, 1);
+    SubMenu settingsSubmenu = SettingsUI.CreateSubMenu("Test Submenu");
+    IntViewController testInt = settingsSubmenu.AddInt("Test Int", 0, 100, 1);
     testInt.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "Test Int", 0, true); };
     testInt.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "Test Int", value); };
     
