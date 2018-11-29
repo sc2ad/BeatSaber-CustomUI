@@ -186,6 +186,7 @@ namespace CustomUI.GameplaySettings
             newListSettingsController.Init();
             var value = newListSettingsController.gameObject.transform.Find("Value");
             var nameText = newListSettingsController.gameObject.transform.Find("NameText");
+            nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
             value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             if (hintText != String.Empty)
             {
