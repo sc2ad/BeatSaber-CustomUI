@@ -11,6 +11,14 @@ using CustomUI.Settings;
 
 namespace CustomUI.GameplaySettings
 {
+    public enum GameplaySettingsPanels
+    {
+        ModifiersRight,
+        ModifiersLeft,
+        PlayerSettingsRight,
+        PlayerSettingsLeft
+    };
+    
     public abstract class GameOption
     {
         public GameObject gameObject;
@@ -19,12 +27,73 @@ namespace CustomUI.GameplaySettings
         public string hintText;
         public bool initialized;
         public GameObject separator;
+        protected string panelName;
+        protected string pageName;
         protected List<string> conflicts = new List<string>();
         public abstract void Instantiate();
         public void AddConflict(string modifierName)
         {
             if (modifierName == optionName) return;
             conflicts.Add(modifierName);
+        }
+
+        public void SetPanel(GameplaySettingsPanels panel)
+        {
+            GetPanelNames(panel, ref pageName, ref panelName);
+        }
+
+        public static void GetPanelNames(GameplaySettingsPanels panel, ref string pageName, ref string panelName)
+        {
+            switch (panel)
+            {
+                case GameplaySettingsPanels.ModifiersRight:
+                    pageName = "GameplayModifiers";
+                    panelName = "RightColumn";
+                    break;
+                case GameplaySettingsPanels.ModifiersLeft:
+                    pageName = "GameplayModifiers";
+                    panelName = "LeftColumn";
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsRight:
+                    pageName = "PlayerSettings";
+                    panelName = "RightPanel";
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsLeft:
+                    pageName = "PlayerSettings";
+                    panelName = "LeftPanel";
+                    break;
+            }
+        }
+
+        public static void GetOptionTransforms(GameplaySettingsPanels panel, RectTransform container, ref Transform option1, ref Transform option2, ref Transform option3, ref Transform option4)
+        {
+            switch (panel)
+            {
+                case GameplaySettingsPanels.ModifiersRight:
+                    option1 = container.Find("NoFail");
+                    option2 = container.Find("NoObstacles");
+                    option3 = container.Find("NoBombs");
+                    option4 = container.Find("SlowerSong");
+                    break;
+                case GameplaySettingsPanels.ModifiersLeft:
+                    option1 = container.Find("InstaFail");
+                    option2 = container.Find("BatteryEnergy");
+                    option3 = container.Find("DisappearingArrows");
+                    option4 = container.Find("FasterSong");
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsRight:
+                    option1 = container.Find("NoTextsAndHUDs");
+                    option2 = container.Find("AdvancedHUD");
+                    option3 = container.Find("SoundFX");
+                    option4 = container.Find("ReduceDebris");
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsLeft:
+                    option1 = container.Find("LeftHanded");
+                    option2 = container.Find("SwapColors");
+                    option3 = container.Find("StaticLights");
+                    option4 = container.Find("PlayerHeight");
+                    break;
+            }
         }
     }
     
@@ -51,9 +120,9 @@ namespace CustomUI.GameplaySettings
             //TODO: Clean up time complexity issue. This is called for each new option
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
-            RectTransform container = (RectTransform)gsvc.transform.Find("GameplayModifiers").Find("RightColumn");
+            RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
             
-            gameObject = UnityEngine.Object.Instantiate(container.Find("NoFail").gameObject, container);
+            gameObject = UnityEngine.Object.Instantiate(Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().FirstOrDefault().gameObject, container);
             gameObject.name = optionName;
             gameObject.layer = container.gameObject.layer;
             gameObject.transform.SetParent(container);
@@ -61,10 +130,17 @@ namespace CustomUI.GameplaySettings
             gameObject.transform.localScale = Vector3.one;
             gameObject.transform.rotation = Quaternion.identity;
             gameObject.SetActive(false);
-
-            separator = UnityEngine.Object.Instantiate(container.Find("Separator").gameObject, container);
-            separator.name = "ExtraSeparator";
-            separator.SetActive(false);
+            
+            foreach (Transform t in container)
+            {
+                if (t.name.StartsWith("Separator"))
+                {
+                    separator = UnityEngine.Object.Instantiate(t.gameObject, container);
+                    separator.name = "ExtraSeparator";
+                    separator.SetActive(false);
+                    break;
+                }
+            }
 
             string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
             var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
@@ -77,7 +153,8 @@ namespace CustomUI.GameplaySettings
 
                 GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
 
-                if (conflicts.Count > 0) {
+                if (conflicts.Count > 0)
+                {
                     hintText += ConflictText;
                     foreach (string conflict in conflicts)
                     {
@@ -149,16 +226,23 @@ namespace CustomUI.GameplaySettings
             //TODO: Clean up time complexity issue. This is called for each new option
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
-            RectTransform container = (RectTransform)gsvc.transform.Find("GameplayModifiers").Find("RightColumn");
-
+            RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
+            
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
             gameObject = UnityEngine.Object.Instantiate(volumeSettings.gameObject, container);
             gameObject.name = optionName;
             gameObject.GetComponentInChildren<TMP_Text>().text = optionName;
-
-            separator = UnityEngine.Object.Instantiate(container.Find("Separator").gameObject, container);
-            separator.name = "ExtraSeparator";
-            separator.SetActive(false);
+            
+            foreach (Transform t in container)
+            {
+                if (t.name.StartsWith("Separator"))
+                {
+                    separator = UnityEngine.Object.Instantiate(t.gameObject, container);
+                    separator.name = "ExtraSeparator";
+                    separator.SetActive(false);
+                    break;
+                }
+            }
 
             //Slim down the toggle option so it fits in the space we have before the divider
             (gameObject.transform as RectTransform).sizeDelta = new Vector2(50, (gameObject.transform as RectTransform).sizeDelta.y);

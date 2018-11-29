@@ -148,6 +148,7 @@ namespace CustomUI.Settings
                 Instance.SetupUI();
 
                 var subMenuGameObject = Instantiate(Instance.othersSubmenu.gameObject, Instance.othersSubmenu.transform.parent);
+                subMenuGameObject.name = name.Replace(" ", "");
                 Transform mainContainer = CleanScreen(subMenuGameObject.transform);
 
                 var newSubMenuInfo = new SettingsSubMenuInfo();
