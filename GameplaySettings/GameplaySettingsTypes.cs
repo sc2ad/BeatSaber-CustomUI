@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using CustomUI.Utilities;
 using CustomUI.Settings;
+using CustomUI.BeatSaber;
 
 namespace CustomUI.GameplaySettings
 {
@@ -278,13 +279,7 @@ namespace CustomUI.GameplaySettings
             nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
             value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             if (hintText != String.Empty)
-            {
-                var hoverHint = nameText.gameObject.AddComponent<HoverHint>();
-                hoverHint.text = hintText;
-                hoverHint.name = optionName;
-                HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
-                hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
-            }
+                BeatSaberUI.AddHintText(nameText as RectTransform, hintText);
 
             var dec = value.Find("DecButton");
             dec.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);

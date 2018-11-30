@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomUI.Utilities;
+using System;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -162,6 +163,16 @@ namespace CustomUI.BeatSaber
             textMesh.rectTransform.anchoredPosition = anchoredPosition;
 
             return textMesh;
+        }
+
+        public static HoverHint AddHintText(RectTransform parent, string text)
+        {
+            var hoverHint = parent.gameObject.AddComponent<HoverHint>();
+            hoverHint.text = text;
+            hoverHint.name = "CustomHintText";
+            HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
+            hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
+            return hoverHint;
         }
     }
 }

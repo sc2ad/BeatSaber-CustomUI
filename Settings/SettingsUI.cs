@@ -1,4 +1,5 @@
-﻿using CustomUI.Utilities;
+﻿using CustomUI.BeatSaber;
+using CustomUI.Utilities;
 using HMUI;
 using System;
 using System.Collections.Generic;
@@ -188,24 +189,40 @@ namespace CustomUI.Settings
 
         public BoolViewController AddBool(string name)
         {
-            return AddToggleSetting<BoolViewController>(name);
+            return AddBool(name, "");
+        }
+        public BoolViewController AddBool(string name, string hintText)
+        {
+            return AddToggleSetting<BoolViewController>(name, hintText);
         }
 
         public IntViewController AddInt(string name, int min, int max, int increment)
         {
-            var view = AddIntSetting<IntViewController>(name);
+            return AddInt(name, "", min, max, increment);
+        }
+        public IntViewController AddInt(string name, string hintText, int min, int max, int increment)
+        {
+            var view = AddIntSetting<IntViewController>(name, hintText);
             view.SetValues(min, max, increment);
             return view;
         }
 
         public ListViewController AddList(string name, float[] values)
         {
-            var view = AddListSetting<ListViewController>(name);
+            return AddList(name, values, "");
+        }
+        public ListViewController AddList(string name, float[] values, string hintText)
+        {
+            var view = AddListSetting<ListViewController>(name, hintText);
             view.values = values.ToList();
             return view;
         }
 
         public T AddListSetting<T>(string name) where T : ListSettingsController
+        {
+            return AddListSetting<T>(name, "");
+        }
+        public T AddListSetting<T>(string name, string hintText) where T : ListSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -215,12 +232,18 @@ namespace CustomUI.Settings
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newListSettingsController;
         }
 
         public T AddToggleSetting<T>(string name) where T : SwitchSettingsController
+        {
+            return AddToggleSetting<T>(name, "");
+        }
+        public T AddToggleSetting<T>(string name, string hintText) where T : SwitchSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -230,12 +253,18 @@ namespace CustomUI.Settings
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SwitchSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }
 
         public T AddIntSetting<T>(string name) where T : IntSettingsController
+        {
+            return AddIntSetting<T>(name, "");
+        }
+        public T AddIntSetting<T>(string name, string hintText) where T : IntSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -245,7 +274,9 @@ namespace CustomUI.Settings
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }

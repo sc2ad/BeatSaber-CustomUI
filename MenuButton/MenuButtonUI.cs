@@ -68,6 +68,8 @@ namespace CustomUI.MenuButton
         private RectTransform AddRow()
         {
             RectTransform newRow = RectTransform.Instantiate(menuButtonsOriginal, bottomPanel);
+            newRow.name = "CustomMenuButtonsRow" + rowCount.ToString();
+
             foreach (Transform child in newRow)
             {
                 child.name = String.Empty;
@@ -88,6 +90,7 @@ namespace CustomUI.MenuButton
             {
                 Instance.bottomPanel = GameObject.Find("MainMenuViewController/BottomPanel").transform as RectTransform;
                 Instance.menuButtonsOriginal = Instance.bottomPanel.Find("Buttons") as RectTransform;
+
                 if (Instance.buttonsInCurrentRow >= ButtonsPerRow)
                 {
                     Instance.currentRow = Instance.AddRow();
