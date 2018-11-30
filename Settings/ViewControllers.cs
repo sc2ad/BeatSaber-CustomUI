@@ -139,22 +139,21 @@ namespace CustomUI.Settings
 
     public class ListViewController : ListSettingsController
     {
-        public Func<float> GetValue = () => default(float);
+        public Func<float> GetValue = () => 0f;
         public Action<float> SetValue = (_) => { };
         public Func<float, string> GetTextForValue = (_) => "?";
 
         public delegate string StringForValue(float value);
         public event StringForValue FormatValue;
 
-        public List<float> values;
+        public List<float> values = new List<float>();
 
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
-            numberOfElements = values.Count;
-            var value = GetValue();
-
             numberOfElements = values.Count();
-            idx = values.FindIndex(v => v.Equals(value));
+
+            int tmpIndex = values.FindIndex(v => v.Equals(GetValue()));
+            idx = tmpIndex == -1 ? 0 : tmpIndex;
         }
 
         protected override void ApplyValue(int idx)
@@ -165,9 +164,8 @@ namespace CustomUI.Settings
         protected override string TextForValue(int idx)
         {
             if (FormatValue != null)
-            {
                 return FormatValue(values[idx]);
-            }
+
             return GetTextForValue(values[idx]);
         }
 

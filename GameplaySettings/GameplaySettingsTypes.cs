@@ -19,7 +19,7 @@ namespace CustomUI.GameplaySettings
         PlayerSettingsRight,
         PlayerSettingsLeft
     };
-    
+
     public abstract class GameOption
     {
         public GameObject gameObject;
@@ -97,7 +97,7 @@ namespace CustomUI.GameplaySettings
             }
         }
     }
-    
+
     public class ToggleOption : GameOption
     {
         public event Action<bool> OnToggle;
@@ -115,14 +115,12 @@ namespace CustomUI.GameplaySettings
 
         public override void Instantiate()
         {
-            if (initialized) return;
-            
             //We have to find our own target
             //TODO: Clean up time complexity issue. This is called for each new option
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
             RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
-            
+
             gameObject = UnityEngine.Object.Instantiate(Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().FirstOrDefault().gameObject, container);
             gameObject.name = optionName;
             gameObject.layer = container.gameObject.layer;
@@ -131,7 +129,7 @@ namespace CustomUI.GameplaySettings
             gameObject.transform.localScale = Vector3.one;
             gameObject.transform.rotation = Quaternion.identity;
             gameObject.SetActive(false);
-            
+
             foreach (Transform t in container)
             {
                 if (t.name.StartsWith("Separator"))
@@ -221,76 +219,81 @@ namespace CustomUI.GameplaySettings
 
         public override void Instantiate()
         {
-            if (initialized) return;
-
-            //We have to find our own target
-            //TODO: Clean up time complexity issue. This is called for each new option
-            SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
-            GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
-            RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
-            
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
-            gameObject = UnityEngine.Object.Instantiate(volumeSettings.gameObject, container);
-            gameObject.name = optionName;
-            gameObject.GetComponentInChildren<TMP_Text>().text = optionName;
-            
-            foreach (Transform t in container)
+            try
             {
-                if (t.name.StartsWith("Separator"))
+                //We have to find our own target
+                //TODO: Clean up time complexity issue. This is called for each new option
+                SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
+                GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
+                RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
+
+                var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+                gameObject = UnityEngine.Object.Instantiate(volumeSettings.gameObject, container);
+                gameObject.name = optionName;
+                gameObject.GetComponentInChildren<TMP_Text>().text = optionName;
+
+                foreach (Transform t in container)
                 {
-                    separator = UnityEngine.Object.Instantiate(t.gameObject, container);
-                    separator.name = "ExtraSeparator";
-                    separator.SetActive(false);
-                    break;
+                    if (t.name.StartsWith("Separator"))
+                    {
+                        separator = UnityEngine.Object.Instantiate(t.gameObject, container);
+                        separator.name = "ExtraSeparator";
+                        separator.SetActive(false);
+                        break;
+                    }
                 }
-            }
 
             //Slim down the toggle option so it fits in the space we have before the divider
             (gameObject.transform as RectTransform).sizeDelta = new Vector2(50, (gameObject.transform as RectTransform).sizeDelta.y);
-            
 
-            //This magical nonsense is courtesy of Taz and his SettingsUI class
-            VolumeSettingsController volume = gameObject.GetComponent<VolumeSettingsController>();
-            ListViewController newListSettingsController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
-            UnityEngine.Object.DestroyImmediate(volume);
+                //This magical nonsense is courtesy of Taz and his SettingsUI class
+                VolumeSettingsController volume = gameObject.GetComponent<VolumeSettingsController>();
+                ListViewController newListSettingsController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
+                UnityEngine.Object.DestroyImmediate(volume);
 
-            newListSettingsController.values = _options.Keys.ToList();
-            newListSettingsController.SetValue = OnChange;
-            newListSettingsController.GetValue = () =>
+                newListSettingsController.values = _options.Keys.ToList();
+                newListSettingsController.SetValue = OnChange;
+                newListSettingsController.GetValue = () =>
+                {
+                    if (GetValue != null) return GetValue.Invoke();
+                    return _options.Keys.ElementAt(0);
+                };
+                newListSettingsController.GetTextForValue = (v) =>
+                {
+                    if (_options.ContainsKey(v)) return _options[v] != null ? _options[v] : v.ToString();
+                    return "UNKNOWN";
+                };
+
+                //Initialize the controller, as if we had just opened the settings menu
+                newListSettingsController.Init();
+                var value = newListSettingsController.gameObject.transform.Find("Value");
+                var valueText = value.Find("ValueText");
+                TMP_Text valueTextObject = valueText.GetComponent<TMP_Text>();
+                valueTextObject.lineSpacing = -50;
+                valueTextObject.alignment = TextAlignmentOptions.CenterGeoAligned;
+
+                var nameText = newListSettingsController.gameObject.transform.Find("NameText");
+                nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
+                value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+                if (hintText != String.Empty)
+                    BeatSaberUI.AddHintText(nameText as RectTransform, hintText);
+
+                var dec = value.Find("DecButton");
+                dec.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+                var inc = value.Find("IncButton");
+                inc.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+                value.localPosition -= new Vector3(8, 0.3f);
+
+                gameObject.SetActive(false);
+                initialized = true;
+            }
+            catch (Exception e)
             {
-                if (GetValue != null) return GetValue.Invoke();
-                return _options.Keys.ElementAt(0);
-            };
-            newListSettingsController.GetTextForValue = (v) =>
-            {
-                if (_options.ContainsKey(v)) return _options[v];
-                return "UNKNOWN";
-            };
+                Console.WriteLine($"Exception when trying to instantiate list option {e.ToString()}");
+            }
 
-            //Initialize the controller, as if we had just opened the settings menu
-            newListSettingsController.Init();
-            var value = newListSettingsController.gameObject.transform.Find("Value");
-            var valueText = value.Find("ValueText");
-            TMP_Text valueTextObject = valueText.GetComponent<TMP_Text>();
-            valueTextObject.lineSpacing = -50;
-            valueTextObject.alignment = TextAlignmentOptions.CenterGeoAligned;
-
-            var nameText = newListSettingsController.gameObject.transform.Find("NameText");
-            nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
-            value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-            if (hintText != String.Empty)
-                BeatSaberUI.AddHintText(nameText as RectTransform, hintText);
-
-            var dec = value.Find("DecButton");
-            dec.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-            var inc = value.Find("IncButton");
-            inc.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-            value.localPosition -= new Vector3(8, 0.3f);
-
-            gameObject.SetActive(false);
-            initialized = true;
         }
-        
+
         public void AddOption(float value)
         {
             _options.Add(value, Convert.ToString(value));

@@ -41,7 +41,7 @@ namespace CustomUI.GameplaySettings
 
         private static void CreateInstance(GameplaySettingsPanels panel)
         {
-            if (_instances.ContainsKey(panel)) return;
+            if (_instances.ContainsKey(panel) && _instances[panel] != null) return;
 
             _instances[panel] = new GameObject("GameplaySettingsUI").AddComponent<GameplaySettingsUI>();
             _instances[panel].panel = panel;
@@ -275,8 +275,8 @@ namespace CustomUI.GameplaySettings
             //Create custom options
             foreach (GameOption option in Instance[panel].customOptions)
             {
-                //Due to possible "different" types (due to cross-plugin support), we need to do this through reflection
-                option.Instantiate();
+                if(!option.initialized)
+                    option.Instantiate();
             }
         }
     }
