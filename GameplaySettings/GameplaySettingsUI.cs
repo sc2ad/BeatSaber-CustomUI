@@ -187,7 +187,29 @@ namespace CustomUI.GameplaySettings
                 fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
                 fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
-            
+
+            var height = container.Find("PlayerHeight");
+            if (height)
+            {
+                var staticLights = container.Find("StaticLights");
+                (height as RectTransform).sizeDelta = (staticLights as RectTransform).sizeDelta;
+                var title = height.Find("Title");
+                if (title)
+                {
+                    (title as RectTransform).sizeDelta = new Vector2((title as RectTransform).sizeDelta.x, 1);
+                    title.localPosition += new Vector3(0, 0.5f);
+                    var text = title.gameObject.GetComponentInChildren<TextMeshProUGUI>();
+                    text.alignment = TextAlignmentOptions.MidlineLeft;
+                    text.enableWordWrapping = false;
+                }
+
+                var measure = height.Find("MeassureButton");
+                measure.localScale *= 0.6f;
+                measure.localPosition += new Vector3(5f, 0);
+                var reset = height.Find("ResetButton");
+                reset.localScale *= 0.6f;
+            }
+
             if (!initialized)
             {
                 //Get references to the original switches, so we can later duplicate then destroy them
