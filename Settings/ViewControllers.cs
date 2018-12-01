@@ -151,9 +151,10 @@ namespace CustomUI.Settings
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
             numberOfElements = values.Count();
-
-            int tmpIndex = values.FindIndex(v => v.Equals(GetValue()));
-            idx = tmpIndex == -1 ? 0 : tmpIndex;
+            var value = GetValue();
+            idx = values.FindIndex(v => v == value);
+            if (idx == -1)
+                idx = 0;
         }
 
         protected override void ApplyValue(int idx)
