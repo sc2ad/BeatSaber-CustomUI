@@ -11,6 +11,17 @@ namespace CustomUI.Utilities
 {
     public class UIUtilities
     {
+        private static Sprite _blankSprite = null;
+        public static Sprite BlankSprite
+        {
+            get
+            {
+                if(!_blankSprite)
+                    _blankSprite = Sprite.Create(Texture2D.blackTexture, new Rect(), Vector2.zero);
+                return _blankSprite;
+            }
+        }
+
         public static Texture2D LoadTextureRaw(byte[] file)
         {
             if (file.Count() > 0)
@@ -60,6 +71,7 @@ namespace CustomUI.Utilities
 
         public static byte[] GetResource(Assembly asm, string ResourceName)
         {
+            asm.GetManifestResourceNames().ToList().ForEach(m => Console.WriteLine($"Resource: {m}"));
             System.IO.Stream stream = asm.GetManifestResourceStream(ResourceName);
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);

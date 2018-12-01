@@ -9,6 +9,7 @@ using UnityEngine;
 using CustomUI.Utilities;
 using CustomUI.Settings;
 using CustomUI.BeatSaber;
+using UnityEngine.UI;
 
 namespace CustomUI.GameplaySettings
 {
@@ -36,11 +37,6 @@ namespace CustomUI.GameplaySettings
         {
             if (modifierName == optionName) return;
             conflicts.Add(modifierName);
-        }
-
-        public void SetPanel(GameplaySettingsPanels panel)
-        {
-            GetPanelNames(panel, ref pageName, ref panelName);
         }
 
         public static void GetPanelNames(GameplaySettingsPanels panel, ref string pageName, ref string panelName)
@@ -98,6 +94,28 @@ namespace CustomUI.GameplaySettings
         }
     }
 
+    public class SubmenuOption : ToggleOption
+    {
+        public SubmenuOption(GameplaySettingsPanels panel, string optionName, string hintText, Sprite optionIcon) : base(panel, optionName, hintText, optionIcon, 0f)
+        {
+            this.optionName = optionName;
+            this.hintText = hintText;
+            this.optionIcon = optionIcon;
+            GetPanelNames(panel, ref pageName, ref panelName);
+        }
+
+        public override void Instantiate()
+        {
+            base.Instantiate();
+
+            var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
+            if (currentToggle != null)
+            {
+                GameObject.Destroy(currentToggle.transform.Find("BG").gameObject);
+            }
+        }
+    }
+
     public class ToggleOption : GameOption
     {
         public event Action<bool> OnToggle;
@@ -105,12 +123,13 @@ namespace CustomUI.GameplaySettings
 
         public float multiplier;
 
-        public ToggleOption(string optionName, string hintText, Sprite optionIcon, float multiplier)
+        public ToggleOption(GameplaySettingsPanels panel, string optionName, string hintText, Sprite optionIcon, float multiplier)
         {
             this.optionName = optionName;
             this.hintText = hintText;
             this.optionIcon = optionIcon;
             this.multiplier = multiplier;
+            GetPanelNames(panel, ref pageName, ref panelName);
         }
 
         public override void Instantiate()
@@ -121,7 +140,7 @@ namespace CustomUI.GameplaySettings
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
             RectTransform container = (RectTransform)gsvc.transform.Find(pageName).Find(panelName);
 
-            gameObject = UnityEngine.Object.Instantiate(Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().FirstOrDefault().gameObject, container);
+            gameObject = UnityEngine.Object.Instantiate(Resources.FindObjectsOfTypeAll<GameplayModifierToggle>().Where(g => g.transform.Find("BG"))?.Last().gameObject, container);
             gameObject.name = optionName;
             gameObject.layer = container.gameObject.layer;
             gameObject.transform.SetParent(container);
@@ -172,7 +191,7 @@ namespace CustomUI.GameplaySettings
                 _gameplayModifier.SetPrivateField("_modifierName", optionName);
                 _gameplayModifier.SetPrivateField("_hintText", hintText);
                 _gameplayModifier.SetPrivateField("_multiplier", multiplier);
-                _gameplayModifier.SetPrivateField("_icon", optionIcon == null ? currentToggle.GetPrivateField<GameplayModifierParamsSO>("_gameplayModifier").icon : optionIcon);
+                _gameplayModifier.SetPrivateField("_icon", optionIcon == null ? UIUtilities.BlankSprite : optionIcon);
                 currentToggle.SetPrivateField("_gameplayModifier", _gameplayModifier);
 
                 string currentDisplayName = Char.ConvertFromUtf32((char)0xE069) + optionName + Char.ConvertFromUtf32((char)0xE069);
@@ -205,16 +224,18 @@ namespace CustomUI.GameplaySettings
         }
     }
 
+
     public class MultiSelectOption : GameOption
     {
         private Dictionary<float, string> _options = new Dictionary<float, string>();
         public Func<float> GetValue;
         public event Action<float> OnChange;
 
-        public MultiSelectOption(string optionName, string hintText)
+        public MultiSelectOption(GameplaySettingsPanels panel, string optionName, string hintText)
         {
             this.optionName = optionName;
             this.hintText = hintText;
+            GetPanelNames(panel, ref pageName, ref panelName);
         }
 
         public override void Instantiate()
