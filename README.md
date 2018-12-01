@@ -10,7 +10,7 @@ private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
 {
   if (arg0.name == "Menu")
   {
-    Sprite icon = UIUtilities.LoadSpriteFromResources("TestNamespace.TestFolderName.TestImageName.png");
+    Sprite icon = UIUtilities.LoadSpriteFromResources("TestAssemblyName.TestFolderName.TestImageName.png");
   
     ToggleOption toggle = GameplaySettingsUI.CreateToggleOption("Test Option", "This is a short description of the option, which will be displayed as a tooltip when you hover over it", icon);
     toggle.AddConflict("Another Gameplay Option");
