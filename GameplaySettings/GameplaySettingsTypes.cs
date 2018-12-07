@@ -132,6 +132,38 @@ namespace CustomUI.GameplaySettings
             GetPanelNames(panel, ref pageName, ref panelName);
         }
 
+        public void SetupConflictText()
+        {
+            var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
+            if (currentToggle != null)
+            {
+                GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
+                string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
+                string currentDisplayName = Char.ConvertFromUtf32((char)0xE069) + optionName + Char.ConvertFromUtf32((char)0xE069);
+                foreach (GameplayModifierToggle toggle in gameplayModifierToggles)
+                {
+                    if (conflicts.Contains(toggle.gameplayModifier.modifierName))
+                    {
+                        string toggleDisplayName = Char.ConvertFromUtf32((char)0xE069) + toggle.gameplayModifier.modifierName + Char.ConvertFromUtf32((char)0xE069);
+                        if (!toggle.gameplayModifier.hintText.Contains(ConflictText))
+                            toggle.gameplayModifier.SetPrivateField("_hintText", toggle.gameplayModifier.hintText + ConflictText);
+
+                        if (!currentToggle.gameplayModifier.hintText.Contains(ConflictText))
+                            currentToggle.gameplayModifier.SetPrivateField("_hintText", currentToggle.gameplayModifier.hintText + ConflictText);
+
+                        if (!toggle.gameplayModifier.hintText.Contains(currentDisplayName))
+                            toggle.gameplayModifier.SetPrivateField("_hintText", toggle.gameplayModifier.hintText + currentDisplayName);
+                        
+                        if (!currentToggle.gameplayModifier.hintText.Contains(toggleDisplayName))
+                            currentToggle.gameplayModifier.SetPrivateField("_hintText", currentToggle.gameplayModifier.hintText + toggleDisplayName);
+
+                        toggle.toggle.onValueChanged.AddListener((e) => { if (e) currentToggle.toggle.isOn = false; });
+                        currentToggle.toggle.onValueChanged.AddListener((e) => { if (e) toggle.toggle.isOn = false; });
+                    }
+                }
+            }
+        }
+
         public override void Instantiate()
         {
             //We have to find our own target
@@ -159,58 +191,22 @@ namespace CustomUI.GameplaySettings
                     break;
                 }
             }
-
-            string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
+            
             var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
             if (currentToggle != null)
             {
                 currentToggle.toggle.isOn = GetValue;
                 currentToggle.toggle.onValueChanged.RemoveAllListeners();
                 currentToggle.toggle.onValueChanged.AddListener((bool e) => OnToggle?.Invoke(e));
-                currentToggle.name = optionName.Replace(" ", "");
-
-                GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
-
-                if (conflicts.Count > 0)
-                {
-                    hintText += ConflictText;
-                    foreach (string conflict in conflicts)
-                    {
-                        var conflictingModifier = gameplayModifierToggles.Where(t => t?.gameplayModifier?.modifierName == conflict).FirstOrDefault();
-                        if (conflictingModifier)
-                        {
-                            if (!hintText.Contains(ConflictText))
-                                hintText += ConflictText;
-
-                            hintText += Char.ConvertFromUtf32((char)0xE069) + conflict + Char.ConvertFromUtf32((char)0xE069);
-                        }
-                    }
-                }
-
+                currentToggle.name = optionName;//.Replace(" ", "");
+                
                 GameplayModifierParamsSO _gameplayModifier = new GameplayModifierParamsSO();
                 _gameplayModifier.SetPrivateField("_modifierName", optionName);
                 _gameplayModifier.SetPrivateField("_hintText", hintText);
                 _gameplayModifier.SetPrivateField("_multiplier", multiplier);
                 _gameplayModifier.SetPrivateField("_icon", optionIcon == null ? UIUtilities.BlankSprite : optionIcon);
                 currentToggle.SetPrivateField("_gameplayModifier", _gameplayModifier);
-
-                string currentDisplayName = Char.ConvertFromUtf32((char)0xE069) + optionName + Char.ConvertFromUtf32((char)0xE069);
-                foreach (string conflictingModifierName in conflicts)
-                {
-                    GameplayModifierToggle conflictToggle = gameplayModifierToggles.Where(t => t?.gameplayModifier?.modifierName == conflictingModifierName).FirstOrDefault();
-                    if (conflictToggle)
-                    {
-                        if (!conflictToggle.gameplayModifier.hintText.Contains(ConflictText))
-                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + ConflictText);
-
-                        if (!conflictToggle.gameplayModifier.hintText.Contains(currentDisplayName))
-                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + currentDisplayName);
-
-                        conflictToggle.toggle.onValueChanged.AddListener((e) => { if (e) currentToggle.toggle.isOn = false; });
-                        currentToggle.toggle.onValueChanged.AddListener((e) => { if (e) conflictToggle.toggle.isOn = false; });
-                    }
-                }
-
+                
                 if (hintText != String.Empty)
                 {
                     HoverHint hoverHint = currentToggle.GetPrivateField<HoverHint>("_hoverHint");

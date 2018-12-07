@@ -10,6 +10,7 @@ namespace CustomUI.MenuButton
 {
     public class MenuButtonUI : MonoBehaviour
     {
+        private static readonly WaitUntil _bottomPanelExists = new WaitUntil(() => GameObject.Find("MainMenuViewController/BottomPanel"));
         const int ButtonsPerRow = 4;
         const float RowSeparator = 9f;
         
@@ -54,7 +55,10 @@ namespace CustomUI.MenuButton
             if (to.name == "EmptyTransition")
             {
                 if (Instance)
+                {
+                    Instance.StopAllCoroutines();
                     Destroy(Instance.gameObject);
+                }
                 Instance = null;
             }
         }
@@ -82,9 +86,7 @@ namespace CustomUI.MenuButton
 
         private static IEnumerator AddButtonDelayed(string text, UnityAction onClick, Sprite icon)
         {
-            yield return new WaitUntil(() => GameObject.Find("MainMenuViewController/BottomPanel") || SceneManager.GetActiveScene().name == "EmptyTransition");
-            if (SceneManager.GetActiveScene().name == "EmptyTransition")
-                yield break;
+            yield return _bottomPanelExists;
 
             lock (Instance)
             {
@@ -103,7 +105,7 @@ namespace CustomUI.MenuButton
 
         public static void AddButton(string buttonText, UnityAction onClick, Sprite icon = null)
         {
-            SharedCoroutineStarter.instance.StartCoroutine(AddButtonDelayed(buttonText, onClick, icon));
+            Instance.StartCoroutine(AddButtonDelayed(buttonText, onClick, icon));
         }
     }
 }

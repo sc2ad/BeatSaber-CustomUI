@@ -17,7 +17,7 @@ namespace CustomUI.GameplaySettings
         public bool initialized = false;
         private Button _pageDownButton = null;
         private Button _pageUpButton = null;
-        private int _listIndex = 0;
+        private int _pageIndex = 0;
         private string _currentSubmenu = "MainMenu";
         private GameplaySettingsPanels panel;
         private Dictionary<string, List<GameOption>> _customMenus = new Dictionary<string, List<GameOption>>();
@@ -78,11 +78,14 @@ namespace CustomUI.GameplaySettings
         //Returns a list of options for the current page index
         private List<GameOption> GetOptionsForPage(int page)
         {
-            //Default options
-            if (page == 0 && _currentSubmenu == "MainMenu") return null;
+            if (_currentSubmenu == "MainMenu")
+            {
+                //Default options
+                if (page == 0) return null;
 
-            page--; //If the page isn't 0, we should pick from the 0th pagination of our list
-            
+                page--; //If the page isn't 0, we should pick from the 0th pagination of our list
+            }
+
             //Get 4 custom options and return them
             return _customMenus[_currentSubmenu].Skip(4 * page).Take(4).ToList();
         }
@@ -90,7 +93,7 @@ namespace CustomUI.GameplaySettings
         //Sets the active value for our game options depending on the active page
         private void ChangePage(int page, Transform container, params Transform[] defaults)
         {
-            _currentOptions = Instance[panel].GetOptionsForPage(Instance[panel]._listIndex);
+            _currentOptions = Instance[panel].GetOptionsForPage(Instance[panel]._pageIndex);
             bool defaultsActive = _currentOptions == null;
             defaults?.ToList().ForEach(x => x.gameObject.SetActive(defaultsActive));
             
@@ -117,6 +120,21 @@ namespace CustomUI.GameplaySettings
             //Custom options
             Instance[panel]._customMenus.Values.ToList().ForEach(m => m.ForEach(x => x.gameObject.SetActive(false)));
             if (!defaultsActive) _currentOptions?.ToList().ForEach(x => x.gameObject.SetActive(true));
+
+            RefreshScrollButtons();
+        }
+
+        public void RefreshScrollButtons()
+        {
+            int index = (_pageIndex) * 4;
+            if (_currentSubmenu == "MainMenu")
+                index -= 4;
+
+            if (index + 4 < _customMenus[_currentSubmenu].Count) _pageDownButton.gameObject.SetActive(true);
+            else _pageDownButton.gameObject.SetActive(false);
+            
+            if (_pageIndex <= 0) _pageUpButton.gameObject.SetActive(false);
+            else _pageUpButton.gameObject.SetActive(true);
         }
 
         public static void EnterSubmenu(GameplaySettingsPanels panel, string menuName)
@@ -127,15 +145,8 @@ namespace CustomUI.GameplaySettings
                 if (instance._customMenus.ContainsKey(menuName))
                 {
                     instance._currentSubmenu = menuName;
-                    instance._listIndex = 0;
+                    instance._pageIndex = 0;
                     instance.ChangePage(0, instance._panelContainer, instance._defaultOptions[0], instance._defaultOptions[1], instance._defaultOptions[2], instance._defaultOptions[3]);
-
-                    if (instance._listIndex <= 0) instance._pageUpButton.gameObject.SetActive(false);
-                    else instance._pageUpButton.gameObject.SetActive(true);
-
-                    int index = instance._listIndex * 4 + (instance._currentSubmenu == "MainMenu" ? -4 : 0);
-                    if (index + 4 < instance._customMenus[instance._currentSubmenu].Count) instance._pageDownButton.gameObject.SetActive(true);
-                    else instance._pageDownButton.gameObject.SetActive(false);
                 }
             }
         }
@@ -291,11 +302,7 @@ namespace CustomUI.GameplaySettings
                 _pageUpButton.onClick.RemoveAllListeners();
                 _pageUpButton.onClick.AddListener(delegate ()
                 {
-                    Instance[panel].ChangePage(--Instance[panel]._listIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
-
-                    //Nice responsive scroll buttons
-                    if (Instance[panel]._listIndex <= 0) _pageUpButton.gameObject.SetActive(false);
-                    if (Instance[panel]._customMenus[_currentSubmenu].Count > 0) _pageDownButton.gameObject.SetActive(true);
+                    Instance[panel].ChangePage(--Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
                 });
 
                 //Create down button
@@ -309,11 +316,7 @@ namespace CustomUI.GameplaySettings
                 _pageDownButton.onClick.RemoveAllListeners();
                 _pageDownButton.onClick.AddListener(delegate ()
                 {
-                    Instance[panel].ChangePage(++Instance[panel]._listIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
-
-                    //Nice responsive scroll buttons
-                    if (Instance[panel]._listIndex >= 0) _pageUpButton.gameObject.SetActive(true);
-                    if (((Instance[panel]._customMenus[_currentSubmenu].Count + 4 - 1) / 4) - Instance[panel]._listIndex <= 0) _pageDownButton.gameObject.SetActive(false);
+                    Instance[panel].ChangePage(++Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
                 });
 
                 _pageUpButton.gameObject.SetActive(false);
@@ -321,7 +324,7 @@ namespace CustomUI.GameplaySettings
 
                 //Unfortunately, due to weird object creation for versioning, this doesn't always
                 //happen when the scene changes
-                Instance[panel]._listIndex = 0;
+                Instance[panel]._pageIndex = 0;
 
                 initialized = true;
             }
@@ -333,6 +336,16 @@ namespace CustomUI.GameplaySettings
                 {
                     if (!option.initialized)
                         option.Instantiate();
+                }
+            }
+
+            // Then add conflict text
+            foreach (List<GameOption> menu in Instance[panel]._customMenus.Values)
+            {
+                foreach (GameOption option in menu)
+                {
+                    if (option is ToggleOption && option.initialized)
+                        (option as ToggleOption).SetupConflictText();
                 }
             }
         }
