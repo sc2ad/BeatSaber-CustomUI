@@ -134,31 +134,36 @@ namespace CustomUI.GameplaySettings
 
         public void SetupConflictText()
         {
-            var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
-            if (currentToggle != null)
+            var thisToggle = gameObject.GetComponent<GameplayModifierToggle>();
+            if (thisToggle != null)
             {
                 GameplayModifierToggle[] gameplayModifierToggles = Resources.FindObjectsOfTypeAll<GameplayModifierToggle>();
                 string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
                 string currentDisplayName = Char.ConvertFromUtf32((char)0xE069) + optionName + Char.ConvertFromUtf32((char)0xE069);
-                foreach (GameplayModifierToggle toggle in gameplayModifierToggles)
+                foreach (GameplayModifierToggle conflictToggle in gameplayModifierToggles)
                 {
-                    if (conflicts.Contains(toggle.gameplayModifier.modifierName))
+                    if (conflicts.Contains(conflictToggle.gameplayModifier.modifierName))
                     {
-                        string toggleDisplayName = Char.ConvertFromUtf32((char)0xE069) + toggle.gameplayModifier.modifierName + Char.ConvertFromUtf32((char)0xE069);
-                        if (!toggle.gameplayModifier.hintText.Contains(ConflictText))
-                            toggle.gameplayModifier.SetPrivateField("_hintText", toggle.gameplayModifier.hintText + ConflictText);
+                        // Setup our hint text for the conflicting modifier
+                        string conflictToggleName = Char.ConvertFromUtf32((char)0xE069) + conflictToggle.gameplayModifier.modifierName + Char.ConvertFromUtf32((char)0xE069);
+                        if (!conflictToggle.gameplayModifier.hintText.Contains(ConflictText))
+                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + ConflictText);
 
-                        if (!currentToggle.gameplayModifier.hintText.Contains(ConflictText))
-                            currentToggle.gameplayModifier.SetPrivateField("_hintText", currentToggle.gameplayModifier.hintText + ConflictText);
+                        if (!conflictToggle.gameplayModifier.hintText.Contains(currentDisplayName))
+                        {
+                            conflictToggle.gameplayModifier.SetPrivateField("_hintText", conflictToggle.gameplayModifier.hintText + currentDisplayName);
+                            conflictToggle.toggle.onValueChanged.AddListener((e) => { if (e) thisToggle.toggle.isOn = false; });
+                        }
 
-                        if (!toggle.gameplayModifier.hintText.Contains(currentDisplayName))
-                            toggle.gameplayModifier.SetPrivateField("_hintText", toggle.gameplayModifier.hintText + currentDisplayName);
-                        
-                        if (!currentToggle.gameplayModifier.hintText.Contains(toggleDisplayName))
-                            currentToggle.gameplayModifier.SetPrivateField("_hintText", currentToggle.gameplayModifier.hintText + toggleDisplayName);
+                        // Then, if it doesn't already exist, set it up for this toggle as well
+                        if (!thisToggle.gameplayModifier.hintText.Contains(ConflictText))
+                            thisToggle.gameplayModifier.SetPrivateField("_hintText", thisToggle.gameplayModifier.hintText + ConflictText);
 
-                        toggle.toggle.onValueChanged.AddListener((e) => { if (e) currentToggle.toggle.isOn = false; });
-                        currentToggle.toggle.onValueChanged.AddListener((e) => { if (e) toggle.toggle.isOn = false; });
+                        if (!thisToggle.gameplayModifier.hintText.Contains(conflictToggleName))
+                        {
+                            thisToggle.gameplayModifier.SetPrivateField("_hintText", thisToggle.gameplayModifier.hintText + conflictToggleName);
+                            thisToggle.toggle.onValueChanged.AddListener((e) => { if (e) conflictToggle.toggle.isOn = false; });
+                        }
                     }
                 }
             }
