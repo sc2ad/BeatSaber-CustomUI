@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomUI.BeatSaber;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace CustomUI.Settings
 
         public string EnabledText = "ON";
         public string DisabledText = "OFF";
-        
+
         protected override bool GetInitValue()
         {
             bool value = false;
@@ -134,6 +135,46 @@ namespace CustomUI.Settings
         protected override string TextForValue(int value)
         {
             return value.ToString();
+        }
+    }
+    
+    public class StringViewController : ListSettingsController
+    {
+        public Func<string> GetValue = () => String.Empty;
+        public Action<string> SetValue = (_) => { };
+        public string value = String.Empty;
+
+        protected override void GetInitValues(out int idx, out int numberOfElements)
+        {
+            numberOfElements = 2;
+            value = GetValue();
+            Console.WriteLine($"Initial value was {value}");
+            idx = 0;
+        }
+
+        protected override void ApplyValue(int idx)
+        {
+            SetValue(value);
+        }
+
+        protected override string TextForValue(int idx)
+        {
+            if (value != String.Empty)
+                return value;
+            else
+                return "<color=#ffffff66>Empty</color>";
+        }
+
+        public override void IncButtonPressed()
+        {
+            //base.IncButtonPressed();
+            BeatSaberUI.DisplayKeyboard("Enter Text Below", value, (text) => { }, (text) => { value = text; base.IncButtonPressed(); base.DecButtonPressed(); ApplySettings(); });
+        }
+
+        public override void DecButtonPressed()
+        {
+            //base.DecButtonPressed();
+            ApplySettings();
         }
     }
 

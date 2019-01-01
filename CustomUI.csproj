@@ -74,6 +74,8 @@
   <ItemGroup>
     <Compile Include="BeatSaber\BeatSaberUI.cs" />
     <Compile Include="BeatSaber\BeatSaberUIExtensions.cs" />
+    <Compile Include="BeatSaber\CustomMenu.cs" />
+    <Compile Include="BeatSaber\CustomUIKeyboard.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsTypes.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsUI.cs" />
     <Compile Include="MenuButton\MenuButtonUI.cs" />
@@ -87,6 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Back Button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Edit Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

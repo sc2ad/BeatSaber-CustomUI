@@ -15,8 +15,84 @@ namespace CustomUI.BeatSaber
     {
         private static Button _backButtonInstance;
         private static GameObject _loadingIndicatorInstance;
+        private static CustomMenu _keyboardMenu = null;
+        private static CustomUIKeyboard _keyboard = null;
+        private static Action<string> _textChangedEvent;
+        private static Action<string> _textEntrySuccessEvent = null;
+        private static Action _textEntryCancelledEvent = null;
+        private static bool _isKeyboardOpen = false;
+        private static string _initialValue;
+        private static TextMeshProUGUI _inputText;
 
-        public static bool initialized = false;
+        public static bool DisplayKeyboard(string title, string initialValue, Action<string> TextChangedEvent = null, Action<string> TextEntrySuccessEvent = null, Action TextEntryCancelledEvent = null)
+        {
+            if (_isKeyboardOpen) return false;
+
+            if (_keyboardMenu == null)
+            {
+                _keyboardMenu = CreateCustomMenu<CustomMenu>(title);
+                var mainViewController = CreateViewController<CustomViewController>();
+                _keyboardMenu.SetMainViewController(mainViewController, false, (firstActivation, type) =>
+                {
+                    if (firstActivation)
+                    {
+                        var _customKeyboardGO = Instantiate(Resources.FindObjectsOfTypeAll<UIKeyboard>().First(x => x.name != "CustomUIKeyboard"), mainViewController.rectTransform, false).gameObject;
+                        Destroy(_customKeyboardGO.GetComponent<UIKeyboard>());
+                        _keyboard = _customKeyboardGO.AddComponent<CustomUIKeyboard>();
+
+                        _inputText = CreateText(mainViewController.rectTransform, String.Empty, new Vector2(0f, 22f));
+                        _inputText.alignment = TextAlignmentOptions.Center;
+                        _inputText.fontSize = 6f;
+
+                        _keyboard.okButtonWasPressedEvent += () =>
+                        {
+                            _textEntrySuccessEvent?.Invoke(_inputText.text);
+                            _inputText.text = String.Empty;
+                            _keyboard.OkButtonInteractivity = false;
+                            _keyboardMenu.Dismiss();
+                            _isKeyboardOpen = false;
+                        };
+                        _keyboard.cancelButtonWasPressedEvent += () =>
+                        {
+                            _textEntryCancelledEvent?.Invoke();
+                            _inputText.text = String.Empty;
+                            _keyboard.OkButtonInteractivity = false;
+                            _keyboardMenu.Dismiss();
+                            _isKeyboardOpen = false;
+                        };
+                        _keyboard.textKeyWasPressedEvent += (key) =>
+                        {
+                            _inputText.text += key;
+                            _textChangedEvent?.Invoke(_inputText.text);
+
+                            if (_inputText.text.Length > 0)
+                                _keyboard.OkButtonInteractivity = true;
+                        };
+                        _keyboard.deleteButtonWasPressedEvent += () =>
+                        {
+                            if (_inputText.text.Length > 0)
+                            {
+                                _inputText.text = _inputText.text.Substring(0, _inputText.text.Length - 1);
+                                _textChangedEvent?.Invoke(_inputText.text);
+                            }
+                            if (_inputText.text.Length == 0)
+                                _keyboard.OkButtonInteractivity = false;
+                        };
+                    }
+                    _inputText.text = _initialValue;
+                    _keyboard.OkButtonInteractivity = _inputText.text.Length > 0;
+                });
+            }
+            _keyboardMenu.title = title;
+            _initialValue = initialValue;
+            _textChangedEvent = TextChangedEvent;
+            _textEntrySuccessEvent = TextEntrySuccessEvent;
+            _textEntryCancelledEvent = TextEntryCancelledEvent;
+            _keyboardMenu.Present();
+            _isKeyboardOpen = true;
+            return true;
+        }
+
 
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, Vector2 anchoredPosition, Vector2 sizeDelta, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
@@ -104,6 +180,7 @@ namespace CustomUI.BeatSaber
         public static T CreateViewController<T>() where T : VRUIViewController
         {
             T vc = new GameObject("CustomViewController").AddComponent<T>();
+            DontDestroyOnLoad(vc.gameObject);
 
             vc.rectTransform.anchorMin = new Vector2(0f, 0f);
             vc.rectTransform.anchorMax = new Vector2(1f, 1f);
@@ -111,6 +188,13 @@ namespace CustomUI.BeatSaber
             vc.rectTransform.anchoredPosition = new Vector2(0f, 0f);
             
             return vc;
+        }
+        
+        public static T CreateCustomMenu<T>(string title) where T: CustomMenu
+        {
+            T customMenu = new GameObject("CustomUIMenu").AddComponent<T>();
+            customMenu.title = title;
+            return customMenu;
         }
 
         public static GameObject CreateLoadingSpinner(Transform parent)
@@ -174,5 +258,7 @@ namespace CustomUI.BeatSaber
             hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
             return hoverHint;
         }
+
+
     }
 }

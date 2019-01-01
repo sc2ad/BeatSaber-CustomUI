@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRUI;
-
+using Image = UnityEngine.UI.Image;
 
 namespace CustomUI.Settings
 {
@@ -217,6 +217,12 @@ namespace CustomUI.Settings
             view.values = values.ToList();
             return view;
         }
+        
+        public StringViewController AddString(string name, string hintText = null)
+        {
+            var view = AddStringSetting<StringViewController>(name, hintText);
+            return view;
+        }
 
         public T AddListSetting<T>(string name) where T : ListSettingsController
         {
@@ -227,6 +233,36 @@ namespace CustomUI.Settings
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
+            
+            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
+            T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
+            MonoBehaviour.DestroyImmediate(volume);
+
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+
+            return newListSettingsController;
+        }
+
+        Sprite _editIcon = null;
+        public T AddStringSetting<T>(string name, string hintText) where T : ListSettingsController
+        {
+            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
+            newSettingsObject.name = name;
+            newSettingsObject.transform.Find("Value").gameObject.GetComponent<HorizontalLayoutGroup>().spacing += 2;
+            newSettingsObject.transform.Find("Value").Find("DecButton").gameObject.SetActive(false);
+            //var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            //(bgIcon.transform as RectTransform).localScale *= new Vector2(0.9f, 0.9f);
+            var arrowIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("Arrow").gameObject.GetComponent<Image>();
+            if (_editIcon == null)
+                _editIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
+            var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
+            valueText.alignment = TextAlignmentOptions.MidlineRight;
+            BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
+
+            arrowIcon.sprite = _editIcon;
 
             VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
