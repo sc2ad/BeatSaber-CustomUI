@@ -204,8 +204,8 @@ namespace CustomUI.GameplaySettings
                 currentToggle.toggle.onValueChanged.RemoveAllListeners();
                 currentToggle.toggle.onValueChanged.AddListener((bool e) => OnToggle?.Invoke(e));
                 currentToggle.name = optionName;
-                
-                GameplayModifierParamsSO _gameplayModifier = new GameplayModifierParamsSO();
+
+                GameplayModifierParamsSO _gameplayModifier = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
                 _gameplayModifier.SetPrivateField("_modifierName", optionName);
                 _gameplayModifier.SetPrivateField("_hintText", hintText);
                 _gameplayModifier.SetPrivateField("_multiplier", multiplier);

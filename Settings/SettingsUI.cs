@@ -260,6 +260,7 @@ namespace CustomUI.Settings
                 _editIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
             var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
             valueText.alignment = TextAlignmentOptions.MidlineRight;
+            valueText.enableWordWrapping = false;
             BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
 
             arrowIcon.sprite = _editIcon;

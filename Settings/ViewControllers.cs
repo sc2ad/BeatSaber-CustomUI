@@ -148,7 +148,6 @@ namespace CustomUI.Settings
         {
             numberOfElements = 2;
             value = GetValue();
-            Console.WriteLine($"Initial value was {value}");
             idx = 0;
         }
 
@@ -167,14 +166,11 @@ namespace CustomUI.Settings
 
         public override void IncButtonPressed()
         {
-            //base.IncButtonPressed();
-            BeatSaberUI.DisplayKeyboard("Enter Text Below", value, (text) => { }, (text) => { value = text; base.IncButtonPressed(); base.DecButtonPressed(); ApplySettings(); });
+            BeatSaberUI.DisplayKeyboard("Enter Text Below", value, (text) => { }, (text) => { value = text; base.IncButtonPressed(); base.DecButtonPressed(); });
         }
 
         public override void DecButtonPressed()
         {
-            //base.DecButtonPressed();
-            ApplySettings();
         }
     }
 
@@ -214,13 +210,11 @@ namespace CustomUI.Settings
         public override void IncButtonPressed()
         {
             base.IncButtonPressed();
-            ApplySettings();
         }
 
         public override void DecButtonPressed()
         {
             base.DecButtonPressed();
-            ApplySettings();
         }
     }
 

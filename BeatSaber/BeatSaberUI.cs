@@ -83,8 +83,8 @@ namespace CustomUI.BeatSaber
                     _keyboard.OkButtonInteractivity = _inputText.text.Length > 0;
                 });
             }
-            _keyboardMenu.title = title;
-            _initialValue = initialValue;
+            _keyboardMenu.title = title == null ? String.Empty : title;
+            _initialValue = initialValue == null ? String.Empty : initialValue;
             _textChangedEvent = TextChangedEvent;
             _textEntrySuccessEvent = TextEntrySuccessEvent;
             _textEntryCancelledEvent = TextEntryCancelledEvent;

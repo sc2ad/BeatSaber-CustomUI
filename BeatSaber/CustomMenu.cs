@@ -27,6 +27,7 @@ namespace CustomUI.BeatSaber
             {
                 if (includeBackButton && _backButton == null)
                 {
+                    backButtonPressed += customFlowCoordinator.Dismiss;
                     _backButton = BeatSaberUI.CreateBackButton(rectTransform as RectTransform);
                     _backButton.onClick.AddListener(delegate ()
                     {
@@ -35,14 +36,12 @@ namespace CustomUI.BeatSaber
                 }
             }
 
-            if (DidActivateEvent != null)
-                DidActivateEvent(firstActivation, type);
+            DidActivateEvent?.Invoke(firstActivation, type);
         }
 
         protected override void DidDeactivate(DeactivationType type)
         {
-            if (DidDeactivateEvent != null)
-                DidDeactivateEvent(type);
+            DidDeactivateEvent?.Invoke(type);
         }
     }
 
@@ -83,7 +82,7 @@ namespace CustomUI.BeatSaber
                 _customListTableView = new GameObject("CustomListTableView").AddComponent<TableView>();
                 _customListTableView.gameObject.AddComponent<RectMask2D>();
                 _customListTableView.transform.SetParent(container, false);
-
+                
                 (_customListTableView.transform as RectTransform).anchorMin = new Vector2(0f, 0f);
                 (_customListTableView.transform as RectTransform).anchorMax = new Vector2(1f, 1f);
                 (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, 60f);
@@ -93,7 +92,7 @@ namespace CustomUI.BeatSaber
                 _customListTableView.SetPrivateField("_isInitialized", false);
                 _customListTableView.dataSource = this;
 
-                _customListTableView.didSelectRowEvent += _platformsTableView_didSelectRowEvent; ;
+                _customListTableView.didSelectRowEvent += _customListTableView_didSelectRowEvent;
 
                 _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container, false);
                 (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 30f);//-14
@@ -111,7 +110,6 @@ namespace CustomUI.BeatSaber
                     _customListTableView.PageScrollDown();
                 });
             }
-
             base.DidActivate(firstActivation, type);
         }
 
@@ -120,38 +118,34 @@ namespace CustomUI.BeatSaber
             base.DidDeactivate(type);
         }
 
-        private void _platformsTableView_didSelectRowEvent(TableView arg1, int arg2)
+        private void _customListTableView_didSelectRowEvent(TableView arg1, int arg2)
         {
-            if (DidSelectRowEvent != null)
-                DidSelectRowEvent(arg1, arg2);
+            DidSelectRowEvent?.Invoke(arg1, arg2);
         }
         
-        public float RowHeight()
+        public virtual float RowHeight()
         {
             return 10f;
         }
 
-        public int NumberOfRows()
+        public virtual int NumberOfRows()
         {
             return Data.Count;
         }
 
-        public TableCell CellForRow(int row)
+        public virtual TableCell CellForRow(int row)
         {
             LevelListTableCell _tableCell = Instantiate(_songListTableCellInstance);
-            
             _tableCell.songName = Data[row].text;
             _tableCell.author = Data[row].subtext;
             _tableCell.coverImage = Data[row].icon == null ? UIUtilities.BlankSprite : Data[row].icon;
             _tableCell.reuseIdentifier = "CustomListCell";
-
             return _tableCell;
         }
     }
 
     public class CustomFlowCoordinator : FlowCoordinator
     {
-        //public CustomViewController customViewController;
         public FlowCoordinator parentFlowCoordinator;
         public CustomMenu customPanel;
 
@@ -159,31 +153,27 @@ namespace CustomUI.BeatSaber
         {
             if (firstActivation)
             {
-                title = customPanel.title;
-            }
+                if (customPanel.mainViewController == null)
+                {
+                    customPanel.mainViewController = BeatSaberUI.CreateViewController<CustomViewController>();
+                    customPanel.mainViewController.includeBackButton = true;
+                }
 
-            if (customPanel.mainViewController == null)
-            {
-                customPanel.mainViewController = BeatSaberUI.CreateViewController<CustomViewController>();
-                customPanel.mainViewController.includeBackButton = true;
-            }
+                if (customPanel.mainViewController != null)
+                    customPanel.mainViewController.customFlowCoordinator = this;
 
-            if (customPanel.mainViewController != null)
-            {
-                customPanel.mainViewController.customFlowCoordinator = this;
-                customPanel.mainViewController.backButtonPressed += Dismiss;
-            }
-            if(customPanel.leftViewController != null)
-                customPanel.leftViewController.customFlowCoordinator = this;
+                if (customPanel.leftViewController != null)
+                    customPanel.leftViewController.customFlowCoordinator = this;
 
-            if(customPanel.rightViewController != null)
-                customPanel.rightViewController.customFlowCoordinator = this;
+                if (customPanel.rightViewController != null)
+                    customPanel.rightViewController.customFlowCoordinator = this;
+            }
+            title = customPanel.title;
 
             if (activationType == FlowCoordinator.ActivationType.AddedToHierarchy)
             {
                 ProvideInitialViewControllers(customPanel.mainViewController, customPanel.leftViewController, customPanel.rightViewController);
             }
-
         }
 
         public void Dismiss()
@@ -249,17 +239,17 @@ namespace CustomUI.BeatSaber
         public void Present()
         {
             var _activeFlowCoordinator = GetActiveFlowCoordinator();
-            if (_activeFlowCoordinator != null)
+            if (_activeFlowCoordinator == null || _activeFlowCoordinator == customFlowCoordinator) return;
+
+            if (customFlowCoordinator == null)
             {
-                if (customFlowCoordinator == null)
-                {
-                    customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
-                    customFlowCoordinator.customPanel = this;
-                }
-                customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
-                
-                ReflectionUtil.InvokePrivateMethod(_activeFlowCoordinator, "PresentFlowCoordinator", new object[] { customFlowCoordinator, null, false, false });
+                customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
+                DontDestroyOnLoad(customFlowCoordinator.gameObject);
+                customFlowCoordinator.customPanel = this;
             }
+            customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
+
+            ReflectionUtil.InvokePrivateMethod(_activeFlowCoordinator, "PresentFlowCoordinator", new object[] { customFlowCoordinator, null, false, false });
         }
 
         public void Dismiss()
