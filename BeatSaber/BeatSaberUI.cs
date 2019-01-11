@@ -97,7 +97,6 @@ namespace CustomUI.BeatSaber
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, Vector2 anchoredPosition, Vector2 sizeDelta, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
-            DestroyImmediate(btn.GetComponent<SignalOnUIButtonClick>());
             btn.onClick = new Button.ButtonClickedEvent();
             if (onClick != null)
                 btn.onClick.AddListener(onClick);
@@ -118,7 +117,6 @@ namespace CustomUI.BeatSaber
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, Vector2 anchoredPosition, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
-            DestroyImmediate(btn.GetComponent<SignalOnUIButtonClick>());
             btn.onClick = new Button.ButtonClickedEvent();
             if (onClick != null)
                 btn.onClick.AddListener(onClick);
@@ -138,7 +136,6 @@ namespace CustomUI.BeatSaber
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
-            DestroyImmediate(btn.GetComponent<SignalOnUIButtonClick>());
             btn.onClick = new Button.ButtonClickedEvent();
             if (onClick != null)
                 btn.onClick.AddListener(onClick);
@@ -168,7 +165,6 @@ namespace CustomUI.BeatSaber
             }
             
             Button btn = Instantiate(_backButtonInstance, parent, false);
-            DestroyImmediate(btn.GetComponent<SignalOnUIButtonClick>());
             btn.onClick = new Button.ButtonClickedEvent();
             if (onClick != null)
                 btn.onClick.AddListener(onClick);
