@@ -1,4 +1,5 @@
-﻿using HMUI;
+﻿using CustomUI.Utilities;
+using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberCustomUI
+namespace CustomUI.Settings
 {
-    class TableViewHelper : MonoBehaviour
+    public class TableViewHelper : MonoBehaviour
     {
         TableView table;
         RectTransform viewport;

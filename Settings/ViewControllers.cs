@@ -1,10 +1,11 @@
-﻿using System;
+﻿using CustomUI.BeatSaber;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatSaberCustomUI
+namespace CustomUI.Settings
 {
     public class BoolViewController : SwitchSettingsController
     {
@@ -13,6 +14,9 @@ namespace BeatSaberCustomUI
 
         public delegate void SetBool(bool value);
         public event SetBool SetValue;
+
+        public string EnabledText = "ON";
+        public string DisabledText = "OFF";
 
         protected override bool GetInitValue()
         {
@@ -34,7 +38,7 @@ namespace BeatSaberCustomUI
 
         protected override string TextForValue(bool value)
         {
-            return (value) ? "ON" : "OFF";
+            return (value) ? EnabledText : DisabledText;
         }
     }
 
@@ -133,25 +137,61 @@ namespace BeatSaberCustomUI
             return value.ToString();
         }
     }
+    
+    public class StringViewController : ListSettingsController
+    {
+        public Func<string> GetValue = () => String.Empty;
+        public Action<string> SetValue = (_) => { };
+        public string value = String.Empty;
+
+        protected override void GetInitValues(out int idx, out int numberOfElements)
+        {
+            numberOfElements = 2;
+            value = GetValue();
+            idx = 0;
+        }
+
+        protected override void ApplyValue(int idx)
+        {
+            SetValue(value);
+        }
+
+        protected override string TextForValue(int idx)
+        {
+            if (value != String.Empty)
+                return value;
+            else
+                return "<color=#ffffff66>Empty</color>";
+        }
+
+        public override void IncButtonPressed()
+        {
+            BeatSaberUI.DisplayKeyboard("Enter Text Below", value, (text) => { }, (text) => { value = text; base.IncButtonPressed(); base.DecButtonPressed(); });
+        }
+
+        public override void DecButtonPressed()
+        {
+        }
+    }
 
     public class ListViewController : ListSettingsController
     {
-        public Func<float> GetValue = () => default(float);
+        public Func<float> GetValue = () => 0f;
         public Action<float> SetValue = (_) => { };
         public Func<float, string> GetTextForValue = (_) => "?";
 
         public delegate string StringForValue(float value);
         public event StringForValue FormatValue;
 
-        public List<float> values;
+        public List<float> values = new List<float>();
 
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
-            numberOfElements = values.Count;
-            var value = GetValue();
-
             numberOfElements = values.Count();
-            idx = values.FindIndex(v => v.Equals(value));
+            var value = GetValue();
+            idx = values.FindIndex(v => v == value);
+            if (idx == -1)
+                idx = 0;
         }
 
         protected override void ApplyValue(int idx)
@@ -162,22 +202,19 @@ namespace BeatSaberCustomUI
         protected override string TextForValue(int idx)
         {
             if (FormatValue != null)
-            {
                 return FormatValue(values[idx]);
-            }
+
             return GetTextForValue(values[idx]);
         }
 
         public override void IncButtonPressed()
         {
             base.IncButtonPressed();
-            ApplySettings();
         }
 
         public override void DecButtonPressed()
         {
             base.DecButtonPressed();
-            ApplySettings();
         }
     }
 

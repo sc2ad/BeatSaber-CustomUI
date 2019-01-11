@@ -1,4 +1,6 @@
-﻿using HMUI;
+﻿using CustomUI.BeatSaber;
+using CustomUI.Utilities;
+using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRUI;
+using Image = UnityEngine.UI.Image;
 
-
-namespace BeatSaberCustomUI
+namespace CustomUI.Settings
 {
     public class SettingsUI : MonoBehaviour
     {
@@ -57,7 +59,6 @@ namespace BeatSaberCustomUI
                 if (Instance)
                     Destroy(Instance.gameObject);
                 initialized = false;
-                Instance = null;
             }
         }
 
@@ -103,14 +104,16 @@ namespace BeatSaberCustomUI
                 viewport.sizeDelta = new Vector2(0f, 48f);
                 viewport.anchoredPosition = new Vector2(0f, 0f);
 
+                RectTransform container = (RectTransform)_mainSettingsTableView.transform;
+
                 if (_pageUpButton == null)
                 {
-                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), _mainSettingsTableView.transform, false);
+                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
 
-                    (_pageUpButton.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
-                    (_pageUpButton.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
-                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 24f);
-                    _pageUpButton.interactable = true;
+                    _pageUpButton.transform.SetParent(container.parent);
+                    _pageUpButton.transform.localScale = Vector3.one;
+                    _pageUpButton.transform.localPosition -= new Vector3(0, 4.5f);
+                    _pageUpButton.interactable = false;
                     _pageUpButton.onClick.AddListener(delegate ()
                     {
                         subMenuTableViewHelper.PageScrollUp();
@@ -119,12 +122,12 @@ namespace BeatSaberCustomUI
 
                 if (_pageDownButton == null)
                 {
-                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), _mainSettingsTableView.transform, false);
+                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
 
-                    (_pageDownButton.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
-                    (_pageDownButton.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
-                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -24f);
-                    _pageDownButton.interactable = true;
+                    _pageDownButton.transform.SetParent(container.parent);
+                    _pageDownButton.transform.localScale = Vector3.one;
+                    _pageDownButton.transform.localPosition -= new Vector3(0, 6.5f);
+                    _pageDownButton.interactable = false;
                     _pageDownButton.onClick.AddListener(delegate ()
                     {
                         subMenuTableViewHelper.PageScrollDown();
@@ -146,6 +149,7 @@ namespace BeatSaberCustomUI
                 Instance.SetupUI();
 
                 var subMenuGameObject = Instantiate(Instance.othersSubmenu.gameObject, Instance.othersSubmenu.transform.parent);
+                subMenuGameObject.name = name.Replace(" ", "");
                 Transform mainContainer = CleanScreen(subMenuGameObject.transform);
 
                 var newSubMenuInfo = new SettingsSubMenuInfo();
@@ -185,39 +189,98 @@ namespace BeatSaberCustomUI
 
         public BoolViewController AddBool(string name)
         {
-            return AddToggleSetting<BoolViewController>(name);
+            return AddBool(name, "");
+        }
+        public BoolViewController AddBool(string name, string hintText)
+        {
+            return AddToggleSetting<BoolViewController>(name, hintText);
         }
 
         public IntViewController AddInt(string name, int min, int max, int increment)
         {
-            var view = AddIntSetting<IntViewController>(name);
+            return AddInt(name, "", min, max, increment);
+        }
+        public IntViewController AddInt(string name, string hintText, int min, int max, int increment)
+        {
+            var view = AddIntSetting<IntViewController>(name, hintText);
             view.SetValues(min, max, increment);
             return view;
         }
 
         public ListViewController AddList(string name, float[] values)
         {
-            var view = AddListSetting<ListViewController>(name);
+            return AddList(name, values, "");
+        }
+        public ListViewController AddList(string name, float[] values, string hintText)
+        {
+            var view = AddListSetting<ListViewController>(name, hintText);
             view.values = values.ToList();
+            return view;
+        }
+        
+        public StringViewController AddString(string name, string hintText = null)
+        {
+            var view = AddStringSetting<StringViewController>(name, hintText);
             return view;
         }
 
         public T AddListSetting<T>(string name) where T : ListSettingsController
         {
+            return AddListSetting<T>(name, "");
+        }
+        public T AddListSetting<T>(string name, string hintText) where T : ListSettingsController
+        {
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
+            
+            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
+            T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
+            MonoBehaviour.DestroyImmediate(volume);
+
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+
+            return newListSettingsController;
+        }
+
+        Sprite _editIcon = null;
+        public T AddStringSetting<T>(string name, string hintText) where T : ListSettingsController
+        {
+            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
+            newSettingsObject.name = name;
+            newSettingsObject.transform.Find("Value").gameObject.GetComponent<HorizontalLayoutGroup>().spacing += 2;
+            newSettingsObject.transform.Find("Value").Find("DecButton").gameObject.SetActive(false);
+            //var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            //(bgIcon.transform as RectTransform).localScale *= new Vector2(0.9f, 0.9f);
+            var arrowIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("Arrow").gameObject.GetComponent<Image>();
+            if (_editIcon == null)
+                _editIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
+            var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
+            valueText.alignment = TextAlignmentOptions.MidlineRight;
+            valueText.enableWordWrapping = false;
+            BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
+
+            arrowIcon.sprite = _editIcon;
 
             VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newListSettingsController;
         }
 
         public T AddToggleSetting<T>(string name) where T : SwitchSettingsController
+        {
+            return AddToggleSetting<T>(name, "");
+        }
+        public T AddToggleSetting<T>(string name, string hintText) where T : SwitchSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -227,12 +290,18 @@ namespace BeatSaberCustomUI
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SwitchSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }
 
         public T AddIntSetting<T>(string name) where T : IntSettingsController
+        {
+            return AddIntSetting<T>(name, "");
+        }
+        public T AddIntSetting<T>(string name, string hintText) where T : IntSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -242,7 +311,9 @@ namespace BeatSaberCustomUI
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
-            newSettingsObject.GetComponentInChildren<TMP_Text>().text = name;
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }

@@ -1,12 +1,12 @@
 ﻿using IllusionPlugin;
 using UnityEngine.SceneManagement;
 
-namespace BeatSaberCustomUI
+namespace CustomUI
 {
     public class Plugin : IPlugin
     {
         public string Name => "BeatSaberCustomUI";
-        public string Version => "0.0.1";
+        public string Version => "1.1.3";
         public void OnApplicationStart()
         {
         }
