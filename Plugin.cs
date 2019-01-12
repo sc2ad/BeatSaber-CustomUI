@@ -6,7 +6,7 @@ namespace CustomUI
     public class Plugin : IPlugin
     {
         public string Name => "BeatSaberCustomUI";
-        public string Version => "1.1.3";
+        public string Version => "1.1.4";
         public void OnApplicationStart()
         {
         }

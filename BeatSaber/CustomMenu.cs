@@ -16,10 +16,10 @@ namespace CustomUI.BeatSaber
         public Action backButtonPressed;
         public Button _backButton;
         public bool includeBackButton;
-        public CustomFlowCoordinator customFlowCoordinator;
 
         public Action<bool, VRUIViewController.ActivationType> DidActivateEvent;
         public Action<VRUIViewController.DeactivationType> DidDeactivateEvent;
+        public Action Dismiss = null;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
@@ -27,7 +27,7 @@ namespace CustomUI.BeatSaber
             {
                 if (includeBackButton && _backButton == null)
                 {
-                    backButtonPressed += customFlowCoordinator.Dismiss;
+                    backButtonPressed += Dismiss;
                     _backButton = BeatSaberUI.CreateBackButton(rectTransform as RectTransform);
                     _backButton.onClick.AddListener(delegate ()
                     {
@@ -38,7 +38,7 @@ namespace CustomUI.BeatSaber
 
             DidActivateEvent?.Invoke(firstActivation, type);
         }
-
+        
         protected override void DidDeactivate(DeactivationType type)
         {
             DidDeactivateEvent?.Invoke(type);
@@ -151,23 +151,15 @@ namespace CustomUI.BeatSaber
 
         protected override void DidActivate(bool firstActivation, ActivationType activationType)
         {
-            if (firstActivation)
-            {
-                if (customPanel.mainViewController == null)
-                {
-                    customPanel.mainViewController = BeatSaberUI.CreateViewController<CustomViewController>();
-                    customPanel.mainViewController.includeBackButton = true;
-                }
+            if (customPanel.mainViewController)
+                customPanel.mainViewController.Dismiss += Dismiss;
 
-                if (customPanel.mainViewController != null)
-                    customPanel.mainViewController.customFlowCoordinator = this;
+            if (customPanel.leftViewController)
+                customPanel.leftViewController.Dismiss += Dismiss;
 
-                if (customPanel.leftViewController != null)
-                    customPanel.leftViewController.customFlowCoordinator = this;
+            if (customPanel.rightViewController)
+                customPanel.rightViewController.Dismiss += Dismiss;
 
-                if (customPanel.rightViewController != null)
-                    customPanel.rightViewController.customFlowCoordinator = this;
-            }
             title = customPanel.title;
 
             if (activationType == FlowCoordinator.ActivationType.AddedToHierarchy)
@@ -176,24 +168,36 @@ namespace CustomUI.BeatSaber
             }
         }
 
-        public void Dismiss()
+        protected override void DidDeactivate(DeactivationType deactivationType)
         {
-            parentFlowCoordinator.InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, false });
         }
 
-        protected override void DidDeactivate(DeactivationType type)
+        public void Dismiss(bool immediately)
         {
+            parentFlowCoordinator.InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, immediately });
+        }
 
+        public void Dismiss()
+        {
+            Dismiss(false);
         }
     }
 
     public class CustomMenu : MonoBehaviour
     {
-        public CustomFlowCoordinator customFlowCoordinator;
+        public CustomFlowCoordinator customFlowCoordinator
+        {
+            get { return _masterFlowCoordinator as CustomFlowCoordinator; }
+            private set { _masterFlowCoordinator = value; }
+        }
         public CustomViewController mainViewController = null;
         public CustomViewController leftViewController = null;
         public CustomViewController rightViewController = null;
+        public VRUIViewController topViewController = null;
         public string title;
+
+        private Action<bool> _dismissInternal = null;
+        private FlowCoordinator _masterFlowCoordinator;
 
         public void SetMainViewController(CustomViewController viewController, bool includeBackButton, Action<bool, VRUIViewController.ActivationType> DidActivate = null, Action<VRUIViewController.DeactivationType> DidDeactivate = null)
         {
@@ -236,25 +240,70 @@ namespace CustomUI.BeatSaber
             return null;
         }
 
-        public void Present()
+        private void SetScreen(FlowCoordinator _activeFlowCoordinator, CustomViewController newViewController, VRUIViewController origViewController, string method, bool immediately)
         {
-            var _activeFlowCoordinator = GetActiveFlowCoordinator();
-            if (_activeFlowCoordinator == null || _activeFlowCoordinator == customFlowCoordinator) return;
-
-            if (customFlowCoordinator == null)
+            if (!_masterFlowCoordinator)
             {
-                customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
-                DontDestroyOnLoad(customFlowCoordinator.gameObject);
-                customFlowCoordinator.customPanel = this;
+                newViewController.Dismiss += () => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, false }); }; // default back button behavior
+                _dismissInternal += (immediate) => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, immediate }); }; // custom back button behavior
             }
-            customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
-
-            ReflectionUtil.InvokePrivateMethod(_activeFlowCoordinator, "PresentFlowCoordinator", new object[] { customFlowCoordinator, null, false, false });
+            _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { leftViewController, immediately });
         }
 
+        public bool Present(bool immediately = false)
+        {
+            var _activeFlowCoordinator = GetActiveFlowCoordinator();
+            if (_activeFlowCoordinator == null || _activeFlowCoordinator == customFlowCoordinator) return false;
+
+            if (mainViewController != null)
+            {
+
+                if (customFlowCoordinator == null)
+                {
+                    customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
+                    DontDestroyOnLoad(customFlowCoordinator.gameObject);
+                    customFlowCoordinator.customPanel = this;
+                    _dismissInternal = customFlowCoordinator.Dismiss;
+                }
+                customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
+
+                ReflectionUtil.InvokePrivateMethod(_activeFlowCoordinator, "PresentFlowCoordinator", new object[] { customFlowCoordinator, null, immediately, false });
+            }
+            else
+            {
+                if(!_masterFlowCoordinator)
+                    _dismissInternal = null;
+
+                if (leftViewController)
+                    SetScreen(_activeFlowCoordinator, leftViewController, _activeFlowCoordinator.leftScreenViewController, "SetLeftScreenViewController", immediately);
+
+                if (rightViewController)
+                    SetScreen(_activeFlowCoordinator, rightViewController, _activeFlowCoordinator.rightScreenViewController, "SetRightScreenViewController", immediately);
+
+                _masterFlowCoordinator = _activeFlowCoordinator;
+            }
+            
+            return true;
+        }
+        
+        private void SetupScreenViewController(FlowCoordinator flowCoordinator, VRUIViewController viewController, string method, bool immediately)
+        {
+
+        }
+
+        public void Present()
+        {
+            Present(false);
+        }
+        
         public void Dismiss()
         {
-            customFlowCoordinator?.Dismiss();
+            Dismiss(false);
+        }
+
+        public void Dismiss(bool immediately = false)
+        {
+            _dismissInternal?.Invoke(immediately);
         }
     }
 }
