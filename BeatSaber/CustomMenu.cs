@@ -257,7 +257,6 @@ namespace CustomUI.BeatSaber
 
             if (mainViewController != null)
             {
-
                 if (customFlowCoordinator == null)
                 {
                     customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
@@ -284,11 +283,6 @@ namespace CustomUI.BeatSaber
             }
             
             return true;
-        }
-        
-        private void SetupScreenViewController(FlowCoordinator flowCoordinator, VRUIViewController viewController, string method, bool immediately)
-        {
-
         }
 
         public void Present()
