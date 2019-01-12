@@ -245,7 +245,10 @@ namespace CustomUI.Settings
             return newListSettingsController;
         }
 
-        Sprite _editIcon = null;
+        public T AddStringSetting<T>(string name) where T : ListSettingsController
+        {
+            return AddStringSetting<T>(name, "");
+        }
         public T AddStringSetting<T>(string name, string hintText) where T : ListSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
@@ -256,15 +259,12 @@ namespace CustomUI.Settings
             //var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
             //(bgIcon.transform as RectTransform).localScale *= new Vector2(0.9f, 0.9f);
             var arrowIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("Arrow").gameObject.GetComponent<Image>();
-            if (_editIcon == null)
-                _editIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
+            arrowIcon.sprite = UIUtilities.EditIcon;
             var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
             valueText.alignment = TextAlignmentOptions.MidlineRight;
             valueText.enableWordWrapping = false;
             BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
-
-            arrowIcon.sprite = _editIcon;
-
+            
             VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);

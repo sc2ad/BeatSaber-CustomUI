@@ -184,6 +184,7 @@ namespace CustomUI.Settings
         public event StringForValue FormatValue;
 
         public List<float> values = new List<float>();
+        public bool applyImmediately = false;
 
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
@@ -210,11 +211,15 @@ namespace CustomUI.Settings
         public override void IncButtonPressed()
         {
             base.IncButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
         }
 
         public override void DecButtonPressed()
         {
             base.DecButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
         }
     }
 

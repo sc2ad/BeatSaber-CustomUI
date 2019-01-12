@@ -22,6 +22,17 @@ namespace CustomUI.Utilities
             }
         }
 
+        private static Sprite _editIcon = null;
+        public static Sprite EditIcon
+        {
+            get
+            {
+                if(!_editIcon)
+                    _editIcon = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
+                return _editIcon;
+            }
+        }
+
         public static Texture2D LoadTextureRaw(byte[] file)
         {
             if (file.Count() > 0)

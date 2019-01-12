@@ -283,6 +283,7 @@ namespace CustomUI.GameplaySettings
             ListViewController newListSettingsController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
             UnityEngine.Object.DestroyImmediate(volume);
 
+            newListSettingsController.applyImmediately = true;
             newListSettingsController.values = _options.Keys.ToList();
             newListSettingsController.SetValue = OnChange;
             newListSettingsController.GetValue = () =>
@@ -295,7 +296,6 @@ namespace CustomUI.GameplaySettings
                 if (_options.ContainsKey(v)) return _options[v] != null ? _options[v] : v.ToString();
                 return "UNKNOWN";
             };
-
             //Initialize the controller, as if we had just opened the settings menu
             newListSettingsController.Init();
             var value = newListSettingsController.gameObject.transform.Find("Value");

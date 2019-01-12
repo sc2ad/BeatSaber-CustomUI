@@ -19,7 +19,6 @@ namespace CustomUI.BeatSaber
 
         public Action<bool, VRUIViewController.ActivationType> DidActivateEvent;
         public Action<VRUIViewController.DeactivationType> DidDeactivateEvent;
-        public Action Dismiss = null;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
@@ -27,11 +26,10 @@ namespace CustomUI.BeatSaber
             {
                 if (includeBackButton && _backButton == null)
                 {
-                    backButtonPressed += Dismiss;
                     _backButton = BeatSaberUI.CreateBackButton(rectTransform as RectTransform);
                     _backButton.onClick.AddListener(delegate ()
                     {
-                        if (backButtonPressed != null) backButtonPressed();
+                        backButtonPressed?.Invoke();
                     });
                 }
             }
@@ -42,6 +40,11 @@ namespace CustomUI.BeatSaber
         protected override void DidDeactivate(DeactivationType type)
         {
             DidDeactivateEvent?.Invoke(type);
+        }
+
+        public void ClearBackButtonCallbacks()
+        {
+            backButtonPressed = null;
         }
     }
 
@@ -152,13 +155,13 @@ namespace CustomUI.BeatSaber
         protected override void DidActivate(bool firstActivation, ActivationType activationType)
         {
             if (customPanel.mainViewController)
-                customPanel.mainViewController.Dismiss += Dismiss;
+                customPanel.mainViewController.backButtonPressed += Dismiss;
 
             if (customPanel.leftViewController)
-                customPanel.leftViewController.Dismiss += Dismiss;
+                customPanel.leftViewController.backButtonPressed += Dismiss;
 
             if (customPanel.rightViewController)
-                customPanel.rightViewController.Dismiss += Dismiss;
+                customPanel.rightViewController.backButtonPressed += Dismiss;
 
             title = customPanel.title;
 
@@ -196,7 +199,7 @@ namespace CustomUI.BeatSaber
         public VRUIViewController topViewController = null;
         public string title;
 
-        private Action<bool> _dismissInternal = null;
+        private Action<bool> _dismissCustom = null;
         private FlowCoordinator _masterFlowCoordinator;
 
         public void SetMainViewController(CustomViewController viewController, bool includeBackButton, Action<bool, VRUIViewController.ActivationType> DidActivate = null, Action<VRUIViewController.DeactivationType> DidDeactivate = null)
@@ -229,27 +232,6 @@ namespace CustomUI.BeatSaber
                 rightViewController.DidDeactivateEvent += DidDeactivate;
         }
         
-        private FlowCoordinator GetActiveFlowCoordinator()
-        {
-            FlowCoordinator[] flowCoordinators = Resources.FindObjectsOfTypeAll<FlowCoordinator>();
-            foreach(FlowCoordinator f in flowCoordinators)
-            {
-                if (f.isActivated)
-                    return f;
-            }
-            return null;
-        }
-
-        private void SetScreen(FlowCoordinator _activeFlowCoordinator, CustomViewController newViewController, VRUIViewController origViewController, string method, bool immediately)
-        {
-            if (!_masterFlowCoordinator)
-            {
-                newViewController.Dismiss += () => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, false }); }; // default back button behavior
-                _dismissInternal += (immediate) => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, immediate }); }; // custom back button behavior
-            }
-            _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { leftViewController, immediately });
-        }
-
         public bool Present(bool immediately = false)
         {
             var _activeFlowCoordinator = GetActiveFlowCoordinator();
@@ -262,7 +244,7 @@ namespace CustomUI.BeatSaber
                     customFlowCoordinator = new GameObject("CustomFlowCoordinator").AddComponent<CustomFlowCoordinator>();
                     DontDestroyOnLoad(customFlowCoordinator.gameObject);
                     customFlowCoordinator.customPanel = this;
-                    _dismissInternal = customFlowCoordinator.Dismiss;
+                    _dismissCustom = customFlowCoordinator.Dismiss;
                 }
                 customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
 
@@ -270,8 +252,7 @@ namespace CustomUI.BeatSaber
             }
             else
             {
-                if(!_masterFlowCoordinator)
-                    _dismissInternal = null;
+                 _dismissCustom = null;
 
                 if (leftViewController)
                     SetScreen(_activeFlowCoordinator, leftViewController, _activeFlowCoordinator.leftScreenViewController, "SetLeftScreenViewController", immediately);
@@ -284,20 +265,43 @@ namespace CustomUI.BeatSaber
             
             return true;
         }
-
         public void Present()
         {
             Present(false);
         }
-        
+
+        public void Dismiss(bool immediately = false)
+        {
+            _dismissCustom?.Invoke(immediately);
+        }
         public void Dismiss()
         {
             Dismiss(false);
         }
 
-        public void Dismiss(bool immediately = false)
+        private FlowCoordinator GetActiveFlowCoordinator()
         {
-            _dismissInternal?.Invoke(immediately);
+            FlowCoordinator[] flowCoordinators = Resources.FindObjectsOfTypeAll<FlowCoordinator>();
+            foreach (FlowCoordinator f in flowCoordinators)
+            {
+                if (f.isActivated)
+                    return f;
+            }
+            return null;
+        }
+
+        private void SetScreen(FlowCoordinator _activeFlowCoordinator, CustomViewController newViewController, VRUIViewController origViewController, string method, bool immediately)
+        {
+            _dismissCustom += (immediate) => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, immediate }); }; // custom back button behavior
+            if (!newViewController.isActivated)
+            {
+                if (newViewController.includeBackButton)
+                {
+                    newViewController.ClearBackButtonCallbacks();
+                    newViewController.backButtonPressed += () => { _dismissCustom?.Invoke(false); }; // default back button behavior
+                }
+                _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { newViewController, immediately });
+            }
         }
     }
 }
