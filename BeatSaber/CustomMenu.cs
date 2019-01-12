@@ -188,6 +188,7 @@ namespace CustomUI.BeatSaber
 
     public class CustomMenu : MonoBehaviour
     {
+        public string title;
         public CustomFlowCoordinator customFlowCoordinator
         {
             get { return _masterFlowCoordinator as CustomFlowCoordinator; }
@@ -196,11 +197,12 @@ namespace CustomUI.BeatSaber
         public CustomViewController mainViewController = null;
         public CustomViewController leftViewController = null;
         public CustomViewController rightViewController = null;
-        public VRUIViewController topViewController = null;
-        public string title;
 
-        private Action<bool> _dismissCustom = null;
         private FlowCoordinator _masterFlowCoordinator;
+        private Action<bool> _dismissCustom = null;
+        private List<VRUIViewController> _rightViewControllerStack = new List<VRUIViewController>();
+        private List<VRUIViewController> _leftViewControllerStack = new List<VRUIViewController>();
+
 
         public void SetMainViewController(CustomViewController viewController, bool includeBackButton, Action<bool, VRUIViewController.ActivationType> DidActivate = null, Action<VRUIViewController.DeactivationType> DidDeactivate = null)
         {
@@ -247,22 +249,18 @@ namespace CustomUI.BeatSaber
                     _dismissCustom = customFlowCoordinator.Dismiss;
                 }
                 customFlowCoordinator.parentFlowCoordinator = _activeFlowCoordinator;
-
                 ReflectionUtil.InvokePrivateMethod(_activeFlowCoordinator, "PresentFlowCoordinator", new object[] { customFlowCoordinator, null, immediately, false });
             }
             else
             {
-                 _dismissCustom = null;
-
+                _dismissCustom = null;
                 if (leftViewController)
-                    SetScreen(_activeFlowCoordinator, leftViewController, _activeFlowCoordinator.leftScreenViewController, "SetLeftScreenViewController", immediately);
+                    SetScreen(_activeFlowCoordinator, leftViewController, _activeFlowCoordinator.leftScreenViewController, false, immediately);
 
                 if (rightViewController)
-                    SetScreen(_activeFlowCoordinator, rightViewController, _activeFlowCoordinator.rightScreenViewController, "SetRightScreenViewController", immediately);
-
+                    SetScreen(_activeFlowCoordinator, rightViewController, _activeFlowCoordinator.rightScreenViewController, true, immediately);
                 _masterFlowCoordinator = _activeFlowCoordinator;
             }
-            
             return true;
         }
         public void Present()
@@ -290,15 +288,38 @@ namespace CustomUI.BeatSaber
             return null;
         }
 
-        private void SetScreen(FlowCoordinator _activeFlowCoordinator, CustomViewController newViewController, VRUIViewController origViewController, string method, bool immediately)
+        private VRUIViewController PopViewControllerStack(bool right)
         {
-            _dismissCustom += (immediate) => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { origViewController, immediate }); }; // custom back button behavior
+            if (right)
+            {
+                var viewController = _rightViewControllerStack.Last();
+                _rightViewControllerStack.Remove(viewController);
+                return viewController;
+            }
+            else
+            {
+                var viewController = _leftViewControllerStack.Last();
+                _leftViewControllerStack.Remove(viewController);
+                return viewController;
+            }   
+        }
+
+        private void SetScreen(FlowCoordinator _activeFlowCoordinator, CustomViewController newViewController, VRUIViewController origViewController, bool right, bool immediately)
+        {
+            string method = right ? "SetRightScreenViewController" : "SetLeftScreenViewController";
+            Action<bool> backAction = (immediate) => { _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { PopViewControllerStack(right), immediate }); };
+            _dismissCustom += backAction;  // custom back button behavior
             if (!newViewController.isActivated)
             {
+                if (right)
+                    _rightViewControllerStack.Add(origViewController);
+                else
+                    _leftViewControllerStack.Add(origViewController);
+
                 if (newViewController.includeBackButton)
                 {
                     newViewController.ClearBackButtonCallbacks();
-                    newViewController.backButtonPressed += () => { _dismissCustom?.Invoke(false); }; // default back button behavior
+                    newViewController.backButtonPressed += () => { backAction.Invoke(false); }; // default back button behavior
                 }
                 _activeFlowCoordinator.InvokePrivateMethod(method, new object[] { newViewController, immediately });
             }
