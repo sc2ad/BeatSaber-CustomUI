@@ -51,7 +51,7 @@ namespace CustomUI.GameplaySettings
             conflicts.Add(modifierName);
         }
 
-        public void AddSeparator(RectTransform container)
+        protected void AddSeparator(RectTransform container)
         {
             if (separator != null) return;
             foreach (Transform t in container)
