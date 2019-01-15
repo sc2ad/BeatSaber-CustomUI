@@ -98,7 +98,24 @@ namespace CustomUI.BeatSaber
             TextMeshProUGUI textMesh = BeatSaberUI.CreateText(parent.rectTransform, text, anchoredPosition);
             return textMesh;
         }
-        #endregion
 
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, Vector2 sizeDelta, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, sizeDelta, fromValue, toValue, onValueChanged);
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, fromValue, toValue, onValueChanged);
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, fromValue, toValue, onValueChanged);
+            return scrollbar;
+        }
+        #endregion
     }
 }

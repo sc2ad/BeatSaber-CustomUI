@@ -255,6 +255,55 @@ namespace CustomUI.BeatSaber
             return hoverHint;
         }
 
+        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbarInst = Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First();
+            HMUI.Scrollbar scrollbar = Instantiate(scrollbarInst, parent, false);
 
+            (scrollbar.transform as RectTransform).anchoredPosition = anchoredPosition;
+            (scrollbar.transform as RectTransform).sizeDelta = sizeDelta;
+            scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = ((toValue - fromValue) * scrollbar.value + fromValue).ToString();
+            scrollbar.onValueChanged.AddListener(delegate (float value) {
+                TextMeshProUGUI valueLabel = scrollbar.GetComponentInChildren<TextMeshProUGUI>();
+                valueLabel.enableWordWrapping = false;
+                valueLabel.text = ((toValue - fromValue) * value + fromValue).ToString("N1");
+            });
+            scrollbar.onValueChanged.AddListener(onValueChanged);
+
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, Vector2 anchoredPosition, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbarInst = Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First();
+            HMUI.Scrollbar scrollbar = Instantiate(scrollbarInst, parent, false);
+
+            (scrollbar.transform as RectTransform).anchoredPosition = anchoredPosition;
+            scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = ((toValue - fromValue) * scrollbar.value + fromValue).ToString();
+            scrollbar.onValueChanged.AddListener(delegate (float value) {
+                TextMeshProUGUI valueLabel = scrollbar.GetComponentInChildren<TextMeshProUGUI>();
+                valueLabel.enableWordWrapping = false;
+                valueLabel.text = ((toValue - fromValue) * value + fromValue).ToString("N1");
+            });
+            scrollbar.onValueChanged.AddListener(onValueChanged);
+
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, float fromValue, float toValue, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbarInst = Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First();
+            HMUI.Scrollbar scrollbar = Instantiate(scrollbarInst, parent, false);
+
+            scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = ((toValue - fromValue) * scrollbar.value + fromValue).ToString();
+            scrollbar.onValueChanged.AddListener(delegate (float value) {
+                TextMeshProUGUI valueLabel = scrollbar.GetComponentInChildren<TextMeshProUGUI>();
+                valueLabel.enableWordWrapping = false;
+                valueLabel.text = ((toValue - fromValue) * value + fromValue).ToString("N1");
+            });
+            scrollbar.onValueChanged.AddListener(onValueChanged);
+
+            return scrollbar;
+        }
     }
 }
