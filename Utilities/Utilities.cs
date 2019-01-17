@@ -27,9 +27,31 @@ namespace CustomUI.Utilities
         {
             get
             {
-                if(!_editIcon)
+                if (!_editIcon)
                     _editIcon = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
                 return _editIcon;
+            }
+        }
+
+        private static Sprite _radialColorPicker = null;
+        public static Sprite RadialColorPicker
+        {
+            get
+            {
+                if (!_radialColorPicker)
+                    _radialColorPicker = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Radial Color Picker.png");
+                return _radialColorPicker;
+            }
+        }
+
+        private static Sprite _colorPickerBase = null;
+        public static Sprite ColorPickerBase
+        {
+            get
+            {
+                if (!_colorPickerBase)
+                    _colorPickerBase = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Color Picker Base.png");
+                return _colorPickerBase;
             }
         }
 

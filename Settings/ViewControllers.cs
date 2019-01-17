@@ -1,4 +1,5 @@
-﻿using CustomUI.BeatSaber;
+﻿using BeatSaberCustomUI.UIElements;
+using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -248,6 +249,87 @@ namespace CustomUI.Settings
         protected override string TextForValue(int idx)
         {
             return GetTextForValue(values[idx]);
+        }
+    }
+
+    public class SliderViewController : IncDecSettingsController
+    {
+        public delegate float GetFloat();
+        public event GetFloat GetValue;
+
+        public delegate void SetFloat(float value);
+        public event SetFloat SetValue;
+
+        private float _min;
+        private float _max;
+        private bool _intValues;
+
+        private HMUI.Scrollbar _sliderInst;
+        private SliderProperties _sliderPropertiesInst;
+        private TMPro.TextMeshProUGUI _textInst;
+
+        public override void Init()
+        {
+            _sliderInst = transform.GetComponentInChildren<HMUI.Scrollbar>();
+            _sliderPropertiesInst = _sliderInst.gameObject.GetComponent<SliderProperties>();
+            _sliderPropertiesInst.CurrentValue = GetInitValue();
+            _textInst = _sliderInst.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            _sliderInst.value = _sliderPropertiesInst.GetPercentageFromValue(_sliderPropertiesInst.CurrentValue);
+            _sliderInst.onValueChanged.AddListener(delegate (float value) {
+                _sliderPropertiesInst.SetCurrentValueFromPercentage(value);
+                RefreshUI();
+            });
+            RefreshUI();
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_sliderPropertiesInst.CurrentValue);
+        }
+
+        private void RefreshUI()
+        {
+            _textInst.text = TextForValue(_sliderPropertiesInst.CurrentValue);
+        }
+
+        public override void IncButtonPressed()
+        {
+
+        }
+
+        public override void DecButtonPressed()
+        {
+
+        }
+
+        public void SetValues(float min, float max, bool intValues)
+        {
+            _min = min;
+            _max = max;
+            _intValues = intValues;
+        }
+
+        protected float GetInitValue()
+        {
+            float value = 0;
+            if (GetValue == null)
+                value = _min;
+            else
+                value = GetValue();
+            return value;
+        }
+
+        protected void ApplyValue(float value)
+        {
+            if (SetValue != null)
+                SetValue((_intValues) ? ((float)Math.Floor(value)) : (value));
+        }
+
+        protected string TextForValue(float value)
+        {
+            if (_intValues)
+                return Math.Floor(value).ToString("N0");
+            return value.ToString("N1");
         }
     }
 }
