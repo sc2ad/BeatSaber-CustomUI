@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using VRUI;
+using TMPro;
 
 namespace CustomUI.MenuButton
 {
@@ -54,7 +55,7 @@ namespace CustomUI.MenuButton
             }
             catch (Exception e)
             {
-                Console.WriteLine("EXCEPTION IN DidActivate: " + e);
+                Console.WriteLine("EXCEPTION IN MenuButtonListViewController.DidActivate: " + e);
             }
             base.DidActivate(firstActivation, type);
 
@@ -71,7 +72,7 @@ namespace CustomUI.MenuButton
 
         public override float RowHeight()
         {
-            return 12f;
+            return 10f;
         }
 
         public override int NumberOfRows()
@@ -96,14 +97,13 @@ namespace CustomUI.MenuButton
 
                     Button newButton = BeatSaberUI.CreateUIButton(container, "QuitButton", new Vector2(0,0), buttonSize ,menuButton.onClick, menuButton.text, menuButton.icon);
                     newButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(6, 8, 0, 0);
-
+                    newButton.GetComponentInChildren<TextMeshProUGUI>().lineSpacing = -65;
                     
                     //  sub button
                     var pinButton = BeatSaberUI.CreateUIButton(container, "QuitButton", new Vector2(-6,0), new Vector2(8,8), null, "", null);
 
                     if (_highlightedClip == null) _highlightedClip = pinButton.GetComponent<ButtonStaticAnimations>().GetPrivateField<AnimationClip>("_highlightedClip");
                     if (_normalClip == null) _normalClip = pinButton.GetComponent<ButtonStaticAnimations>().GetPrivateField<AnimationClip>("_normalClip");
-                    if (_normalClip == null) Console.WriteLine("============NORMAL CLIP NULL===========");
 
                     PinButtonPushEffect(pinButton, menuButton);
                     (pinButton.transform as RectTransform).anchorMin = new Vector2(1, 0.5f);

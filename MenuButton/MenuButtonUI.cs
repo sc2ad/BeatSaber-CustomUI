@@ -81,31 +81,6 @@ namespace CustomUI.MenuButton
             pinnedButtons = ModPrefs.GetString("CustomUI", "PinnedMenuButtons", "", true).Split(',').ToList();
             
             StartCoroutine(AddMenuButtonListButton());
-            
-            AddButton($"Kyles fault", null);
-            AddButton($"delete CMB", null);
-            AddButton($"Bacon", null);
-            AddButton($"owo", null);
-            AddButton($"what's this?", null);
-            AddButton($"ban", null);
-            AddButton($"gif.gif", null);
-            AddButton($"how instal sword", null);
-            AddButton($"ShameSaber", null);
-            AddButton($"NUT", null);
-            AddButton($"n i c e b o i", null);
-            AddButton($"buttonText", null);
-            AddButton($"RainModWhen", null);
-            AddButton($"Gnome", null);
-            AddButton($"BlueScreenPls", null);
-            AddButton($"(0_0)", null);
-            AddButton($"!", null);
-            AddButton($"Yes", null);
-            AddButton($"No", null);
-            AddButton($"Maybe", null);
-            AddButton($"I don't know", null);
-            AddButton($"repeat question", null);
-            AddButton($"code faster", null);
-            AddButton($"Give ChromaToggle", null);
         }
         
         private static IEnumerator AddMenuButtonListButton()
@@ -132,23 +107,17 @@ namespace CustomUI.MenuButton
             }
             _menuButtonListViewController.SetData(buttonData);
 
+            // Using MainFlowCoordinator instead of CustomMenu for compatibility with mods
             FlowCoordinator flowCoordinator = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
             flowCoordinator.InvokePrivateMethod("PresentViewController", new object[] { _menuButtonListViewController, null, false });
-
-            /*
-            if(_menuButtonListMenu == null)
-            {
-                _menuButtonListMenu = BeatSaberUI.CreateCustomMenu<CustomMenu>("Mods");
-                _menuButtonListMenu.SetMainViewController(_menuButtonListViewController, true);
-            }
-            _menuButtonListMenu.Present();
-            */
+            flowCoordinator.SetProperty("title", "Mods");
         }
 
         private void ListBackPressed()
         {
             FlowCoordinator flowCoordinator = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
             flowCoordinator.InvokePrivateMethod("DismissViewController", new object[] { _menuButtonListViewController, null, false });
+            flowCoordinator.SetProperty("title", string.Empty);
         }
 
         private static IEnumerator AddButtonToMainMenuCoroutine(MenuButton button)
