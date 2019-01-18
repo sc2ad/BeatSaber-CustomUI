@@ -18,13 +18,21 @@ namespace BeatSaberCustomUI.UIElements
         {
             base.Awake();
             _Image = gameObject.AddComponent<HMUI.Image>();
-            _Image.material = Instantiate(Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlow").FirstOrDefault());
-            Console.WriteLine("ColorPickerPreview awake done.");
+            if (_Image != null)
+                _Image.material = Instantiate(Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlow").FirstOrDefault());
+            else
+                Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: The '_Image' instance was null.");
+            Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: ColorPickerPreview awake done.");
         }
 
+        /// <summary>
+        /// Assign to the <see cref="HMUI.Image"/> instance the given <see cref="Color"/>
+        /// </summary>
+        /// <param name="color">A color</param>
         public void AssignPreviewColor(Color color)
         {
-            _Image.color = color;
+            if (_Image != null)
+                _Image.color = color;
         }
     }
 }

@@ -15,7 +15,8 @@ namespace BeatSaberCustomUI.UIElements
     public class ColorPicker : Selectable, IEventSystemHandler
     {
         public ColorPickerPreview ColorPickerPreview;
-        public ColorPickerHue ColorPickerHue;
+        public HMUI.Image ColorPickerHueBG;
+        public HMUI.Scrollbar ColorPickerHueSlider;
         public ColorPickerCore ColorPickerCore;
 
         private AssetBundle _ColorPickerBundle;
@@ -24,39 +25,74 @@ namespace BeatSaberCustomUI.UIElements
         {
             base.Awake();
             _ColorPickerBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberCustomUI.Resources.ColorPicker.assetbundle"));
-            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ColorPickerBundle is null ?: " + (_ColorPickerBundle == null));
+            if (_ColorPickerBundle == null)
+            {
+                Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The loading of the 'ColorPicker.assetbundle' resulted into a failure, stopping the ColorPicker creation.");
+                return;
+            }
 
+            //ColorPickerPreview initialization
             ColorPickerPreview = new GameObject("ColorPickerPreview").AddComponent<ColorPickerPreview>();
-            ColorPickerPreview.transform.SetParent(transform, false);
-            (ColorPickerPreview.transform as RectTransform).sizeDelta = new Vector2(15, 10);
-            ColorPickerPreview.transform.Translate(-45f, 40, 0);
-
+            if (ColorPickerPreview != null)
+            {
+                ColorPickerPreview.transform.SetParent(transform, false);
+                (ColorPickerPreview.transform as RectTransform).sizeDelta = new Vector2(15, 10);
+                ColorPickerPreview.transform.Translate(-45f, 40, 0);
+            } else
+                Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerPreview' instance was null.");
+            //ColorPickerCore initialization
             ColorPickerCore = new GameObject("ColorPickerCore").AddComponent<ColorPickerCore>();
-            //ColorPickerCore = GameObject.CreatePrimitive(PrimitiveType.Quad).AddComponent<ColorPickerCore>();
-            ColorPickerCore.ColorPickerPreview = ColorPickerPreview;
-            ColorPickerCore.ColorPickerBundle = _ColorPickerBundle;
-            ColorPickerCore.Initialize();
-            ColorPickerCore.transform.SetParent(transform, false);
-            (ColorPickerCore.transform as RectTransform).sizeDelta = new Vector2(50, 50);
+            if (ColorPickerCore != null)
+            {
+                ColorPickerCore.ColorPickerPreview = ColorPickerPreview;
+                ColorPickerCore.ColorPickerBundle = _ColorPickerBundle;
+                ColorPickerCore.Initialize();
+                ColorPickerCore.transform.SetParent(transform, false);
+                (ColorPickerCore.transform as RectTransform).sizeDelta = new Vector2(50, 50);
+            } else
+                Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerCore' instance was null.");
 
-            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Creating slider");
-            HMUI.Scrollbar slider = BeatSaberUI.CreateUISlider(transform as RectTransform, 0f, 1f, false);
-            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Adding component to the slider");
-            ColorPickerHue = slider.gameObject.AddComponent<ColorPickerHue>();
-            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Is my instance of the component created null ?: " + (ColorPickerHue == null));
-            //ColorPickerHue = new GameObject("ColorPickerHue").AddComponent<ColorPickerHue>();
-            ColorPickerHue.ColorPickerBundle = _ColorPickerBundle;
-            ColorPickerHue.Initialize();
-            (ColorPickerHue.transform as RectTransform).sizeDelta = new Vector2(50, 7.5f);
-            ColorPickerHue.transform.Translate(0, 35, 0);
-            Console.WriteLine("ColorPicker awake done.");
+            //ColorPickerHue background initialization
+            ColorPickerHueBG = new GameObject("ColorPickerHueBG").AddComponent<HMUI.Image>();
+            if (ColorPickerHueBG != null)
+            {
+                ColorPickerHueBG.material = new Material(_ColorPickerBundle.LoadAsset<Shader>("HueSlider"));
+                ColorPickerHueBG.transform.SetParent(transform, false);
+                (ColorPickerHueBG.transform as RectTransform).sizeDelta = new Vector2(50, 7.5f);
+                ColorPickerHueBG.transform.Translate(0, 35, 0);
+            } else
+                Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerHueBG' instance was null.");
+
+            //ColorPickerHue slider initialization
+            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 0");
+            ColorPickerHueSlider = BeatSaberUI.CreateUISlider(transform as RectTransform, 0f, 1f, false, (float value) => { ColorPickerCore.ChangeColorPickerHue(value); });
+            if (ColorPickerHueSlider != null)
+            {
+                ColorPickerHueSlider.gameObject.name = "ColorPickerHueSlider";
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 1");
+                ColorPickerHueSlider.transform.SetParent(transform, false);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 2");
+                (ColorPickerHueSlider.transform as RectTransform).sizeDelta = new Vector2(54, 7.5f);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 3");
+                ColorPickerHueSlider.transform.Translate(0, 37f, -0.00001f);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 4");
+                ColorPickerHueSlider.GetComponent<Image>().color = new Color(0, 0, 0, 0);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 5");
+                ColorPickerHueSlider.transform.Find("SlidingArea/Handle").GetComponent<Image>().color = new Color(1, 1, 1, 1);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 6");
+                ColorPickerHueSlider.GetComponentInChildren<TMPro.TextMeshProUGUI>().color = new Color(1, 1, 1, 0);
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 7");
+            } else
+                Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerHueSlider' instance was null.");
+
+            Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: ColorPicker awake done.");
         }
 
         /// <summary>
         /// Get the color of a sprite contained in an <see cref="HMUI.Image"/> on pointer click
         /// </summary>
         /// <param name="pointerData">The <see cref="PointerEventData"/> given by OnPointerDown</param>
-        /// <param name="image">The <see cref="HMUI.Image"/> isntance</param>
+        /// <param name="image">The <see cref="HMUI.Image"/> instance</param>
         public static Color GetSelectedColorFromImage(PointerEventData pointerData, HMUI.Image image)
         {
             RectTransform rectTransform = image.transform as RectTransform;
@@ -65,18 +101,12 @@ namespace BeatSaberCustomUI.UIElements
                 return (new Color(0, 0, 0, 0));
             localCursor.x += Math.Abs(rectTransform.rect.x);
             localCursor.y += Math.Abs(rectTransform.rect.y);
-            Console.WriteLine("sprite is null: " + (image.sprite == null));
             localCursor.x *= (image.sprite.texture.width / rectTransform.rect.width);
             localCursor.y *= (image.sprite.texture.height / rectTransform.rect.height);
             if (localCursor.x < 0 || localCursor.y < 0)
                 return (new Color(0, 0, 0, 0));
-            Console.WriteLine("localCursor: [" + (localCursor.x) + ", " + (localCursor.y) + "]");
-            Console.WriteLine("rectTransform.rect x/y: [" + (rectTransform.rect.x) + ", " + (rectTransform.rect.y) + "]");
-            Console.WriteLine("rectTransform.rect width/height: [" + (rectTransform.rect.width) + ", " + (rectTransform.rect.height) + "]");
-            Color c = image.sprite.texture.GetPixel((int)(localCursor.x), (int)(localCursor.y));
 
-            Console.WriteLine("Color at position is: [" + c.r + ", " + c.g + ", " + c.b + ", " + c.a + "]");
-            return c;
+            return (image.sprite.texture.GetPixel((int)(localCursor.x), (int)(localCursor.y)));
         }
     }
 }

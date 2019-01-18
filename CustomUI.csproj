@@ -87,7 +87,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UIElements\ColorPicker.cs" />
     <Compile Include="UIElements\ColorPickerCore.cs" />
-    <Compile Include="UIElements\ColorPickerHue.cs" />
     <Compile Include="UIElements\ColorPickerPreview.cs" />
     <Compile Include="UIElements\SliderProperties.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
@@ -101,9 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Edit Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Radial Color Picker.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ColorPicker.assetbundle" />

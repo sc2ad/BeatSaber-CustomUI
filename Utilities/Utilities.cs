@@ -33,17 +33,6 @@ namespace CustomUI.Utilities
             }
         }
 
-        private static Sprite _radialColorPicker = null;
-        public static Sprite RadialColorPicker
-        {
-            get
-            {
-                if (!_radialColorPicker)
-                    _radialColorPicker = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Radial Color Picker.png");
-                return _radialColorPicker;
-            }
-        }
-
         private static Sprite _colorPickerBase = null;
         public static Sprite ColorPickerBase
         {
