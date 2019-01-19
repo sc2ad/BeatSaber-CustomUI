@@ -228,13 +228,11 @@ namespace CustomUI.MenuButton
 
         private void Rebuild()
         {
-            Console.WriteLine(rows.Count);
             while(rows.Count > 0)
             {
                 Destroy(rows.First().gameObject);
                 rows.Remove(rows.First());
             }
-            Console.WriteLine(rows.Count);
             currentRow = null;
             buttonsInCurrentRow = ButtonsPerRow;
             rows.Clear();
