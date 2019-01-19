@@ -340,7 +340,7 @@ namespace CustomUI.BeatSaber
 
             colorPicker.transform.localScale = new Vector3(sizeDelta.x, sizeDelta.y, colorPicker.transform.localScale.z);
             colorPicker.transform.SetParent(parent, false);
-            (colorPicker.transform as RectTransform).anchoredPosition = anchoredPosition;
+            colorPicker.transform.localPosition = new Vector3(anchoredPosition.x, anchoredPosition.y);
 
             return colorPicker;
         }
