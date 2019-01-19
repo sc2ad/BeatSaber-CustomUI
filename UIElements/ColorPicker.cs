@@ -64,24 +64,16 @@ namespace BeatSaberCustomUI.UIElements
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerHueBG' instance was null.");
 
             //ColorPickerHue slider initialization
-            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 0");
             ColorPickerHueSlider = BeatSaberUI.CreateUISlider(transform as RectTransform, 0f, 1f, false, (float value) => { ColorPickerCore.ChangeColorPickerHue(value); });
             if (ColorPickerHueSlider != null)
             {
                 ColorPickerHueSlider.gameObject.name = "ColorPickerHueSlider";
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 1");
                 ColorPickerHueSlider.transform.SetParent(transform, false);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 2");
                 (ColorPickerHueSlider.transform as RectTransform).sizeDelta = new Vector2(54, 7.5f);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 3");
                 ColorPickerHueSlider.transform.Translate(0, 37f, -0.00001f);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 4");
                 ColorPickerHueSlider.GetComponent<Image>().color = new Color(0, 0, 0, 0);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 5");
                 ColorPickerHueSlider.transform.Find("SlidingArea/Handle").GetComponent<Image>().color = new Color(1, 1, 1, 1);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 6");
                 ColorPickerHueSlider.GetComponentInChildren<TMPro.TextMeshProUGUI>().color = new Color(1, 1, 1, 0);
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> 7");
             } else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerHueSlider' instance was null.");
 
