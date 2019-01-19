@@ -1,4 +1,5 @@
 ﻿using IllusionPlugin;
+using System.Collections;
 using UnityEngine.SceneManagement;
 
 namespace CustomUI

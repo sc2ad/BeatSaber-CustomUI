@@ -146,7 +146,6 @@ namespace CustomUI.BeatSaber
             btn.SetButtonText(buttonText);
             if (icon != null)
                 btn.SetButtonIcon(icon);
-
             return btn;
         }
 

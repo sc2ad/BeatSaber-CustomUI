@@ -29,7 +29,6 @@ namespace CustomUI.MenuButton
         private List<MenuButton> buttonData;
         private List<String> pinnedButtons;
         private MenuButtonListViewController _menuButtonListViewController;
-        private CustomMenu _menuButtonListMenu;
 
         private static MenuButtonUI _instance = null;
         public static MenuButtonUI Instance
@@ -77,7 +76,6 @@ namespace CustomUI.MenuButton
         {
             buttonData = new List<MenuButton>();
             rows = new List<RectTransform>();
-
             pinnedButtons = ModPrefs.GetString("CustomUI", "PinnedMenuButtons", "", true).Split(',').ToList();
             
             StartCoroutine(AddMenuButtonListButton());
@@ -89,11 +87,11 @@ namespace CustomUI.MenuButton
 
             lock (Instance)
             {
-                var bottomPanel = GameObject.Find("MainMenuViewController/BottomPanel").transform as RectTransform;
-                var buttonRow = bottomPanel.Find("Buttons") as RectTransform;
-                
-                Button newButton = BeatSaberUI.CreateUIButton(buttonRow as RectTransform, "QuitButton", () => Instance.PresentList(), "Mods", null);
-                buttonRow.Find("QuitButton").SetAsLastSibling();
+                if (Instance.bottomPanel == null) Instance.bottomPanel = GameObject.Find("MainMenuViewController/BottomPanel").transform as RectTransform;
+                if (Instance.menuButtonsOriginal == null) Instance.menuButtonsOriginal = Instance.bottomPanel.Find("Buttons") as RectTransform;
+
+                Button newButton = BeatSaberUI.CreateUIButton(Instance.menuButtonsOriginal as RectTransform, "QuitButton", () => Instance.PresentList(), "Mods", null);
+                Instance.menuButtonsOriginal.Find("QuitButton").SetAsLastSibling();
             }
         }
 
@@ -143,21 +141,45 @@ namespace CustomUI.MenuButton
             Button newButton = BeatSaberUI.CreateUIButton(currentRow, "QuitButton", button.onClick, button.text, button.icon);
             newButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(6, 6, 0, 0);
             newButton.name = button.text;
+            if (button.hintText != String.Empty)
+                BeatSaberUI.AddHintText(newButton.transform as RectTransform, button.hintText);
+            button.buttons.Add(newButton);
+            newButton.interactable = button.interactable;
             buttonsInCurrentRow++;
         }
 
-        public static void AddButton(string buttonText, UnityAction onClick, Sprite icon = null)
+        //public static MenuButton AddButton(string buttonText, UnityAction onClick, Sprite icon = null, bool interactable = true)
+        //{
+        //    bool pin = Instance.pinnedButtons.Contains(buttonText);
+
+        //    MenuButton menuButton = new MenuButton(buttonText, onClick, icon, pin);
+        //    menuButton.interactable = interactable;
+        //    Instance.buttonData.Add(menuButton);
+        //    if (menuButton.pinned)
+        //    {
+        //        Instance.StartCoroutine(AddButtonToMainMenuCoroutine(menuButton));
+        //    }
+        //    return menuButton;
+        //}
+
+        public static MenuButton AddButton(string buttonText, string hintText, UnityAction onClick, Sprite icon = null)
         {
             bool pin = Instance.pinnedButtons.Contains(buttonText);
 
-            MenuButton menuButton = new MenuButton(buttonText, onClick, icon, pin);
+            MenuButton menuButton = new MenuButton(buttonText, hintText, onClick, icon, pin);
             Instance.buttonData.Add(menuButton);
             if (menuButton.pinned)
             {
                 Instance.StartCoroutine(AddButtonToMainMenuCoroutine(menuButton));
             }
+            return menuButton;
         }
 
+        public static void AddButton(string buttonText, UnityAction onClick, Sprite icon = null)
+        {
+            AddButton(buttonText, String.Empty, onClick, icon);
+        }
+        
         void PinButton(MenuButton menuButton)
         {
             if (menuButton.pinned) return;

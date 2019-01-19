@@ -98,7 +98,12 @@ namespace CustomUI.MenuButton
                     Button newButton = BeatSaberUI.CreateUIButton(container, "QuitButton", new Vector2(0,0), buttonSize ,menuButton.onClick, menuButton.text, menuButton.icon);
                     newButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(6, 8, 0, 0);
                     newButton.GetComponentInChildren<TextMeshProUGUI>().lineSpacing = -65;
-                    
+                    newButton.name = menuButton.text;
+                    if (menuButton.hintText != String.Empty)
+                        BeatSaberUI.AddHintText(newButton.transform as RectTransform, menuButton.hintText);
+                    menuButton.buttons.Add(newButton);
+                    newButton.interactable = menuButton.interactable;
+
                     //  sub button
                     var pinButton = BeatSaberUI.CreateUIButton(container, "QuitButton", new Vector2(-6,0), new Vector2(8,8), null, "", null);
 
