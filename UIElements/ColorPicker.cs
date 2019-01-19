@@ -36,8 +36,8 @@ namespace BeatSaberCustomUI.UIElements
             if (ColorPickerPreview != null)
             {
                 ColorPickerPreview.transform.SetParent(transform, false);
-                (ColorPickerPreview.transform as RectTransform).sizeDelta = new Vector2(15, 10);
-                ColorPickerPreview.transform.Translate(-45f, 40, 0);
+                (ColorPickerPreview.transform as RectTransform).sizeDelta = new Vector2(10, 10);
+                ColorPickerPreview.transform.Translate(-45f, 35, 0);
             } else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerPreview' instance was null.");
             //ColorPickerCore initialization
