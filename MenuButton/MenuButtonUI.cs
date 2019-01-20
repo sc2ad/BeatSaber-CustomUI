@@ -226,7 +226,7 @@ namespace CustomUI.MenuButton
                     // Check if any of our buttons in the MenuButton button array are this button
                     if (!menuButton.buttons.Any(tmpBut => tmpBut == currentButton)) continue;
                     
-                    // And destroy the button if it is
+                    // If the currentButton is found, destroy it
                     DestroyImmediate(currentButton.gameObject);
                     
                     // Shift all the existing buttons forward if need be to fill the empty spot we may have just created
@@ -240,18 +240,18 @@ namespace CustomUI.MenuButton
                     // Decrement buttonsInCurrentRow, since it must be changing as we destroyed a button
                     buttonsInCurrentRow--;
 
-                    // Destroy this row if it's empty
-                    if (buttonsInCurrentRow <= 0)
-                    {
-                        Destroy(currentRow.gameObject);
-                        rows.Remove(rows.Last());
-                        // Then if any rows are left, set the current row reference to the correct row
-                        if (rows.Count > 0)
-                            currentRow = menuButtonsOriginal.parent.Find($"CustomMenuButtonsRow{rows.Count}") as RectTransform;
-                        else
-                            currentRow = null;
-                        buttonsInCurrentRow = ButtonsPerRow;
-                    }
+                    // If there are still buttons in this row, we're done.
+                    if (buttonsInCurrentRow > 0) return;
+
+                    // Otherwise, destroy the row
+                    Destroy(currentRow.gameObject);
+                    rows.Remove(rows.Last());
+
+                    // Finally, set the current row reference to the correct row
+                    if (rows.Count > 0)
+                        currentRow = menuButtonsOriginal.parent.Find($"CustomMenuButtonsRow{rows.Count}") as RectTransform;
+                    buttonsInCurrentRow = ButtonsPerRow;
+
                     // No need to proceed any further, we found the button in question and dealt with it
                     return;
                 }
