@@ -148,20 +148,6 @@ namespace CustomUI.MenuButton
             buttonsInCurrentRow++;
         }
 
-        //public static MenuButton AddButton(string buttonText, UnityAction onClick, Sprite icon = null, bool interactable = true)
-        //{
-        //    bool pin = Instance.pinnedButtons.Contains(buttonText);
-
-        //    MenuButton menuButton = new MenuButton(buttonText, onClick, icon, pin);
-        //    menuButton.interactable = interactable;
-        //    Instance.buttonData.Add(menuButton);
-        //    if (menuButton.pinned)
-        //    {
-        //        Instance.StartCoroutine(AddButtonToMainMenuCoroutine(menuButton));
-        //    }
-        //    return menuButton;
-        //}
-
         public static MenuButton AddButton(string buttonText, string hintText, UnityAction onClick, Sprite icon = null)
         {
             bool pin = Instance.pinnedButtons.Contains(buttonText);
@@ -195,7 +181,8 @@ namespace CustomUI.MenuButton
             menuButton.pinned = false;
             if(pinnedButtons.Contains(menuButton.text)) pinnedButtons.Remove(menuButton.text);
             ModPrefs.SetString("CustomUI", "PinnedMenuButtons", string.Join(",", pinnedButtons));
-            Rebuild();
+            RemoveButtonFromMainMenu(menuButton);
+            //Rebuild();
         }
 
         void PinButtonWasPushed(MenuButton button)
@@ -226,22 +213,47 @@ namespace CustomUI.MenuButton
             newRow.anchoredPosition += Vector2.up * RowSeparator * rows.Count;
         }
 
-        private void Rebuild()
+        private void RemoveButtonFromMainMenu(MenuButton menuButton)
         {
-            while(rows.Count > 0)
+            var tmpRows = rows.ToArray();
+            // Cycle through each row in our main menu buttons
+            for(int i=0; i<tmpRows.Length; i++)
             {
-                Destroy(rows.First().gameObject);
-                rows.Remove(rows.First());
-            }
-            currentRow = null;
-            buttonsInCurrentRow = ButtonsPerRow;
-            rows.Clear();
-
-            foreach (MenuButton button in buttonData)
-            {
-                if (button.pinned)
+                // For each row, get a listing of the buttons
+                var buttons = tmpRows[i].GetComponentsInChildren<Button>();
+                foreach(Button currentButton in buttons.ToArray())
                 {
-                    AddButtonToMainMenu(button);
+                    // Check if any of our buttons in the MenuButton button array are this button
+                    if (!menuButton.buttons.Any(tmpBut => tmpBut == currentButton)) continue;
+                    
+                    // And destroy the button if it is
+                    DestroyImmediate(currentButton.gameObject);
+                    
+                    // Shift all the existing buttons forward if need be to fill the empty spot we may have just created
+                    for (int l=1; l<tmpRows.Length; l++)
+                    {
+                        var prevRowButtons = tmpRows[l - 1].GetComponentsInChildren<Button>();
+                        var curRowButtons = tmpRows[l].GetComponentsInChildren<Button>();
+                        if (prevRowButtons.Count() < 4 && curRowButtons.Count() > 0)
+                            curRowButtons.First().transform.SetParent(tmpRows[l - 1], false);
+                    }
+                    // Decrement buttonsInCurrentRow, since it must be changing as we destroyed a button
+                    buttonsInCurrentRow--;
+
+                    // Destroy this row if it's empty
+                    if (buttonsInCurrentRow <= 0)
+                    {
+                        Destroy(currentRow.gameObject);
+                        rows.Remove(rows.Last());
+                        // Then if any rows are left, set the current row reference to the correct row
+                        if (rows.Count > 0)
+                            currentRow = menuButtonsOriginal.parent.Find($"CustomMenuButtonsRow{rows.Count}") as RectTransform;
+                        else
+                            currentRow = null;
+                        buttonsInCurrentRow = ButtonsPerRow;
+                    }
+                    // No need to proceed any further, we found the button in question and dealt with it
+                    return;
                 }
             }
         }

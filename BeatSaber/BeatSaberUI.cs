@@ -248,7 +248,7 @@ namespace CustomUI.BeatSaber
         {
             var hoverHint = parent.gameObject.AddComponent<HoverHint>();
             hoverHint.text = text;
-            hoverHint.name = "CustomHintText";
+            //hoverHint.name = "CustomHintText";
             HoverHintController hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
             hoverHint.SetPrivateField("_hoverHintController", hoverHintController);
             return hoverHint;
