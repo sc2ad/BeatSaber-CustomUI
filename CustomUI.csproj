@@ -107,6 +107,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Color Picker Base.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\RoundedRectangle.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetFileName)" "D:\Program Files\Steam\steamapps\common\Beat Saber\Plugins"</PostBuildEvent>

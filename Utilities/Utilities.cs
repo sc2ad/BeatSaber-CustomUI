@@ -44,6 +44,17 @@ namespace CustomUI.Utilities
             }
         }
 
+        private static Sprite _roundedRectangle = null;
+        public static Sprite RoundedRectangle
+        {
+            get
+            {
+                if (!_roundedRectangle)
+                    _roundedRectangle = LoadSpriteFromResources("BeatSaberCustomUI.Resources.RoundedRectangle.png");
+                return _roundedRectangle;
+            }
+        }
+
         public static Texture2D LoadTextureRaw(byte[] file)
         {
             if (file.Count() > 0)
