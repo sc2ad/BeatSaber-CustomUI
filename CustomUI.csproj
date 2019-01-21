@@ -88,6 +88,7 @@
     <Compile Include="UIElements\ColorPicker.cs" />
     <Compile Include="UIElements\ColorPickerCore.cs" />
     <Compile Include="UIElements\ColorPickerPreview.cs" />
+    <Compile Include="UIElements\ColorPickerPreviewClickable.cs" />
     <Compile Include="UIElements\SliderProperties.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
     <Compile Include="Settings\SettingsUI.cs" />

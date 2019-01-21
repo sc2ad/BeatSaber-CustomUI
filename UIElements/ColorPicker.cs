@@ -17,6 +17,7 @@ namespace BeatSaberCustomUI.UIElements
         public ColorPickerPreview ColorPickerPreview;
         public HMUI.Image ColorPickerHueBG;
         public HMUI.Scrollbar ColorPickerHueSlider;
+        public SliderProperties HueSliderProperties;
         public ColorPickerCore ColorPickerCore;
 
         private AssetBundle _ColorPickerBundle;
@@ -24,7 +25,7 @@ namespace BeatSaberCustomUI.UIElements
         private new void Awake()
         {
             base.Awake();
-            _ColorPickerBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberCustomUI.Resources.ColorPicker.assetbundle"));
+            _ColorPickerBundle = UIUtilities.ColorPickerBundle;
             if (_ColorPickerBundle == null)
             {
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The loading of the 'ColorPicker.assetbundle' resulted into a failure, stopping the ColorPicker creation.");
@@ -64,12 +65,19 @@ namespace BeatSaberCustomUI.UIElements
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerHueBG' instance was null.");
 
             //ColorPickerHue slider initialization
-            ColorPickerHueSlider = BeatSaberUI.CreateUISlider(transform as RectTransform, 0f, 1f, false, (float value) => { ColorPickerCore.ChangeColorPickerHue(value); });
+            ColorPickerHueSlider = BeatSaberUI.CreateUISlider(transform as RectTransform, 0f, 1f, false, (float value) => {
+                if (HueSliderProperties != null)
+                    HueSliderProperties.SetCurrentValueFromPercentage(value);
+                ColorPickerCore.ChangeColorPickerHue(value);
+            });
             if (ColorPickerHueSlider != null)
             {
+                HueSliderProperties = ColorPickerHueSlider.GetComponent<SliderProperties>();
+                ColorPickerHueSlider.value = 0f;
                 ColorPickerHueSlider.gameObject.name = "ColorPickerHueSlider";
                 ColorPickerHueSlider.transform.SetParent(transform, false);
                 (ColorPickerHueSlider.transform as RectTransform).sizeDelta = new Vector2(54, 7.5f);
+                (ColorPickerHueSlider.transform as RectTransform).anchoredPosition = new Vector2(0, -2f);
                 ColorPickerHueSlider.transform.Translate(0, 37f, -0.00001f);
                 ColorPickerHueSlider.GetComponent<Image>().color = new Color(0, 0, 0, 0);
                 ColorPickerHueSlider.transform.Find("SlidingArea/Handle").GetComponent<Image>().color = new Color(1, 1, 1, 1);

@@ -232,6 +232,18 @@ namespace CustomUI.Settings
             return view;
         }
 
+        public ColorPickerViewController AddColorPicker(string name, string hintText)
+        {
+            var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText);
+            return view;
+        }
+        public ColorPickerViewController AddColorPicker(string name, string hintText, Color color)
+        {
+            var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText);
+            view.SetValues(color);
+            return view;
+        }
+
         public T AddListSetting<T>(string name) where T : ListSettingsController
         {
             return AddListSetting<T>(name, "");
@@ -356,6 +368,43 @@ namespace CustomUI.Settings
             BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newSliderSettingsController;
+        }
+
+        public T AddColorPickerSetting<T>(string name) where T : SimpleSettingsController
+        {
+            return AddColorPickerSetting<T>(name, "");
+        }
+        public T AddColorPickerSetting<T>(string name, string hintText) where T : SimpleSettingsController
+        {
+            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
+            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
+            newSettingsObject.name = name;
+
+            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
+            T newColorPickerSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SimpleSettingsController), typeof(T), newSettingsObject);
+            MonoBehaviour.DestroyImmediate(volume);
+
+            GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("DecButton").gameObject);
+            GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("ValueText").gameObject);
+            GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("IncButton").gameObject);
+
+            ColorPickerPreviewClickable cppc = new GameObject("ColorPickerPreviewClickable").AddComponent<ColorPickerPreviewClickable>();
+            cppc.Image.sprite = null;
+
+            //cppc.transform.localScale = new Vector3(sizeDelta.x, sizeDelta.y, colorPicker.transform.localScale.z);
+            cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
+
+            //cppc.transform.localScale = new Vector3(0.2f, 0.15f);
+            //(cppc.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
+            //(cppc.transform as RectTransform).anchorMax = new Vector2(0, 0.5f);
+            //(cppc.transform as RectTransform).anchoredPosition = new Vector2(-50, 0);
+            (cppc.transform as RectTransform).sizeDelta = new Vector2(39.5f, 7f);
+
+            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
+            tmpText.text = name;
+            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+
+            return newColorPickerSettingsController;
         }
     }
 }

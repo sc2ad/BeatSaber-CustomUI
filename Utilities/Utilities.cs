@@ -55,6 +55,17 @@ namespace CustomUI.Utilities
             }
         }
 
+        private static AssetBundle _colorPickerBundle = null;
+        public static AssetBundle ColorPickerBundle
+        {
+            get
+            {
+                if (!_colorPickerBundle)
+                    _colorPickerBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberCustomUI.Resources.ColorPicker.assetbundle"));
+                return _colorPickerBundle;
+            }
+        }
+
         public static Texture2D LoadTextureRaw(byte[] file)
         {
             if (file.Count() > 0)

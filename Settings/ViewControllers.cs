@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CustomUI.Settings
 {
@@ -331,5 +332,66 @@ namespace CustomUI.Settings
                 return Math.Floor(value).ToString("N0");
             return value.ToString("N1");
         }
+    }
+
+    public class ColorPickerViewController : SimpleSettingsController
+    {
+        public delegate Color GetColor();
+        public event GetColor GetValue;
+
+        public delegate void SetColor(Color value);
+        public event SetColor SetValue;
+
+        private Color _CurrentColor;
+        private ColorPickerPreviewClickable _ColorPickerPreviewClickableInst;
+
+        public override void Init()
+        {
+            _ColorPickerPreviewClickableInst = transform.GetComponentInChildren<ColorPickerPreviewClickable>();
+            RefreshUI();
+        }
+
+        protected Color GetInitValue()
+        {
+            Color color = new Color(1, 1, 1, 1);
+            if (GetValue != null)
+            {
+                color = GetValue();
+            }
+            return color;
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_CurrentColor);
+        }
+
+        public override void CancelSettings()
+        {
+            
+        }
+
+        private void RefreshUI()
+        {
+
+        }
+
+        public void SetValues(Color color)
+        {
+            _CurrentColor = color;
+        }
+
+        protected void ApplyValue(Color color)
+        {
+            if (SetValue != null)
+            {
+                SetValue(color);
+            }
+        }
+
+        //protected string TextForValue(bool value)
+        //{
+        //    return "";
+        //}
     }
 }
