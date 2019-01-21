@@ -342,12 +342,12 @@ namespace CustomUI.Settings
         public delegate void SetColor(Color value);
         public event SetColor SetValue;
 
-        private Color _CurrentColor;
         private ColorPickerPreviewClickable _ColorPickerPreviewClickableInst;
 
         public override void Init()
         {
             _ColorPickerPreviewClickableInst = transform.GetComponentInChildren<ColorPickerPreviewClickable>();
+            _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
             RefreshUI();
         }
 
@@ -357,13 +357,14 @@ namespace CustomUI.Settings
             if (GetValue != null)
             {
                 color = GetValue();
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> I found the color: #" + ColorUtility.ToHtmlStringRGBA(color));
             }
             return color;
         }
 
         public override void ApplySettings()
         {
-            ApplyValue(_CurrentColor);
+            ApplyValue(_ColorPickerPreviewClickableInst.ImagePreview.color);
         }
 
         public override void CancelSettings()
@@ -378,7 +379,7 @@ namespace CustomUI.Settings
 
         public void SetValues(Color color)
         {
-            _CurrentColor = color;
+            _ColorPickerPreviewClickableInst.ImagePreview.color = color;
         }
 
         protected void ApplyValue(Color color)

@@ -15,6 +15,8 @@ namespace BeatSaberCustomUI.UIElements
         private CustomMenu _CustomMenu;
         private CustomViewController _CustomViewController;
 
+        private ColorPicker _ColorPickerSettings;
+
         private new void Start()
         {
             base.Start();
@@ -22,42 +24,33 @@ namespace BeatSaberCustomUI.UIElements
             _CustomViewController = BeatSaberUI.CreateViewController<CustomViewController>();
         }
 
-        //private new void Start()
-        //{
-        //    base.Start();
-        //    (transform as UnityEngine.RectTransform).anchoredPosition = new UnityEngine.Vector2(-50f, 0);
-        //}
-
-        //private void Update()
-        //{
-        //        (transform as UnityEngine.RectTransform).anchoredPosition = new UnityEngine.Vector2(-50f, 0);
-
-        //    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> update cppc.transform.localPosition x|y|z: " + transform.localPosition.x + " | " + transform.localPosition.y + " | " + transform.localPosition.z);
-        //}
-
         private IEnumerator _WaitForPresenting()
         {
             yield return new WaitUntil(() => { return _CustomMenu.Present(false); });
         }
-        
+
         public override void OnPointerDown(PointerEventData eventData)
         {
             base.OnPointerDown(eventData);
+            if (_ColorPickerSettings != null)
+                _ColorPickerSettings.ColorPickerPreview.ImagePreview.color = ImagePreview.color;
             _CustomMenu.SetMainViewController(_CustomViewController, true, (firstActivation, type) =>
             {
                 if (firstActivation && type == VRUI.VRUIViewController.ActivationType.AddedToHierarchy)
                 {
-                    ColorPicker cp = _CustomViewController.CreateColorPicker(new Vector2(0, -10), new Vector2(0.7f, 0.7f));
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> anchorMin: " + (cp.ColorPickerHueSlider.transform as RectTransform).anchorMin);
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> anchorMax: " + (cp.ColorPickerHueSlider.transform as RectTransform).anchorMax);
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> before anchoredPosition.x: " + (cp.ColorPickerHueSlider.transform as RectTransform).anchoredPosition.x);
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> before anchoredPosition.y: " + (cp.ColorPickerHueSlider.transform as RectTransform).anchoredPosition.y);
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> sizeDelta.x: " + (cp.ColorPickerHueSlider.transform as RectTransform).sizeDelta.x);
-                    Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> sizeDelta.y: " + (cp.ColorPickerHueSlider.transform as RectTransform).sizeDelta.y);
-                    (cp.ColorPickerHueSlider.transform as RectTransform).anchoredPosition = new Vector2(0, 35f);
+                    _ColorPickerSettings = _CustomViewController.CreateColorPicker(new Vector2(0, -10), new Vector2(0.7f, 0.7f));
+                    if (_ColorPickerSettings != null)
+                        _ColorPickerSettings.ColorPickerPreview.ImagePreview.color = ImagePreview.color;
+                    (_ColorPickerSettings.ColorPickerHueSlider.transform as RectTransform).anchoredPosition = new Vector2(0, 35f);
                 }
             });
+            _CustomViewController.didDeactivateEvent += _UpdatingPreviewClickableColor;
             StartCoroutine(_WaitForPresenting());
+        }
+
+        private void _UpdatingPreviewClickableColor(VRUI.VRUIViewController.DeactivationType deactivationType)
+        {
+            ImagePreview.color = _ColorPickerSettings.ColorPickerPreview.ImagePreview.color;
         }
     }
 }

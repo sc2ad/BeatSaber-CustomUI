@@ -12,16 +12,16 @@ namespace BeatSaberCustomUI.UIElements
 {
     public class ColorPickerPreview : Selectable, IEventSystemHandler
     {
-        public HMUI.Image Image;
+        public HMUI.Image ImagePreview;
 
         private new void Awake()
         {
             base.Awake();
-            Image = gameObject.AddComponent<HMUI.Image>();
-            if (Image != null)
+            ImagePreview = gameObject.AddComponent<HMUI.Image>();
+            if (ImagePreview != null)
             {
-                Image.material = Instantiate(Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlow").FirstOrDefault());
-                Image.sprite = UIUtilities.RoundedRectangle;
+                ImagePreview.material = Instantiate(Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlow").FirstOrDefault());
+                ImagePreview.sprite = UIUtilities.RoundedRectangle;
             }
             else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: The '_Image' instance was null.");
@@ -34,8 +34,8 @@ namespace BeatSaberCustomUI.UIElements
         /// <param name="color">A color</param>
         public void AssignPreviewColor(Color color)
         {
-            if (Image != null)
-                Image.color = color;
+            if (ImagePreview != null)
+                ImagePreview.color = color;
         }
     }
 }

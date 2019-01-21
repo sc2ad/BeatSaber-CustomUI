@@ -389,7 +389,7 @@ namespace CustomUI.Settings
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("IncButton").gameObject);
 
             ColorPickerPreviewClickable cppc = new GameObject("ColorPickerPreviewClickable").AddComponent<ColorPickerPreviewClickable>();
-            cppc.Image.sprite = null;
+            cppc.ImagePreview.sprite = null;
 
             //cppc.transform.localScale = new Vector3(sizeDelta.x, sizeDelta.y, colorPicker.transform.localScale.z);
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
