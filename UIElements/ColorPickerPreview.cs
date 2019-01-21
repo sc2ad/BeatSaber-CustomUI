@@ -22,8 +22,7 @@ namespace BeatSaberCustomUI.UIElements
             {
                 ImagePreview.material = Instantiate(Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlow").FirstOrDefault());
                 ImagePreview.sprite = UIUtilities.RoundedRectangle;
-            }
-            else
+            } else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: The '_Image' instance was null.");
             Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: ColorPickerPreview awake done.");
         }

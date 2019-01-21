@@ -348,17 +348,13 @@ namespace CustomUI.Settings
         {
             _ColorPickerPreviewClickableInst = transform.GetComponentInChildren<ColorPickerPreviewClickable>();
             _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
-            RefreshUI();
         }
 
         protected Color GetInitValue()
         {
             Color color = new Color(1, 1, 1, 1);
             if (GetValue != null)
-            {
                 color = GetValue();
-                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>> I found the color: #" + ColorUtility.ToHtmlStringRGBA(color));
-            }
             return color;
         }
 
@@ -370,11 +366,6 @@ namespace CustomUI.Settings
         public override void CancelSettings()
         {
             
-        }
-
-        private void RefreshUI()
-        {
-
         }
 
         public void SetValues(Color color)
@@ -390,9 +381,17 @@ namespace CustomUI.Settings
             }
         }
 
-        //protected string TextForValue(bool value)
-        //{
-        //    return "";
-        //}
+        public Color ValueFromText(string text)
+        {
+            Color c;
+            if (ColorUtility.TryParseHtmlString(text, out c))
+                return c;
+            return new Color(1, 1, 1, 1);
+        }
+
+        public string TextForValue(Color value)
+        {
+            return ("#" + ColorUtility.ToHtmlStringRGBA(value));
+        }
     }
 }
