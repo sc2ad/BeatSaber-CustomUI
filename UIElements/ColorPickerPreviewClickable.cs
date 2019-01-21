@@ -41,7 +41,7 @@ namespace BeatSaberCustomUI.UIElements
                 {
                     if (firstActivation && type == VRUI.VRUIViewController.ActivationType.AddedToHierarchy)
                     {
-                        _ColorPickerSettings = _CustomViewController.CreateColorPicker(new Vector2(0, -10), new Vector2(0.7f, 0.7f));
+                        _ColorPickerSettings = _CustomViewController.CreateColorPicker(new Vector2(0, -5), new Vector2(0.7f, 0.7f));
                         if (_ColorPickerSettings != null)
                         {
                             _ColorPickerSettings.ColorPickerPreview.ImagePreview.color = ImagePreview.color;
