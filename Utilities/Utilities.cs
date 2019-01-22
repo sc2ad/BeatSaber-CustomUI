@@ -99,7 +99,6 @@ namespace CustomUI.Utilities
         {
             if (SpriteTexture)
                 return Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), PixelsPerUnit);
-
             return null;
         }
 
