@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BeatSaberCustomUI.UIElements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,7 +99,30 @@ namespace CustomUI.BeatSaber
             TextMeshProUGUI textMesh = BeatSaberUI.CreateText(parent.rectTransform, text, anchoredPosition);
             return textMesh;
         }
-        #endregion
 
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, Vector2 sizeDelta, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, sizeDelta, fromValue, toValue, intValues, onValueChanged);
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, fromValue, toValue, intValues, onValueChanged);
+            return scrollbar;
+        }
+
+        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
+        {
+            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, fromValue, toValue, intValues, onValueChanged);
+            return scrollbar;
+        }
+
+        public static ColorPicker CreateColorPicker(this VRUIViewController parent, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            ColorPicker colorPicker = BeatSaberUI.CreateColorPicker(parent.rectTransform, anchoredPosition, sizeDelta);
+            return colorPicker;
+        }
+        #endregion
     }
 }

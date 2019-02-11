@@ -1,9 +1,11 @@
-﻿using CustomUI.BeatSaber;
+﻿using BeatSaberCustomUI.UIElements;
+using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CustomUI.Settings
 {
@@ -248,6 +250,148 @@ namespace CustomUI.Settings
         protected override string TextForValue(int idx)
         {
             return GetTextForValue(values[idx]);
+        }
+    }
+
+    public class SliderViewController : IncDecSettingsController
+    {
+        public delegate float GetFloat();
+        public event GetFloat GetValue;
+
+        public delegate void SetFloat(float value);
+        public event SetFloat SetValue;
+
+        private float _min;
+        private float _max;
+        private bool _intValues;
+
+        private HMUI.Scrollbar _sliderInst;
+        private SliderProperties _sliderPropertiesInst;
+        private TMPro.TextMeshProUGUI _textInst;
+
+        public override void Init()
+        {
+            _sliderInst = transform.GetComponentInChildren<HMUI.Scrollbar>();
+            _sliderPropertiesInst = _sliderInst.gameObject.GetComponent<SliderProperties>();
+            _sliderPropertiesInst.CurrentValue = GetInitValue();
+            _textInst = _sliderInst.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            _sliderInst.value = _sliderPropertiesInst.GetPercentageFromValue(_sliderPropertiesInst.CurrentValue);
+            _sliderInst.onValueChanged.AddListener(delegate (float value) {
+                _sliderPropertiesInst.SetCurrentValueFromPercentage(value);
+                RefreshUI();
+            });
+            RefreshUI();
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_sliderPropertiesInst.CurrentValue);
+        }
+
+        private void RefreshUI()
+        {
+            _textInst.text = TextForValue(_sliderPropertiesInst.CurrentValue);
+        }
+
+        public override void IncButtonPressed()
+        {
+
+        }
+
+        public override void DecButtonPressed()
+        {
+
+        }
+
+        public void SetValues(float min, float max, bool intValues)
+        {
+            _min = min;
+            _max = max;
+            _intValues = intValues;
+        }
+
+        protected float GetInitValue()
+        {
+            float value = 0;
+            if (GetValue == null)
+                value = _min;
+            else
+                value = GetValue();
+            return value;
+        }
+
+        protected void ApplyValue(float value)
+        {
+            if (SetValue != null)
+                SetValue((_intValues) ? ((float)Math.Floor(value)) : (value));
+        }
+
+        protected string TextForValue(float value)
+        {
+            if (_intValues)
+                return Math.Floor(value).ToString("N0");
+            return value.ToString("N1");
+        }
+    }
+
+    public class ColorPickerViewController : SimpleSettingsController
+    {
+        public delegate Color GetColor();
+        public event GetColor GetValue;
+
+        public delegate void SetColor(Color value);
+        public event SetColor SetValue;
+
+        private ColorPickerPreviewClickable _ColorPickerPreviewClickableInst;
+
+        public override void Init()
+        {
+            _ColorPickerPreviewClickableInst = transform.GetComponentInChildren<ColorPickerPreviewClickable>();
+            _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
+        }
+
+        protected Color GetInitValue()
+        {
+            Color color = new Color(1, 1, 1, 1);
+            if (GetValue != null)
+                color = GetValue();
+            return color;
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_ColorPickerPreviewClickableInst.ImagePreview.color);
+        }
+
+        public override void CancelSettings()
+        {
+            
+        }
+
+        public void SetValues(Color color)
+        {
+            _ColorPickerPreviewClickableInst.ImagePreview.color = color;
+        }
+
+        protected void ApplyValue(Color color)
+        {
+            if (SetValue != null)
+            {
+                SetValue(color);
+            }
+        }
+
+        public Color ValueFromText(string text)
+        {
+            Color c;
+            if (ColorUtility.TryParseHtmlString(text, out c))
+                return c;
+            return new Color(1, 1, 1, 1);
+        }
+
+        public string TextForValue(Color value)
+        {
+            return ("#" + ColorUtility.ToHtmlStringRGBA(value));
         }
     }
 }
