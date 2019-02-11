@@ -1,4 +1,4 @@
-﻿using BeatSaberCustomUI.UIElements;
+﻿using CustomUI.UIElements;
 using CustomUI.BeatSaber;
 using CustomUI.Utilities;
 using HMUI;
@@ -384,21 +384,15 @@ namespace CustomUI.Settings
             T newColorPickerSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SimpleSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
+            GameObject.Destroy(newSettingsObject.GetComponentInChildren<HorizontalLayoutGroup>());
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("DecButton").gameObject);
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("ValueText").gameObject);
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("IncButton").gameObject);
 
             ColorPickerPreviewClickable cppc = new GameObject("ColorPickerPreviewClickable").AddComponent<ColorPickerPreviewClickable>();
-            cppc.ImagePreview.sprite = null;
-
-            //cppc.transform.localScale = new Vector3(sizeDelta.x, sizeDelta.y, colorPicker.transform.localScale.z);
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
-
-            //cppc.transform.localScale = new Vector3(0.2f, 0.15f);
-            //(cppc.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
-            //(cppc.transform as RectTransform).anchorMax = new Vector2(0, 0.5f);
-            //(cppc.transform as RectTransform).anchoredPosition = new Vector2(-50, 0);
-            (cppc.transform as RectTransform).sizeDelta = new Vector2(39.5f, 7f);
+            (cppc.transform as RectTransform).localScale = new Vector2(0.07f, 0.07f);
+            (cppc.transform as RectTransform).localPosition += new Vector3(2.5f, 0f);
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;

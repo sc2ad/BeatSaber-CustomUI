@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace BeatSaberCustomUI.UIElements
+namespace CustomUI.UIElements
 {
     public class SliderProperties : MonoBehaviour
     {

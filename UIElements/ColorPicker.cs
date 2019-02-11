@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace BeatSaberCustomUI.UIElements
+namespace CustomUI.UIElements
 {
     public class ColorPicker : Selectable, IEventSystemHandler
     {
@@ -58,6 +58,7 @@ namespace BeatSaberCustomUI.UIElements
             if (ColorPickerHueBG != null)
             {
                 ColorPickerHueBG.material = new Material(_ColorPickerBundle.LoadAsset<Shader>("HueSlider"));
+                ColorPickerHueBG.material.renderQueue = 3001;
                 ColorPickerHueBG.transform.SetParent(transform, false);
                 (ColorPickerHueBG.transform as RectTransform).sizeDelta = new Vector2(50, 7.5f);
                 ColorPickerHueBG.transform.Translate(0, 35, 0);

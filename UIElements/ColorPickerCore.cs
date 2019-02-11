@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace BeatSaberCustomUI.UIElements
+namespace CustomUI.UIElements
 {
     public class ColorPickerCore : Selectable, IEventSystemHandler
     {
@@ -28,6 +28,7 @@ namespace BeatSaberCustomUI.UIElements
             if (_Image != null)
             {
                 _Image.material = new Material(ColorPickerBundle.LoadAsset<Shader>("HueShift"));
+                _Image.material.renderQueue = 3001;
                 _Image.sprite = UIUtilities.ColorPickerBase;
                 _Image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
                 _Image.material.SetTexture("_MainTex", _Image.sprite.texture);

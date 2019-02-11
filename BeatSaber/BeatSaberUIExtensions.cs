@@ -1,4 +1,4 @@
-﻿using BeatSaberCustomUI.UIElements;
+﻿using CustomUI.UIElements;
 using System;
 using System.Collections.Generic;
 using System.Linq;

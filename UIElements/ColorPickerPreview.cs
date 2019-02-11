@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace BeatSaberCustomUI.UIElements
+namespace CustomUI.UIElements
 {
     public class ColorPickerPreview : Selectable, IEventSystemHandler
     {
