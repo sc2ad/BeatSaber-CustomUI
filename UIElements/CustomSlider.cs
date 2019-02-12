@@ -4,33 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace CustomUI.UIElements
 {
-    public class SliderProperties : MonoBehaviour
+    public class CustomSlider : MonoBehaviour
     {
-        public float FromValue;
-        public float ToValue;
+        public HMUI.Scrollbar Scrollbar;
+        public float MinValue;
+        public float MaxValue;
         public float CurrentValue;
-        public float PercentageValue;
-        public bool IntValues = false;
+        public bool IsIntValue = false;
 
         public void SetCurrentValueFromPercentage(float percentage)
         {
-            PercentageValue = percentage;
             CurrentValue = GetValueFromPercentage(percentage);
-            if (IntValues)
-                CurrentValue = (float)Math.Floor(CurrentValue);
+            if (IsIntValue)
+                CurrentValue = (int)CurrentValue;
         }
 
         public float GetValueFromPercentage(float percentage)
         {
-            return ((ToValue - FromValue) * percentage + FromValue);
+            return ((MaxValue - MinValue) * percentage + MinValue);
         }
 
         public float GetPercentageFromValue(float value)
         {
-            return ((value - FromValue) / (ToValue - FromValue));
+            return ((value - MinValue) / (MaxValue - MinValue));
         }
 
         public float GetPercentageFromCurrentValue()

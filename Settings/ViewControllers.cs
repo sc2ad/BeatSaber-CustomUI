@@ -265,19 +265,17 @@ namespace CustomUI.Settings
         private float _max;
         private bool _intValues;
 
-        private HMUI.Scrollbar _sliderInst;
-        private SliderProperties _sliderPropertiesInst;
+        private CustomSlider _sliderInst;
         private TMPro.TextMeshProUGUI _textInst;
 
         public override void Init()
         {
-            _sliderInst = transform.GetComponentInChildren<HMUI.Scrollbar>();
-            _sliderPropertiesInst = _sliderInst.gameObject.GetComponent<SliderProperties>();
-            _sliderPropertiesInst.CurrentValue = GetInitValue();
-            _textInst = _sliderInst.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            _sliderInst.value = _sliderPropertiesInst.GetPercentageFromValue(_sliderPropertiesInst.CurrentValue);
-            _sliderInst.onValueChanged.AddListener(delegate (float value) {
-                _sliderPropertiesInst.SetCurrentValueFromPercentage(value);
+            _sliderInst = transform.GetComponent<CustomSlider>();
+            _sliderInst.CurrentValue = GetInitValue();
+            _textInst = _sliderInst.Scrollbar.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            _sliderInst.Scrollbar.value = _sliderInst.GetPercentageFromValue(_sliderInst.CurrentValue);
+            _sliderInst.Scrollbar.onValueChanged.AddListener(delegate (float value) {
+                _sliderInst.SetCurrentValueFromPercentage(value);
                 RefreshUI();
             });
             RefreshUI();
@@ -285,12 +283,12 @@ namespace CustomUI.Settings
 
         public override void ApplySettings()
         {
-            ApplyValue(_sliderPropertiesInst.CurrentValue);
+            ApplyValue(_sliderInst.CurrentValue);
         }
 
         private void RefreshUI()
         {
-            _textInst.text = TextForValue(_sliderPropertiesInst.CurrentValue);
+            _textInst.text = TextForValue(_sliderInst.CurrentValue);
         }
 
         public override void IncButtonPressed()
@@ -346,7 +344,6 @@ namespace CustomUI.Settings
 
         public override void Init()
         {
-            _ColorPickerPreviewClickableInst = transform.GetComponentInChildren<ColorPickerPreviewClickable>();
             _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
         }
 
@@ -368,6 +365,11 @@ namespace CustomUI.Settings
             
         }
 
+        public void SetPreviewInstance(ColorPickerPreviewClickable instance)
+        {
+            _ColorPickerPreviewClickableInst = instance;
+        }
+
         public void SetValues(Color color)
         {
             _ColorPickerPreviewClickableInst.ImagePreview.color = color;
@@ -375,23 +377,7 @@ namespace CustomUI.Settings
 
         protected void ApplyValue(Color color)
         {
-            if (SetValue != null)
-            {
-                SetValue(color);
-            }
-        }
-
-        public Color ValueFromText(string text)
-        {
-            Color c;
-            if (ColorUtility.TryParseHtmlString(text, out c))
-                return c;
-            return new Color(1, 1, 1, 1);
-        }
-
-        public string TextForValue(Color value)
-        {
-            return ("#" + ColorUtility.ToHtmlStringRGBA(value));
+            SetValue?.Invoke(color);
         }
     }
 }

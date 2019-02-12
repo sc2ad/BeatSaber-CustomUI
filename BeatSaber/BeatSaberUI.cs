@@ -255,81 +255,28 @@ namespace CustomUI.BeatSaber
             return hoverHint;
         }
 
-        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
+        public static CustomSlider CreateUISlider(RectTransform parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
         {
-            HMUI.Scrollbar slider = Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), parent, false);
-            SliderProperties[] sps = slider.gameObject.GetComponents<SliderProperties>();
-            for (int i = 0; i < sps.Length; ++i)
-                Destroy(sps[i]);
-            SliderProperties sliderProperties = slider.gameObject.AddComponent<SliderProperties>();
+            var scrollbar = Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First();
+            CustomSlider slider = parent.gameObject.AddComponent<CustomSlider>();
+            slider.Scrollbar = scrollbar;
+            
+            slider.Scrollbar.numberOfSteps = (int)((max - min) / increment) + 1;
+            slider.MinValue = min;
+            slider.MaxValue = max;
+            slider.IsIntValue = intValues;
+            slider.SetCurrentValueFromPercentage(slider.Scrollbar.value);
+            slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = slider.CurrentValue.ToString("N1");
 
-            sliderProperties.FromValue = fromValue;
-            sliderProperties.ToValue = toValue;
-            sliderProperties.IntValues = intValues;
-            sliderProperties.SetCurrentValueFromPercentage(slider.value);
-
-            (slider.transform as RectTransform).anchoredPosition = anchoredPosition;
-            (slider.transform as RectTransform).sizeDelta = sizeDelta;
-            slider.GetComponentInChildren<TextMeshProUGUI>().text = sliderProperties.CurrentValue.ToString("N1");
-            slider.onValueChanged.AddListener(delegate (float value) {
-                TextMeshProUGUI valueLabel = slider.GetComponentInChildren<TextMeshProUGUI>();
+            slider.Scrollbar.onValueChanged.RemoveAllListeners();
+            slider.Scrollbar.onValueChanged.AddListener(delegate (float value) {
+                TextMeshProUGUI valueLabel = slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>();
                 valueLabel.enableWordWrapping = false;
-                sliderProperties.SetCurrentValueFromPercentage(value);
-                valueLabel.text = sliderProperties.CurrentValue.ToString("N1");
+                slider.SetCurrentValueFromPercentage(value);
+                valueLabel.text = slider.CurrentValue.ToString("N1");
             });
             if (onValueChanged != null)
-                slider.onValueChanged.AddListener(onValueChanged);
-            return slider;
-        }
-
-        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, Vector2 anchoredPosition, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
-        {
-            HMUI.Scrollbar slider = Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), parent, false);
-            SliderProperties[] sps = slider.gameObject.GetComponents<SliderProperties>();
-            for (int i = 0; i < sps.Length; ++i)
-                Destroy(sps[i]);
-            SliderProperties sliderProperties = slider.gameObject.AddComponent<SliderProperties>();
-
-            sliderProperties.FromValue = fromValue;
-            sliderProperties.ToValue = toValue;
-            sliderProperties.IntValues = intValues;
-            sliderProperties.SetCurrentValueFromPercentage(slider.value);
-
-            (slider.transform as RectTransform).anchoredPosition = anchoredPosition;
-            slider.GetComponentInChildren<TextMeshProUGUI>().text = sliderProperties.CurrentValue.ToString("N1");
-            slider.onValueChanged.AddListener(delegate (float value) {
-                TextMeshProUGUI valueLabel = slider.GetComponentInChildren<TextMeshProUGUI>();
-                valueLabel.enableWordWrapping = false;
-                sliderProperties.SetCurrentValueFromPercentage(value);
-                valueLabel.text = sliderProperties.CurrentValue.ToString("N1");
-            });
-            if (onValueChanged != null)
-                slider.onValueChanged.AddListener(onValueChanged);
-            return slider;
-        }
-
-        public static HMUI.Scrollbar CreateUISlider(RectTransform parent, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
-        {
-            HMUI.Scrollbar slider = Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), parent, false);
-            SliderProperties[] sps = slider.gameObject.GetComponents<SliderProperties>();
-            for (int i = 0; i < sps.Length; ++i)
-                Destroy(sps[i]);
-            SliderProperties sliderProperties = slider.gameObject.AddComponent<SliderProperties>();
-
-            sliderProperties.FromValue = fromValue;
-            sliderProperties.ToValue = toValue;
-            sliderProperties.IntValues = intValues;
-            sliderProperties.SetCurrentValueFromPercentage(slider.value);
-
-            slider.GetComponentInChildren<TextMeshProUGUI>().text = sliderProperties.CurrentValue.ToString("N1");
-            slider.onValueChanged.AddListener(delegate (float value) {
-                TextMeshProUGUI valueLabel = slider.GetComponentInChildren<TextMeshProUGUI>();
-                valueLabel.enableWordWrapping = false;
-                sliderProperties.SetCurrentValueFromPercentage(value);
-                valueLabel.text = sliderProperties.CurrentValue.ToString("N1");
-            });
-            if (onValueChanged != null)
-                slider.onValueChanged.AddListener(onValueChanged);
+                slider.Scrollbar.onValueChanged.AddListener(onValueChanged);
             return slider;
         }
 

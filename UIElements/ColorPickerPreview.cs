@@ -24,7 +24,7 @@ namespace CustomUI.UIElements
                 ImagePreview.sprite = UIUtilities.RoundedRectangle;
             } else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: The '_Image' instance was null.");
-            Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: ColorPickerPreview awake done.");
+            //Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreview]: ColorPickerPreview awake done.");
         }
 
         /// <summary>

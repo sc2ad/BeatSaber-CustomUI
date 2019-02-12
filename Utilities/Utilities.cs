@@ -11,6 +11,17 @@ namespace CustomUI.Utilities
 {
     public class UIUtilities
     {
+        private static Material _noGlowMaterial = null;
+        public static Material NoGlowMaterial
+        {
+            get
+            {
+                if(!_noGlowMaterial)
+                    _noGlowMaterial = new Material(Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "UINoGlow"));
+                return _noGlowMaterial;
+            }
+        }
+
         private static Sprite _blankSprite = null;
         public static Sprite BlankSprite
         {
@@ -52,17 +63,6 @@ namespace CustomUI.Utilities
                 if (!_roundedRectangle)
                     _roundedRectangle = LoadSpriteFromResources("BeatSaberCustomUI.Resources.RoundedRectangle.png");
                 return _roundedRectangle;
-            }
-        }
-
-        private static AssetBundle _colorPickerBundle = null;
-        public static AssetBundle ColorPickerBundle
-        {
-            get
-            {
-                if (!_colorPickerBundle)
-                    _colorPickerBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberCustomUI.Resources.ColorPicker.assetbundle"));
-                return _colorPickerBundle;
             }
         }
 

@@ -12,7 +12,6 @@ namespace CustomUI.UIElements
 {
     public class ColorPickerCore : Selectable, IEventSystemHandler
     {
-        public AssetBundle ColorPickerBundle;
         public ColorPickerPreview ColorPickerPreview;
 
         private HMUI.Image _Image;
@@ -27,28 +26,19 @@ namespace CustomUI.UIElements
             _Image = gameObject.AddComponent<HMUI.Image>();
             if (_Image != null)
             {
-                _Image.material = new Material(ColorPickerBundle.LoadAsset<Shader>("HueShift"));
-                _Image.material.renderQueue = 3001;
+                _Image.material = new Material(UIUtilities.NoGlowMaterial);
                 _Image.sprite = UIUtilities.ColorPickerBase;
                 _Image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
                 _Image.material.SetTexture("_MainTex", _Image.sprite.texture);
             } else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPickerCore]: The '_Image' instance was null.");
-            Console.WriteLine("[BeatSaberCustomUI.ColorPickerCore]: ColorPickerCore initialized.");
+            //Console.WriteLine("[BeatSaberCustomUI.ColorPickerCore]: ColorPickerCore initialized.");
         }
 
         private void Update()
         {
             if (_PointerData != null)
-            {
-                Color c = ColorPicker.GetSelectedColorFromImage(_PointerData, _Image);
-                if (c.r != 0 && c.g != 0 && c.b != 0 && c.a != 0)
-                {
-                    c = GetCorrectColorFromHue(c, _HueValue);
-                    ColorPickerPreview.GetComponent<HMUI.Image>().color = c;
-                    Console.WriteLine("[BeatSaberCustomUI.ColorPickerCore]: Color applied to the preview.");
-                }
-            }
+                ColorPickerPreview.GetComponent<HMUI.Image>().color = ColorPicker.GetSelectedColorFromImage(_PointerData, _Image);
         }
 
         /// <summary>

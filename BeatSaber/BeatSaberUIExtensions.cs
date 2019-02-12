@@ -99,22 +99,10 @@ namespace CustomUI.BeatSaber
             TextMeshProUGUI textMesh = BeatSaberUI.CreateText(parent.rectTransform, text, anchoredPosition);
             return textMesh;
         }
-
-        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, Vector2 sizeDelta, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
+        
+        public static CustomSlider CreateUISlider(this VRUIViewController parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
         {
-            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, sizeDelta, fromValue, toValue, intValues, onValueChanged);
-            return scrollbar;
-        }
-
-        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, Vector2 anchoredPosition, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
-        {
-            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, anchoredPosition, fromValue, toValue, intValues, onValueChanged);
-            return scrollbar;
-        }
-
-        public static HMUI.Scrollbar CreateUISlider(this VRUIViewController parent, float fromValue, float toValue, bool intValues, UnityAction<float> onValueChanged = null)
-        {
-            HMUI.Scrollbar scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, fromValue, toValue, intValues, onValueChanged);
+            CustomSlider scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, min, max, increment, intValues, onValueChanged);
             return scrollbar;
         }
 

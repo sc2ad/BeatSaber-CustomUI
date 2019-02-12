@@ -33,30 +33,31 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp"/>
-    <Reference Include="IllusionPlugin"/>
+    <Reference Include="Assembly-CSharp" />
+    <Reference Include="IllusionPlugin" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"/>
-    <Reference Include="UnityEngine"/>
-    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"/>
-    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"/>
-    <Reference Include="UnityEngine.CoreModule"/>
-    <Reference Include="UnityEngine.ImageConversionModule"/>
-    <Reference Include="UnityEngine.TextRenderingModule"/>
-    <Reference Include="UnityEngine.UI"/>
-    <Reference Include="UnityEngine.UIElementsModule"/>
-    <Reference Include="UnityEngine.UIModule"/>
-    <Reference Include="UnityEngine.VRModule"/>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="UnityEngine" />
+    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="UnityEngine.CoreModule" />
+    <Reference Include="UnityEngine.ImageConversionModule" />
+    <Reference Include="UnityEngine.TextRenderingModule" />
+    <Reference Include="UnityEngine.UI" />
+    <Reference Include="UnityEngine.UIElementsModule" />
+    <Reference Include="UnityEngine.UIModule" />
+    <Reference Include="UnityEngine.VRModule" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeatSaber\BeatSaberUI.cs" />
     <Compile Include="BeatSaber\BeatSaberUIExtensions.cs" />
     <Compile Include="BeatSaber\CustomMenu.cs" />
+    <Compile Include="UIElements\CustomSlider.cs" />
     <Compile Include="BeatSaber\CustomUIKeyboard.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsTypes.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsUI.cs" />
@@ -69,7 +70,6 @@
     <Compile Include="UIElements\ColorPickerCore.cs" />
     <Compile Include="UIElements\ColorPickerPreview.cs" />
     <Compile Include="UIElements\ColorPickerPreviewClickable.cs" />
-    <Compile Include="UIElements\SliderProperties.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
     <Compile Include="Settings\SettingsUI.cs" />
     <Compile Include="Settings\TableViewHelper.cs" />
@@ -81,9 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Edit Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ColorPicker.assetbundle" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Color Picker Base.png" />

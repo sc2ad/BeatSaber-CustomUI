@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRUI;
 using Image = UnityEngine.UI.Image;
+using static HMUI.Scrollbar;
 
 namespace CustomUI.Settings
 {
@@ -225,21 +226,17 @@ namespace CustomUI.Settings
             return view;
         }
 
-        public SliderViewController AddSlider(string name, string hintText, float min, float max, bool intValues)
+        public SliderViewController AddSlider(string name, string hintText, float min, float max, float increment, bool intValues)
         {
-            var view = AddSliderSetting<SliderViewController>(name, hintText, min, max, intValues);
+            var view = AddSliderSetting<SliderViewController>(name, hintText, min, max, increment, intValues);
             view.SetValues(min, max, intValues);
             return view;
         }
-
-        public ColorPickerViewController AddColorPicker(string name, string hintText)
-        {
-            var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText);
-            return view;
-        }
+        
         public ColorPickerViewController AddColorPicker(string name, string hintText, Color color)
         {
-            var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText);
+            var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText, color, out var clickablePreview);
+            view.SetPreviewInstance(clickablePreview);
             view.SetValues(color);
             return view;
         }
@@ -260,7 +257,8 @@ namespace CustomUI.Settings
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newListSettingsController;
         }
@@ -291,7 +289,8 @@ namespace CustomUI.Settings
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newListSettingsController;
         }
@@ -312,7 +311,8 @@ namespace CustomUI.Settings
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }
@@ -333,12 +333,13 @@ namespace CustomUI.Settings
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newToggleSettingsController;
         }
         
-        public T AddSliderSetting<T>(string name, string hintText, float min, float max, bool intValues) where T : IncDecSettingsController
+        public T AddSliderSetting<T>(string name, string hintText, float min, float max, float increment, bool intValues) where T : IncDecSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -352,29 +353,30 @@ namespace CustomUI.Settings
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("ValueText").gameObject);
             GameObject.Destroy(newSettingsObject.transform.Find("Value").Find("IncButton").gameObject);
 
-            HMUI.Scrollbar slider = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(),
-                                                           newSettingsObject.transform.Find("Value"), false);
-            SliderProperties sliderProperties = slider.gameObject.AddComponent<SliderProperties>();
+            CustomSlider slider = newSliderSettingsController.gameObject.AddComponent<CustomSlider>();
+            slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), newSettingsObject.transform.Find("Value"), false);
+            slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
+            (slider.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(39.5f, 5.0f);
+            (slider.Scrollbar.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
 
-            sliderProperties.FromValue = min;
-            sliderProperties.ToValue = max;
-            sliderProperties.IntValues = intValues;
-            slider.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
-            (slider.transform as RectTransform).sizeDelta = new Vector2(39.5f, 7.5f);
-            (slider.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
+            slider.Scrollbar.numberOfSteps = (int)((max - min) / increment) + 1;
+            slider.MinValue = min;
+            slider.MaxValue = max;
+            slider.IsIntValue = intValues;
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newSliderSettingsController;
         }
 
-        public T AddColorPickerSetting<T>(string name) where T : SimpleSettingsController
+        public T AddColorPickerSetting<T>(string name, Color color, out ColorPickerPreviewClickable clickablePreview) where T : SimpleSettingsController
         {
-            return AddColorPickerSetting<T>(name, "");
+            return AddColorPickerSetting<T>(name, "", color, out clickablePreview);
         }
-        public T AddColorPickerSetting<T>(string name, string hintText) where T : SimpleSettingsController
+        public T AddColorPickerSetting<T>(string name, string hintText, Color color, out ColorPickerPreviewClickable clickablePreview) where T : SimpleSettingsController
         {
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
@@ -391,12 +393,15 @@ namespace CustomUI.Settings
 
             ColorPickerPreviewClickable cppc = new GameObject("ColorPickerPreviewClickable").AddComponent<ColorPickerPreviewClickable>();
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
+            cppc.ImagePreview.color = color;
             (cppc.transform as RectTransform).localScale = new Vector2(0.07f, 0.07f);
             (cppc.transform as RectTransform).localPosition += new Vector3(2.5f, 0f);
+            clickablePreview = cppc;
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
             tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
+            if (hintText != String.Empty)
+                BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             return newColorPickerSettingsController;
         }
