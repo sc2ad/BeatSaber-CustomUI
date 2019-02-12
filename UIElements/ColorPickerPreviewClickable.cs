@@ -12,14 +12,14 @@ namespace CustomUI.UIElements
 {
     public class ColorPickerPreviewClickable : ColorPickerPreview, IEventSystemHandler
     {
-        private CustomMenu _CustomMenu;
-        private CustomViewController _CustomViewController;
-        private ColorPicker _ColorPickerSettings;
+        private static CustomMenu _CustomMenu;
+        private static CustomViewController _CustomViewController;
+        private static ColorPicker _ColorPickerSettings;
 
         private new void Start()
         {
             base.Start();
-            _CustomMenu = BeatSaberUI.CreateCustomMenu<CustomMenu>("Pick a color..");
+            _CustomMenu = BeatSaberUI.CreateCustomMenu<CustomMenu>("Pick a color");
             _CustomViewController = BeatSaberUI.CreateViewController<CustomViewController>();
             //Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreviewClickable]: ColorPickerPreviewClickable start done.");
         }
@@ -33,17 +33,20 @@ namespace CustomUI.UIElements
         {
             base.OnPointerDown(eventData);
             if (_ColorPickerSettings != null)
-                _ColorPickerSettings.ColorPickerPreview.ImagePreview.color = ImagePreview.color;
+                _ColorPickerSettings.SetPreviewColor(ImagePreview.color);
             if (_CustomMenu != null && _CustomViewController != null)
             {
-                _CustomMenu.SetMainViewController(_CustomViewController, true, (firstActivation, type) =>
+                _CustomMenu.SetMainViewController(_CustomViewController, false, (firstActivation, type) =>
                 {
                     if (firstActivation && type == VRUI.VRUIViewController.ActivationType.AddedToHierarchy)
                     {
                         _ColorPickerSettings = _CustomViewController.CreateColorPicker(new Vector2(0, -5), new Vector2(0.7f, 0.7f));
                         if (_ColorPickerSettings != null)
-                            _ColorPickerSettings.ColorPickerPreview.ImagePreview.color = ImagePreview.color;
+                        {
+                            _ColorPickerSettings.Initialize(_CustomMenu, ImagePreview.color);
+                        }
                     }
+                    _ColorPickerSettings.DidActivate(ImagePreview.color);
                 });
                 _CustomViewController.didDeactivateEvent += _UpdatingPreviewClickableColor;
                 StartCoroutine(_WaitForPresenting());
@@ -53,8 +56,8 @@ namespace CustomUI.UIElements
 
         private void _UpdatingPreviewClickableColor(VRUI.VRUIViewController.DeactivationType deactivationType)
         {
-            if (ImagePreview != null && _ColorPickerSettings != null && _ColorPickerSettings.ColorPickerPreview != null && _ColorPickerSettings.ColorPickerPreview.ImagePreview != null)
-                ImagePreview.color = _ColorPickerSettings.ColorPickerPreview.ImagePreview.color;
+            if (ImagePreview != null && _ColorPickerSettings != null && ColorPicker.ColorPickerPreview != null && ColorPicker.ColorPickerPreview.ImagePreview != null)
+                ImagePreview.color = ColorPicker.ColorPickerPreview.ImagePreview.color;
             else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPickerPreviewClickable._UpdatingPreviewClickableColor]: 'ImagePreview' or '_ColorPickerSettings' was null.");
             _CustomViewController.didDeactivateEvent -= _UpdatingPreviewClickableColor;

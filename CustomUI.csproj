@@ -57,6 +57,7 @@
     <Compile Include="BeatSaber\BeatSaberUI.cs" />
     <Compile Include="BeatSaber\BeatSaberUIExtensions.cs" />
     <Compile Include="BeatSaber\CustomMenu.cs" />
+    <Compile Include="UIElements\ColorPickerPreviewClickable.cs" />
     <Compile Include="UIElements\CustomSlider.cs" />
     <Compile Include="BeatSaber\CustomUIKeyboard.cs" />
     <Compile Include="GameplaySettings\GameplaySettingsTypes.cs" />
@@ -69,7 +70,6 @@
     <Compile Include="UIElements\ColorPicker.cs" />
     <Compile Include="UIElements\ColorPickerCore.cs" />
     <Compile Include="UIElements\ColorPickerPreview.cs" />
-    <Compile Include="UIElements\ColorPickerPreviewClickable.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
     <Compile Include="Settings\SettingsUI.cs" />
     <Compile Include="Settings\TableViewHelper.cs" />

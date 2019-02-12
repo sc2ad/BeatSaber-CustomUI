@@ -1,4 +1,5 @@
-﻿using CustomUI.Utilities;
+﻿using CustomUI.BeatSaber;
+using CustomUI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +17,14 @@ namespace CustomUI.UIElements
 
         private HMUI.Image _Image;
         private PointerEventData _PointerData;
-        private float _HueValue = 0f;
+        private Action<Color> SetPreviewColor;
 
         /// <summary>
         /// Initialize the <see cref="ColorPickerCore"/> (should be called after assigning the <see cref="ColorPickerPreview"/> variable)
         /// </summary>
-        public void Initialize()
+        public void Initialize(Action<Color> SetPreviewColor)
         {
+            this.SetPreviewColor = SetPreviewColor;
             _Image = gameObject.AddComponent<HMUI.Image>();
             if (_Image != null)
             {
@@ -38,34 +40,7 @@ namespace CustomUI.UIElements
         private void Update()
         {
             if (_PointerData != null)
-                ColorPickerPreview.GetComponent<HMUI.Image>().color = ColorPicker.GetSelectedColorFromImage(_PointerData, _Image);
-        }
-
-        /// <summary>
-        /// Get new color by applying an hue value to it
-        /// </summary>
-        /// <param name="color">The <see cref="Color"/></param>
-        /// <param name="hueValue">A value between 0 and 1 corresponding to the hue</param>
-        /// <returns>A new <see cref="Color"/> with the hue applied</returns>
-        public Color GetCorrectColorFromHue(Color color, float hueValue)
-        {
-            float h, s, v;
-            Color.RGBToHSV(color, out h, out s, out v);
-            h = hueValue;
-            return (Color.HSVToRGB(h, s, v));
-        }
-
-        /// <summary>
-        /// Change the hue value located in the Shader
-        /// </summary>
-        /// <param name="hueValue">A value between 0 and 1 corresponding to the hue</param>
-        public void ChangeColorPickerHue(float hueValue)
-        {
-            if (_Image != null)
-            {
-                _HueValue = hueValue;
-                _Image.material.SetFloat("_Hue", hueValue);
-            }
+                SetPreviewColor?.Invoke(ColorPicker.GetSelectedColorFromImage(_PointerData, _Image));
         }
 
         /// <summary>

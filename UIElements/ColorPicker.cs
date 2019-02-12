@@ -14,35 +14,121 @@ namespace CustomUI.UIElements
 {
     public class ColorPicker : Selectable, IEventSystemHandler
     {
-        public ColorPickerPreview ColorPickerPreview;
+        public static ColorPickerPreview ColorPickerPreview;
         public ColorPickerCore ColorPickerCore;
+        private CustomSlider _sliderR, _sliderG, _sliderB, _sliderA;
+        private Button _okButton, _cancelButton;
+        private Color _originalColor, _currentColor;
 
-        private new void Awake()
+        public void Initialize(CustomMenu customMenu, Color color)
         {
-            base.Awake();
+            RectTransform colorContainer = new GameObject("ColorPickerContainer", typeof(RectTransform)).transform as RectTransform;
+            colorContainer.SetParent(customMenu.mainViewController.rectTransform, false);
+            colorContainer.sizeDelta = new Vector2(60f, 0f);
 
             //ColorPickerPreview initialization
             ColorPickerPreview = new GameObject("ColorPickerPreview").AddComponent<ColorPickerPreview>();
             if (ColorPickerPreview != null)
             {
-                ColorPickerPreview.transform.SetParent(transform, false);
+                ColorPickerPreview.transform.SetParent(colorContainer, false);
                 (ColorPickerPreview.transform as RectTransform).sizeDelta = new Vector2(8.5f, 8.5f);
-                ColorPickerPreview.transform.Translate(-40f, 35.5f, 0);
-            } else
+                (ColorPickerPreview.transform as RectTransform).localPosition = new Vector3(-37f, 7f);
+            }
+            else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerPreview' instance was null.");
             //ColorPickerCore initialization
             ColorPickerCore = new GameObject("ColorPickerCore").AddComponent<ColorPickerCore>();
             if (ColorPickerCore != null)
             {
                 ColorPickerCore.ColorPickerPreview = ColorPickerPreview;
-                ColorPickerCore.Initialize();
+                ColorPickerCore.Initialize(SetPreviewColor);
                 ColorPickerCore.transform.SetParent(transform, false);
                 (ColorPickerCore.transform as RectTransform).sizeDelta = new Vector2(70, 70);
-                (ColorPickerCore.transform as RectTransform).localPosition += new Vector3(0, 20);
-            } else
+                (ColorPickerCore.transform as RectTransform).localPosition = new Vector3(0, 15f);
+            }
+            else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerCore' instance was null.");
-            
-            //Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: ColorPicker awake done.");
+
+            var previewImg = ColorPickerPreview.ImagePreview;
+            _sliderR = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
+            {
+                previewImg.color = new Color(_sliderR.GetValueFromPercentage(val) / 255f, _currentColor.g, _currentColor.b, _currentColor.a);
+                _currentColor = previewImg.color;
+            });
+            (_sliderR.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
+            (_sliderR.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 32, 0);
+
+            _sliderG = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
+            {
+                previewImg.color = new Color(_currentColor.r, _sliderG.GetValueFromPercentage(val) / 255f, _currentColor.b, _currentColor.a);
+                _currentColor = previewImg.color;
+            });
+            (_sliderG.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
+            (_sliderG.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 22, 0);
+
+            _sliderB = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
+            {
+                previewImg.color = new Color(_currentColor.r, _currentColor.g, _sliderB.GetValueFromPercentage(val) / 255f, _currentColor.a);
+                _currentColor = previewImg.color;
+            }); 
+            (_sliderB.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
+            (_sliderB.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 12, 0);
+
+            _sliderA = BeatSaberUI.CreateUISlider(transform, 0, 255, 1, true, (val) =>
+            {
+                previewImg.color = new Color(_currentColor.r, _currentColor.g, _currentColor.b, _sliderA.GetValueFromPercentage(val) / 255f);
+                _currentColor = previewImg.color;
+            });
+            (_sliderA.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
+            (_sliderA.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 2, 0);
+
+            // Confirm button
+            _okButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "QuitButton")), colorContainer, false);
+            _okButton.ToggleWordWrapping(false);
+            (_okButton.transform as RectTransform).anchoredPosition = new Vector2(40f, -30f);
+            _okButton.SetButtonText("Ok");
+            _okButton.onClick.RemoveAllListeners();
+            _okButton.onClick.AddListener(delegate ()
+            {
+                customMenu.Dismiss();
+            });
+
+            // Cancel button
+            _cancelButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "QuitButton")), colorContainer, false);
+            _cancelButton.ToggleWordWrapping(false);
+            (_cancelButton.transform as RectTransform).anchoredPosition = new Vector2(15f, -30f);
+            _cancelButton.SetButtonText("Cancel");
+            _cancelButton.onClick.RemoveAllListeners();
+            _cancelButton.onClick.AddListener(delegate ()
+            {
+                SetPreviewColor(_originalColor);
+                customMenu.Dismiss();
+            });
+
+            SetPreviewColor(color);
+        }
+        
+        public void DidActivate(Color color)
+        {
+            _originalColor = color;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="ColorPickerPreview"/> color while also updating all associated <see cref="CustomSlider"/> components.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to set the preview image</param>
+        public void SetPreviewColor(Color color)
+        {
+            _currentColor = color;
+            ColorPickerPreview.ImagePreview.color = color;
+            _sliderR.CurrentValue = color.r * 255f;
+            _sliderR.Scrollbar.Set(_sliderR.GetPercentageFromCurrentValue());
+            _sliderG.CurrentValue = color.g * 255f;
+            _sliderG.Scrollbar.Set(_sliderG.GetPercentageFromCurrentValue());
+            _sliderB.CurrentValue = color.b * 255f;
+            _sliderB.Scrollbar.Set(_sliderB.GetPercentageFromCurrentValue());
+            _sliderA.CurrentValue = color.a * 255f;
+            _sliderA.Scrollbar.Set(_sliderA.GetPercentageFromCurrentValue());
         }
 
         /// <summary>

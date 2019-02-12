@@ -255,19 +255,20 @@ namespace CustomUI.BeatSaber
             return hoverHint;
         }
 
-        public static CustomSlider CreateUISlider(RectTransform parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
+        public static CustomSlider CreateUISlider(Transform parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
         {
-            var scrollbar = Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First();
-            CustomSlider slider = parent.gameObject.AddComponent<CustomSlider>();
-            slider.Scrollbar = scrollbar;
-            
+            CustomSlider slider = new GameObject("CustomUISlider").AddComponent<CustomSlider>();
+            GameObject.DontDestroyOnLoad(slider.gameObject);
+            slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), parent, false);
+            slider.Scrollbar.transform.SetParent(parent, false);
+
+            slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
             slider.Scrollbar.numberOfSteps = (int)((max - min) / increment) + 1;
             slider.MinValue = min;
             slider.MaxValue = max;
             slider.IsIntValue = intValues;
             slider.SetCurrentValueFromPercentage(slider.Scrollbar.value);
             slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = slider.CurrentValue.ToString("N1");
-
             slider.Scrollbar.onValueChanged.RemoveAllListeners();
             slider.Scrollbar.onValueChanged.AddListener(delegate (float value) {
                 TextMeshProUGUI valueLabel = slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>();

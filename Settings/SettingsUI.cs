@@ -358,6 +358,7 @@ namespace CustomUI.Settings
             slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
             (slider.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(39.5f, 5.0f);
             (slider.Scrollbar.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
+            
 
             slider.Scrollbar.numberOfSteps = (int)((max - min) / increment) + 1;
             slider.MinValue = min;
