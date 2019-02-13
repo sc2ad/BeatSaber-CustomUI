@@ -52,7 +52,7 @@ namespace CustomUI.UIElements
             var previewImg = ColorPickerPreview.ImagePreview;
             _sliderR = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
             {
-                previewImg.color = new Color(_sliderR.GetValueFromPercentage(val) / 255f, _currentColor.g, _currentColor.b, _currentColor.a);
+                previewImg.color = new Color(val / 255f, _currentColor.g, _currentColor.b, _currentColor.a);
                 _currentColor = previewImg.color;
             });
             (_sliderR.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
@@ -60,7 +60,7 @@ namespace CustomUI.UIElements
 
             _sliderG = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
             {
-                previewImg.color = new Color(_currentColor.r, _sliderG.GetValueFromPercentage(val) / 255f, _currentColor.b, _currentColor.a);
+                previewImg.color = new Color(_currentColor.r, val / 255f, _currentColor.b, _currentColor.a);
                 _currentColor = previewImg.color;
             });
             (_sliderG.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
@@ -68,7 +68,7 @@ namespace CustomUI.UIElements
 
             _sliderB = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
             {
-                previewImg.color = new Color(_currentColor.r, _currentColor.g, _sliderB.GetValueFromPercentage(val) / 255f, _currentColor.a);
+                previewImg.color = new Color(_currentColor.r, _currentColor.g, val / 255f, _currentColor.a);
                 _currentColor = previewImg.color;
             }); 
             (_sliderB.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
@@ -76,7 +76,7 @@ namespace CustomUI.UIElements
 
             _sliderA = BeatSaberUI.CreateUISlider(transform, 0, 255, 1, true, (val) =>
             {
-                previewImg.color = new Color(_currentColor.r, _currentColor.g, _currentColor.b, _sliderA.GetValueFromPercentage(val) / 255f);
+                previewImg.color = new Color(_currentColor.r, _currentColor.g, _currentColor.b, val / 255f);
                 _currentColor = previewImg.color;
             });
             (_sliderA.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);

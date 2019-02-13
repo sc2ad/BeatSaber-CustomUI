@@ -278,7 +278,10 @@ namespace CustomUI.BeatSaber
                 valueLabel.text = slider.CurrentValue.ToString("N1");
             });
             if (onValueChanged != null)
-                slider.Scrollbar.onValueChanged.AddListener(onValueChanged);
+                slider.Scrollbar.onValueChanged.AddListener((percent) => 
+                {
+                    onValueChanged?.Invoke(slider.GetPercentageFromValue(percent));
+                });
             return slider;
         }
 
