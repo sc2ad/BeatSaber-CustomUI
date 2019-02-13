@@ -264,7 +264,12 @@ namespace CustomUI.Settings
             var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
-            
+
+            var incBg = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            (incBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
+            var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
+            (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
+
             VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
@@ -289,8 +294,8 @@ namespace CustomUI.Settings
             newSettingsObject.name = name;
             newSettingsObject.transform.Find("Value").gameObject.GetComponent<HorizontalLayoutGroup>().spacing += 2;
             newSettingsObject.transform.Find("Value").Find("DecButton").gameObject.SetActive(false);
-            //var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
-            //(bgIcon.transform as RectTransform).localScale *= new Vector2(0.9f, 0.9f);
+            var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            (bgIcon.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
             var arrowIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("Arrow").gameObject.GetComponent<Image>();
             arrowIcon.sprite = UIUtilities.EditIcon;
             var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
@@ -321,6 +326,11 @@ namespace CustomUI.Settings
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
+            var incBg = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            (incBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
+            var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
+            (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
+
             WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SwitchSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
@@ -343,6 +353,11 @@ namespace CustomUI.Settings
             var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
+
+            var incBg = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
+            (incBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
+            var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
+            (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
 
             WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
@@ -375,7 +390,7 @@ namespace CustomUI.Settings
             slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(s => s.name != "CustomUISlider"), newSettingsObject.transform.Find("Value"), false);
             slider.Scrollbar.name = "CustomUISlider";
             slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
-            (slider.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(39.5f, 5.0f);
+            (slider.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(39.5f, 4.5f);
             (slider.Scrollbar.transform as RectTransform).anchorMin = new Vector2(0, 0.5f);
             
 
@@ -416,7 +431,7 @@ namespace CustomUI.Settings
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
             cppc.ImagePreview.color = color;
             (cppc.transform as RectTransform).localScale = new Vector2(0.07f, 0.07f);
-            (cppc.transform as RectTransform).localPosition += new Vector3(2.5f, 0f);
+            (cppc.transform as RectTransform).localPosition += new Vector3(5f, -0.5f);
             clickablePreview = cppc;
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
