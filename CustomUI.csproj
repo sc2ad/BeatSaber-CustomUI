@@ -57,6 +57,7 @@
     <Compile Include="BeatSaber\BeatSaberUI.cs" />
     <Compile Include="BeatSaber\BeatSaberUIExtensions.cs" />
     <Compile Include="BeatSaber\CustomMenu.cs" />
+    <Compile Include="Settings\CustomSettingsListViewController.cs" />
     <Compile Include="UIElements\ColorPickerPreviewClickable.cs" />
     <Compile Include="UIElements\CustomSlider.cs" />
     <Compile Include="BeatSaber\CustomUIKeyboard.cs" />

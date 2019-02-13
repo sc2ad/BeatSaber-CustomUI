@@ -259,7 +259,8 @@ namespace CustomUI.BeatSaber
         {
             CustomSlider slider = new GameObject("CustomUISlider").AddComponent<CustomSlider>();
             GameObject.DontDestroyOnLoad(slider.gameObject);
-            slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(), parent, false);
+            slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(s => s.name != "CustomUISlider"), parent, false);
+            slider.Scrollbar.name = "CustomUISlider";
             slider.Scrollbar.transform.SetParent(parent, false);
 
             slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;

@@ -82,7 +82,7 @@ namespace CustomUI.UIElements
             (_sliderA.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 8f);
             (_sliderA.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 2, 0);
 
-            // Confirm button
+            // Ok button
             _okButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "QuitButton")), colorContainer, false);
             _okButton.ToggleWordWrapping(false);
             (_okButton.transform as RectTransform).anchoredPosition = new Vector2(40f, -30f);

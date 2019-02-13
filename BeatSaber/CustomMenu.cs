@@ -98,7 +98,7 @@ namespace CustomUI.BeatSaber
                 _customListTableView.didSelectRowEvent += _customListTableView_didSelectRowEvent;
 
                 _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container, false);
-                (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 30f);//-14
+                (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 30f);
                 _pageUpButton.interactable = true;
                 _pageUpButton.onClick.AddListener(delegate ()
                 {
@@ -106,7 +106,7 @@ namespace CustomUI.BeatSaber
                 });
 
                 _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container, false);
-                (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -30f);//8
+                (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -30f);
                 _pageDownButton.interactable = true;
                 _pageDownButton.onClick.AddListener(delegate ()
                 {
