@@ -280,7 +280,7 @@ namespace CustomUI.BeatSaber
             if (onValueChanged != null)
                 slider.Scrollbar.onValueChanged.AddListener((percent) => 
                 {
-                    onValueChanged?.Invoke(slider.GetPercentageFromValue(percent));
+                    onValueChanged?.Invoke(slider.GetValueFromPercentage(percent));
                 });
             return slider;
         }

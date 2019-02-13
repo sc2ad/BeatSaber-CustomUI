@@ -46,45 +46,47 @@ namespace CustomUI.Settings
                         _settingsTableCellInstance = settingsListItem.gameObject.AddComponent<TableCell>();
                     }
                 }
+
+                base.DidActivate(firstActivation, type);
+
+                if (firstActivation)
+                {
+                    int numOptions = _submenuOptions.Count() > _maxOptionsPerPage ? _maxOptionsPerPage : _submenuOptions.Count();
+                    float listHeight = numOptions * RowHeight();
+                    float listTableOffset = 5f;
+
+                    // Adjust the page button sizes
+                    _pageUpButton.transform.localScale /= 1.4f;
+                    _pageDownButton.transform.localScale /= 1.4f;
+                    // Move the page buttons depending on how many options there are
+                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + listTableOffset);
+                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 + listTableOffset);
+
+                    // Set the size of the listTableView (this is the area where list items are displayed)
+                    (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, listHeight);
+                    (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, listTableOffset);
+
+                    // Fit the tableview to our window
+                    (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(160f, 0);
+                }
+                rectTransform.sizeDelta = new Vector2(-60, 0);
+                Resources.FindObjectsOfTypeAll<MainSettingsTableView>().First().transform.parent.parent.localPosition = new Vector3(-50f, 0, 0); // ...lets not talk about this.
+
+                if (_submenuOptions.Count <= 6)
+                {
+                    _pageDownButton.gameObject.SetActive(false);
+                    _pageUpButton.gameObject.SetActive(false);
+                }
+                else
+                {
+                    _pageDownButton.gameObject.SetActive(true);
+                    _pageUpButton.gameObject.SetActive(true);
+                }
+
             }
             catch (Exception e)
             {
-                Console.WriteLine("EXCEPTION IN MenuButtonListViewController.DidActivate: " + e);
-            }
-            base.DidActivate(firstActivation, type);
-
-            if (firstActivation)
-            {
-                int numOptions = _submenuOptions.Count() > _maxOptionsPerPage ? _maxOptionsPerPage : _submenuOptions.Count();
-                float listHeight = numOptions * RowHeight();
-                float listTableOffset = 5f;
-
-                // Adjust the page button sizes
-                _pageUpButton.transform.localScale /= 1.4f;
-                _pageDownButton.transform.localScale /= 1.4f;
-                // Move the page buttons depending on how many options there are
-                (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + listTableOffset);
-                (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 + listTableOffset);
-
-                // Set the size of the listTableView (this is the area where list items are displayed)
-                (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, listHeight);
-                (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, listTableOffset);
-                
-                // Fit the tableview to our window
-                (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(160f, 0);
-            }
-            rectTransform.sizeDelta = new Vector2(-60, 0);
-            Resources.FindObjectsOfTypeAll<MainSettingsTableView>().First().transform.parent.parent.localPosition = new Vector3(-50f, 0, 0); // ...lets not talk about this.
-
-            if (_submenuOptions.Count <= 6)
-            {
-                _pageDownButton.gameObject.SetActive(false);
-                _pageUpButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                _pageDownButton.gameObject.SetActive(true);
-                _pageUpButton.gameObject.SetActive(true);
+                Console.WriteLine("EXCEPTION IN CustomSettingsListViewController.DidActivate: " + e);
             }
         }
 
@@ -119,20 +121,10 @@ namespace CustomUI.Settings
             container.SetParent(_tableCell.transform);
             container.sizeDelta = cellSize;
             
-
             (_submenuOptions[row].transform as RectTransform).anchoredPosition = new Vector2(83f, 4f);
             (_submenuOptions[row].transform as RectTransform).sizeDelta = cellSize;
             _submenuOptions[row].transform.SetParent(container, false);
-
-            //Console.WriteLine($"GameObject: {_submenuOptions[row].name}");
-            //Console.WriteLine($"RowIndex: {row}");
-            //Console.WriteLine($"Position: {_submenuOptions[row].transform.localPosition}");
-            //Console.WriteLine("Hierarchy:");
-            //Transform t = _submenuOptions[row].transform;
-            //while (t.parent != null)
-            //    t = t.parent;
-            //PrintHierarchy(t);
-
+            
             return _tableCell;
         }
 
