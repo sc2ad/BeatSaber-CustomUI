@@ -119,5 +119,16 @@ namespace CustomUI.Utilities
             stream.Read(data, 0, (int)stream.Length);
             return data;
         }
+
+        public static void PrintHierarchy(Transform transform, string spacing = "|-> ")
+        {
+            spacing = spacing.Insert(1, "  ");
+            var tempList = transform.Cast<Transform>().ToList();
+            foreach (var child in tempList)
+            {
+                Console.WriteLine($"{spacing}{child.name}");
+                PrintHierarchy(child, "|" + spacing);
+            }
+        }
     }
 }

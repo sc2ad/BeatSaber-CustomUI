@@ -430,7 +430,7 @@ namespace CustomUI.Settings
             ColorPickerPreviewClickable cppc = new GameObject("ColorPickerPreviewClickable").AddComponent<ColorPickerPreviewClickable>();
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
             cppc.ImagePreview.color = color;
-            (cppc.transform as RectTransform).localScale = new Vector2(0.07f, 0.07f);
+            (cppc.transform as RectTransform).localScale = new Vector2(0.06f, 0.06f);
             (cppc.transform as RectTransform).localPosition += new Vector3(5f, -0.5f);
             clickablePreview = cppc;
 
