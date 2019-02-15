@@ -52,15 +52,15 @@ namespace CustomUI.Settings
                         _settingsTableCellInstance.reuseIdentifier = "CustomUISettingsTableCell";
                     }
                 }
-
                 base.DidActivate(firstActivation, type);
-
-
+                
                 int numOptions = _submenuOptions.Count() > _maxOptionsPerPage ? _maxOptionsPerPage : _submenuOptions.Count();
                 float listHeight = numOptions * _rowHeight;
                
                 if (firstActivation)
                 {
+                    // Use one set of page up/down buttons for all the CustomSettingsListViewControllers, as we might  
+                    // have a lot of settings pages and theres no reason to use separate buttons for each one
                     if (pageUpButton == null)
                     {
                         pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), rectTransform.parent, false);
@@ -78,6 +78,7 @@ namespace CustomUI.Settings
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, listHeight);
                     (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, _settingsViewControllerPadding);
 
+                    // Destroy the content size fitter so we can manually resize the black rounded background image to fit our list
                     var content = (rectTransform.Find("Content") as RectTransform);
                     DestroyImmediate(content.gameObject.GetComponent<ContentSizeFitter>());
                     var image = content.GetComponent<Image>();
@@ -87,7 +88,7 @@ namespace CustomUI.Settings
                     // Fit the tableview to our window
                     (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(_settingsViewControllerWidth, 0);
                 }
-
+                // Attach the page buttons to the current settings page
                 pageUpButton.transform.SetParent(rectTransform.Find("CustomListContainer"));
                 pageDownButton.transform.SetParent(rectTransform.Find("CustomListContainer"));
 
@@ -95,6 +96,7 @@ namespace CustomUI.Settings
                 (pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + 1.25f + _settingsViewControllerPadding);
                 (pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 - 1.25f + _settingsViewControllerPadding);
 
+                // And finally, show/hide the buttons depending on whether or not we have enough menu options
                 pageUpButton.gameObject.SetActive(_submenuOptions.Count > _maxOptionsPerPage);
                 pageDownButton.gameObject.SetActive(_submenuOptions.Count > _maxOptionsPerPage);
             }
