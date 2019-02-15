@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 namespace CustomUI.Settings
 {
@@ -41,9 +42,10 @@ namespace CustomUI.Settings
                         horiz.childForceExpandWidth = false;
                         horiz.childAlignment = TextAnchor.MiddleLeft;
                         (horiz.transform as RectTransform).anchoredPosition = new Vector2(0, 0);
-                        horiz.padding = new RectOffset(4, 0, 4, 4);
+                        horiz.padding = new RectOffset(0, 0, 4, 4);
 
                         _settingsTableCellInstance = settingsListItem.gameObject.AddComponent<TableCell>();
+                        _settingsTableCellInstance.reuseIdentifier = "CustomUISettingsTableCell";
                     }
                 }
 
@@ -59,18 +61,30 @@ namespace CustomUI.Settings
                     _pageUpButton.transform.localScale /= 1.4f;
                     _pageDownButton.transform.localScale /= 1.4f;
                     // Move the page buttons depending on how many options there are
-                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + listTableOffset);
-                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 + listTableOffset);
+                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + 1.35f + listTableOffset);
+                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 - 1.35f + listTableOffset);
 
                     // Set the size of the listTableView (this is the area where list items are displayed)
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, listHeight);
                     (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, listTableOffset);
 
+                    var content = (rectTransform.Find("Content") as RectTransform);
+                    DestroyImmediate(content.gameObject.GetComponent<ContentSizeFitter>());
+                    content.GetComponents<Image>().ToList().ForEach(i => 
+                    {
+                        i.rectTransform.sizeDelta = new Vector2(i.rectTransform.sizeDelta.x, listHeight - 77);
+                        i.rectTransform.localPosition = new Vector2(i.rectTransform.localPosition.x, 5);
+                        //var newImage = (Image)ReflectionUtil.CopyComponent(i, typeof(Image), typeof(Image), content.gameObject);
+                        //newImage.rectTransform.sizeDelta = new Vector2(100, 100);
+                        //newImage.material = UIUtilities.NoGlowMaterial;
+                        //DestroyImmediate(i);
+
+
+                    });
+
                     // Fit the tableview to our window
-                    (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(160f, 0);
+                    (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(100f, 0);
                 }
-                rectTransform.sizeDelta = new Vector2(-60, 0);
-                Resources.FindObjectsOfTypeAll<MainSettingsTableView>().First().transform.parent.parent.localPosition = new Vector3(-50f, 0, 0); // ...lets not talk about this.
 
                 if (_submenuOptions.Count <= 6)
                 {
@@ -113,7 +127,7 @@ namespace CustomUI.Settings
 
         public override TableCell CellForRow(int row)
         {
-            Vector2 cellSize = new Vector2(100, 8);
+            Vector2 cellSize = new Vector2(90, 8);
             
             TableCell _tableCell = Instantiate(_settingsTableCellInstance);
             
@@ -121,9 +135,11 @@ namespace CustomUI.Settings
             container.SetParent(_tableCell.transform);
             container.sizeDelta = cellSize;
             
-            (_submenuOptions[row].transform as RectTransform).anchoredPosition = new Vector2(83f, 4f);
+            (_submenuOptions[row].transform as RectTransform).anchoredPosition = new Vector2(52, 3.9f);
             (_submenuOptions[row].transform as RectTransform).sizeDelta = cellSize;
             _submenuOptions[row].transform.SetParent(container, false);
+
+            _tableCell.reuseIdentifier = "CustomUISettingsTableCell";
             
             return _tableCell;
         }

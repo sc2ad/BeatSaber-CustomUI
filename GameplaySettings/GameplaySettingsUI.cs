@@ -301,10 +301,10 @@ namespace CustomUI.GameplaySettings
                 }
 
                 var measure = height.Find("MeassureButton");
-                measure.localScale *= 0.6f;
+                measure.localScale = new Vector3(0.6f, 0.6f, 0.6f);
                 measure.localPosition += new Vector3(5f, 0);
                 var reset = height.Find("ResetButton");
-                reset.localScale *= 0.6f;
+                reset.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             }
 
             if (!initialized)

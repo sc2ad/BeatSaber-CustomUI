@@ -1,6 +1,4 @@
 ﻿using IllusionPlugin;
-using System.Collections;
-using UnityEngine.SceneManagement;
 
 namespace CustomUI
 {
@@ -27,7 +25,7 @@ namespace CustomUI
         public void OnUpdate()
         {
         }
-
+        
         public void OnFixedUpdate()
         {
         }

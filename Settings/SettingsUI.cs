@@ -151,21 +151,17 @@ namespace CustomUI.Settings
             lock(Instance) {
                 Instance.SetupUI();
 
-                var customSettingsViewController = BeatSaberUI.CreateViewController<CustomSettingsListViewController>();
+                var subMenuGameObject = Instantiate(Instance.othersSubmenu.gameObject, Instance.othersSubmenu.transform.parent);
+                subMenuGameObject.name = name.Replace(" ", "");
+                Transform mainContainer = CleanScreen(subMenuGameObject.transform);
+
+                DestroyImmediate(subMenuGameObject.GetComponent<VRUIViewController>());
+                var customSettingsViewController = subMenuGameObject.AddComponent<CustomSettingsListViewController>();
                 customSettingsViewController.name = name.Replace(" ", "");
-
-                var content = new GameObject().AddComponent<RectTransform>();
-                content.name = "Content";
-                content.SetParent(customSettingsViewController.rectTransform);
-
-                var settingsContainer = new GameObject().AddComponent<RectTransform>();
-                settingsContainer.name = "SettingsContainer";
-                settingsContainer.anchoredPosition = new Vector2(0, 0);
-                settingsContainer.SetParent(content);
-
+                
                 var newSubMenuInfo = new SettingsSubMenuInfo();
                 newSubMenuInfo.SetPrivateField("_menuName", name);
-                newSubMenuInfo.SetPrivateField("_viewController", customSettingsViewController);
+                newSubMenuInfo.SetPrivateField("_viewController", (VRUIViewController)customSettingsViewController);
 
                 var subMenuInfos = Instance.mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
                 subMenuInfos.Add(newSubMenuInfo);
@@ -190,19 +186,20 @@ namespace CustomUI.Settings
     
     public class SubMenu
     {
-        public CustomSettingsListViewController viewController;
         public Transform transform;
+        public CustomSettingsListViewController viewController;
+        
+        public SubMenu(CustomSettingsListViewController viewController)
+        {
+            this.viewController = viewController;
+            this.transform = viewController.transform;
+        }
 
         public SubMenu(Transform transform)
         {
             this.transform = transform;
         }
-
-        public SubMenu(CustomSettingsListViewController viewController)
-        {
-            this.viewController = viewController;
-        }
-
+        
         public BoolViewController AddBool(string name)
         {
             return AddBool(name, "");
@@ -431,7 +428,7 @@ namespace CustomUI.Settings
             cppc.transform.SetParent(newSettingsObject.transform.Find("Value"), false);
             cppc.ImagePreview.color = color;
             (cppc.transform as RectTransform).localScale = new Vector2(0.06f, 0.06f);
-            (cppc.transform as RectTransform).localPosition += new Vector3(5f, -0.5f);
+            (cppc.transform as RectTransform).localPosition += new Vector3(3f, 0.1f);
             clickablePreview = cppc;
 
             var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
