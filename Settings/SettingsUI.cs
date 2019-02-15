@@ -81,9 +81,7 @@ namespace CustomUI.Settings
                 subMenuTableView = _mainSettingsTableView.GetComponentInChildren<TableView>();
                 subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableViewHelper>();
                 othersSubmenu = settingsMenu.transform.Find("OtherSettings");
-
-                AddPageButtons();
-
+                
                 if (tableCell == null)
                 {
                     tableCell = Resources.FindObjectsOfTypeAll<MainSettingsTableCell>().FirstOrDefault();
@@ -158,16 +156,20 @@ namespace CustomUI.Settings
                 DestroyImmediate(subMenuGameObject.GetComponent<VRUIViewController>());
                 var customSettingsViewController = subMenuGameObject.AddComponent<CustomSettingsListViewController>();
                 customSettingsViewController.name = name.Replace(" ", "");
+                customSettingsViewController.includePageButtons = false;
                 
                 var newSubMenuInfo = new SettingsSubMenuInfo();
                 newSubMenuInfo.SetPrivateField("_menuName", name);
-                newSubMenuInfo.SetPrivateField("_viewController", (VRUIViewController)customSettingsViewController);
+                newSubMenuInfo.SetPrivateField("_viewController", customSettingsViewController);
 
                 var subMenuInfos = Instance.mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
                 subMenuInfos.Add(newSubMenuInfo);
                 Instance.mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
 
-                 SubMenu menu = new SubMenu(customSettingsViewController);
+                if (subMenuInfos.Count > 6)
+                    Instance.AddPageButtons();
+
+                SubMenu menu = new SubMenu(customSettingsViewController);
                 return menu;
             }
         }

@@ -16,10 +16,14 @@ namespace CustomUI.Settings
 {
     public class CustomSettingsListViewController : CustomListViewController
     {
-        private readonly int _maxOptionsPerPage = 6;
+        private readonly int _rowHeight = 7;
+        private readonly int _maxOptionsPerPage = 7;
+        private readonly float _settingsViewControllerPadding = 5f;
+        private readonly float _settingsViewControllerWidth = 100f;
         private List<GameObject> _submenuOptions = new List<GameObject>();
 
-        private TableCell _settingsTableCellInstance;
+        private static TableCell _settingsTableCellInstance;
+        private static Button pageUpButton, pageDownButton;
         protected override void DidActivate(bool firstActivation, ActivationType type)
         { 
             try
@@ -42,7 +46,7 @@ namespace CustomUI.Settings
                         horiz.childForceExpandWidth = false;
                         horiz.childAlignment = TextAnchor.MiddleLeft;
                         (horiz.transform as RectTransform).anchoredPosition = new Vector2(0, 0);
-                        horiz.padding = new RectOffset(0, 0, 4, 4);
+                        horiz.padding = new RectOffset(2, 2, _rowHeight/2, _rowHeight/2);
 
                         _settingsTableCellInstance = settingsListItem.gameObject.AddComponent<TableCell>();
                         _settingsTableCellInstance.reuseIdentifier = "CustomUISettingsTableCell";
@@ -51,52 +55,48 @@ namespace CustomUI.Settings
 
                 base.DidActivate(firstActivation, type);
 
+
+                int numOptions = _submenuOptions.Count() > _maxOptionsPerPage ? _maxOptionsPerPage : _submenuOptions.Count();
+                float listHeight = numOptions * _rowHeight;
+               
                 if (firstActivation)
                 {
-                    int numOptions = _submenuOptions.Count() > _maxOptionsPerPage ? _maxOptionsPerPage : _submenuOptions.Count();
-                    float listHeight = numOptions * RowHeight();
-                    float listTableOffset = 5f;
-
-                    // Adjust the page button sizes
-                    _pageUpButton.transform.localScale /= 1.4f;
-                    _pageDownButton.transform.localScale /= 1.4f;
-                    // Move the page buttons depending on how many options there are
-                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + 1.35f + listTableOffset);
-                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 - 1.35f + listTableOffset);
-
+                    if (pageUpButton == null)
+                    {
+                        pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), rectTransform.parent, false);
+                        pageUpButton.transform.localScale /= 1.4f;
+                        pageUpButton.onClick.AddListener(() => _customListTableView.PageScrollUp());
+                    }
+                    if (pageDownButton == null)
+                    {
+                        pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), rectTransform.parent, false);
+                        pageDownButton.transform.localScale /= 1.4f;
+                        pageDownButton.onClick.AddListener(() => _customListTableView.PageScrollDown());
+                    }
+                    
                     // Set the size of the listTableView (this is the area where list items are displayed)
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, listHeight);
-                    (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, listTableOffset);
+                    (_customListTableView.transform as RectTransform).localPosition += new Vector3(0f, _settingsViewControllerPadding);
 
                     var content = (rectTransform.Find("Content") as RectTransform);
                     DestroyImmediate(content.gameObject.GetComponent<ContentSizeFitter>());
-                    content.GetComponents<Image>().ToList().ForEach(i => 
-                    {
-                        i.rectTransform.sizeDelta = new Vector2(i.rectTransform.sizeDelta.x, listHeight - 77);
-                        i.rectTransform.localPosition = new Vector2(i.rectTransform.localPosition.x, 5);
-                        //var newImage = (Image)ReflectionUtil.CopyComponent(i, typeof(Image), typeof(Image), content.gameObject);
-                        //newImage.rectTransform.sizeDelta = new Vector2(100, 100);
-                        //newImage.material = UIUtilities.NoGlowMaterial;
-                        //DestroyImmediate(i);
-
-
-                    });
+                    var image = content.GetComponent<Image>();
+                    image.rectTransform.sizeDelta = new Vector2(image.rectTransform.sizeDelta.x, listHeight - 77);
+                    image.rectTransform.localPosition = new Vector2(image.rectTransform.localPosition.x, 5);
 
                     // Fit the tableview to our window
-                    (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(100f, 0);
+                    (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(_settingsViewControllerWidth, 0);
                 }
 
-                if (_submenuOptions.Count <= 6)
-                {
-                    _pageDownButton.gameObject.SetActive(false);
-                    _pageUpButton.gameObject.SetActive(false);
-                }
-                else
-                {
-                    _pageDownButton.gameObject.SetActive(true);
-                    _pageUpButton.gameObject.SetActive(true);
-                }
+                pageUpButton.transform.SetParent(rectTransform.Find("CustomListContainer"));
+                pageDownButton.transform.SetParent(rectTransform.Find("CustomListContainer"));
 
+                // Move the page buttons depending on how many options there are
+                (pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + 1.25f + _settingsViewControllerPadding);
+                (pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 - 1.25f + _settingsViewControllerPadding);
+
+                pageUpButton.gameObject.SetActive(_submenuOptions.Count > _maxOptionsPerPage);
+                pageDownButton.gameObject.SetActive(_submenuOptions.Count > _maxOptionsPerPage);
             }
             catch (Exception e)
             {
@@ -117,7 +117,7 @@ namespace CustomUI.Settings
 
         public override float RowHeight()
         {
-            return 8f;
+            return _rowHeight;
         }
 
         public override int NumberOfRows()
@@ -127,18 +127,17 @@ namespace CustomUI.Settings
 
         public override TableCell CellForRow(int row)
         {
-            Vector2 cellSize = new Vector2(90, 8);
-            
+            Vector2 cellSize = new Vector2(_settingsViewControllerWidth - _settingsViewControllerPadding*2, _rowHeight);
             TableCell _tableCell = Instantiate(_settingsTableCellInstance);
             
             RectTransform container = new GameObject("container", typeof(RectTransform)).GetComponent<RectTransform>();
             container.SetParent(_tableCell.transform);
             container.sizeDelta = cellSize;
             
-            (_submenuOptions[row].transform as RectTransform).anchoredPosition = new Vector2(52, 3.9f);
+            (_submenuOptions[row].transform as RectTransform).anchoredPosition = new Vector2(_settingsViewControllerWidth/2, _rowHeight / 2);
             (_submenuOptions[row].transform as RectTransform).sizeDelta = cellSize;
             _submenuOptions[row].transform.SetParent(container, false);
-
+            
             _tableCell.reuseIdentifier = "CustomUISettingsTableCell";
             
             return _tableCell;

@@ -65,6 +65,7 @@ namespace CustomUI.BeatSaber
 
     public class CustomListViewController : CustomViewController, TableView.IDataSource
     {
+        public bool includePageButtons = true;
         public Button _pageUpButton;
         public Button _pageDownButton;
         public TableView _customListTableView;
@@ -99,21 +100,31 @@ namespace CustomUI.BeatSaber
                     _customListTableView.dataSource = this;
 
                     _customListTableView.didSelectRowEvent += _customListTableView_didSelectRowEvent;
-                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container, false);
-                    (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 30f);
-                    _pageUpButton.interactable = true;
-                    _pageUpButton.onClick.AddListener(delegate ()
-                    {
-                        _customListTableView.PageScrollUp();
-                    });
 
-                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container, false);
-                    (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -30f);
-                    _pageDownButton.interactable = true;
-                    _pageDownButton.onClick.AddListener(delegate ()
+                    if (includePageButtons)
                     {
-                        _customListTableView.PageScrollDown();
-                    });
+                        if (_pageUpButton == null)
+                        {
+                            _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container, false);
+                            (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 30f);
+                            _pageUpButton.interactable = true;
+                            _pageUpButton.onClick.AddListener(delegate ()
+                            {
+                                _customListTableView.PageScrollUp();
+                            });
+                        }
+
+                        if (_pageDownButton == null)
+                        {
+                            _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container, false);
+                            (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -30f);
+                            _pageDownButton.interactable = true;
+                            _pageDownButton.onClick.AddListener(delegate ()
+                            {
+                                _customListTableView.PageScrollDown();
+                            });
+                        }
+                    }
                 }
                 base.DidActivate(firstActivation, type);
             }
