@@ -19,6 +19,7 @@ namespace CustomUI.Settings
 
         public string EnabledText = "ON";
         public string DisabledText = "OFF";
+        public bool applyImmediately = false;
 
         protected override bool GetInitValue()
         {
@@ -28,6 +29,20 @@ namespace CustomUI.Settings
                 value = GetValue();
             }
             return value;
+        }
+
+        public override void IncButtonPressed()
+        {
+            base.IncButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
+        }
+
+        public override void DecButtonPressed()
+        {
+            base.DecButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
         }
 
         protected override void ApplyValue(bool value)
@@ -49,7 +64,8 @@ namespace CustomUI.Settings
         private int _value;
         protected int _min;
         protected int _max;
-        protected int _increment;
+        protected int _increment = 1;
+        public bool applyImmediately = false;
 
         protected abstract int GetInitValue();
         protected abstract void ApplyValue(int value);
@@ -76,12 +92,16 @@ namespace CustomUI.Settings
             this._value += _increment;
             if (this._value > _max) this._value = _max;
             this.RefreshUI();
+            if (applyImmediately)
+                ApplySettings();
         }
         public override void DecButtonPressed()
         {
             this._value -= _increment;
             if (this._value < _min) this._value = _min;
             this.RefreshUI();
+            if (applyImmediately)
+                ApplySettings();
         }
     }
 
@@ -97,20 +117,23 @@ namespace CustomUI.Settings
         {
             _min = min;
             _max = max;
+            if (increment < 1)
+                increment = 1;
             _increment = increment;
         }
 
         public void UpdateIncrement(int increment)
         {
+            if (increment < 1)
+                increment = 1;
             _increment = increment;
         }
 
         private int FixValue(int value)
         {
             if (value % _increment != 0)
-            {
                 value -= (value % _increment);
-            }
+
             if (value > _max) value = _max;
             if (value < _min) value = _min;
             return value;
@@ -128,10 +151,7 @@ namespace CustomUI.Settings
 
         protected override void ApplyValue(int value)
         {
-            if (SetValue != null)
-            {
-                SetValue(FixValue(value));
-            }
+            SetValue?.Invoke(FixValue(value));
         }
 
         protected override string TextForValue(int value)
@@ -145,6 +165,7 @@ namespace CustomUI.Settings
         public Func<string> GetValue = () => String.Empty;
         public Action<string> SetValue = (_) => { };
         public string value = String.Empty;
+        public bool applyImmediately = false;
 
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
@@ -173,6 +194,8 @@ namespace CustomUI.Settings
 
         public override void DecButtonPressed()
         {
+            if (applyImmediately)
+                ApplySettings();
         }
     }
 
@@ -232,7 +255,7 @@ namespace CustomUI.Settings
         public Func<T, string> GetTextForValue = (_) => "?";
 
         public List<T> values;
-
+        
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
             numberOfElements = values.Count;
@@ -267,7 +290,7 @@ namespace CustomUI.Settings
 
         private CustomSlider _sliderInst;
         private TMPro.TextMeshProUGUI _textInst;
-
+        
         public override void Init()
         {
             _sliderInst = transform.GetComponent<CustomSlider>();

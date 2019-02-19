@@ -18,7 +18,6 @@ namespace CustomUI.BeatSaber
         public TableView _customListTableView;
         public List<CustomCellInfo> Data = new List<CustomCellInfo>();
         public Action<TableView, int> DidSelectRowEvent;
-
         private LevelListTableCell _songListTableCellInstance;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
