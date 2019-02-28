@@ -33,6 +33,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp" />
     <Reference Include="IllusionPlugin" />
     <Reference Include="System" />
@@ -75,6 +79,8 @@
     <Compile Include="UIElements\ColorPicker.cs" />
     <Compile Include="UIElements\ColorPickerCore.cs" />
     <Compile Include="UIElements\ColorPickerPreview.cs" />
+    <Compile Include="UIElements\FavoriteColorsViewController.cs" />
+    <Compile Include="HarmonyPatches\SceneManagerPatches.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
     <Compile Include="Settings\SettingsUI.cs" />
     <Compile Include="Settings\TableViewHelper.cs" />

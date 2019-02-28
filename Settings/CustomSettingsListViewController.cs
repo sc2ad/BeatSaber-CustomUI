@@ -65,13 +65,11 @@ namespace CustomUI.Settings
                     {
                         pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), rectTransform.parent, false);
                         pageUpButton.transform.localScale /= 1.4f;
-                        pageUpButton.onClick.AddListener(() => _customListTableView.PageScrollUp());
                     }
                     if (pageDownButton == null)
                     {
                         pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), rectTransform.parent, false);
                         pageDownButton.transform.localScale /= 1.4f;
-                        pageDownButton.onClick.AddListener(() => _customListTableView.PageScrollDown());
                     }
                     
                     // Set the size of the listTableView (this is the area where list items are displayed)
@@ -95,6 +93,12 @@ namespace CustomUI.Settings
                 // Move the page buttons depending on how many options there are
                 (pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, listHeight / 2 + 1.25f + _settingsViewControllerPadding);
                 (pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -listHeight / 2 - 1.25f + _settingsViewControllerPadding);
+
+
+                pageUpButton.onClick.RemoveAllListeners();
+                pageUpButton.onClick.AddListener(() => _customListTableView.PageScrollUp());
+                pageDownButton.onClick.RemoveAllListeners();
+                pageDownButton.onClick.AddListener(() => _customListTableView.PageScrollDown());
 
                 // And finally, show/hide the buttons depending on whether or not we have enough menu options
                 pageUpButton.gameObject.SetActive(_submenuOptions.Count > _maxOptionsPerPage);

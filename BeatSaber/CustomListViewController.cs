@@ -40,10 +40,9 @@ namespace CustomUI.BeatSaber
                     (_customListTableView.transform as RectTransform).anchorMax = new Vector2(1f, 1f);
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, 60f);
                     (_customListTableView.transform as RectTransform).anchoredPosition = new Vector3(0f, 0f);
-
+                    
                     _customListTableView.SetPrivateField("_preallocatedCells", new TableView.CellsGroup[0]);
                     _customListTableView.SetPrivateField("_isInitialized", false);
-                    _customListTableView.gameObject.AddComponent<ScrollRect>();
                     _customListTableView.dataSource = this;
 
                     _customListTableView.didSelectRowEvent += _customListTableView_didSelectRowEvent;

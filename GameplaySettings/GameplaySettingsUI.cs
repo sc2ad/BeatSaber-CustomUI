@@ -294,7 +294,7 @@ namespace CustomUI.GameplaySettings
                 if (title)
                 {
                     (title as RectTransform).sizeDelta = new Vector2((title as RectTransform).sizeDelta.x, 1);
-                    title.localPosition += new Vector3(0, 0.5f);
+                    title.localPosition = new Vector3(-12.5f, 4.5f, 0f);
                     var text = title.gameObject.GetComponentInChildren<TextMeshProUGUI>();
                     text.alignment = TextAlignmentOptions.MidlineLeft;
                     text.enableWordWrapping = false;
@@ -302,7 +302,7 @@ namespace CustomUI.GameplaySettings
 
                 var measure = height.Find("MeassureButton");
                 measure.localScale = new Vector3(0.6f, 0.6f, 0.6f);
-                measure.localPosition += new Vector3(5f, 0);
+                measure.localPosition = new Vector3(10f, 0f, 0f);
                 var reset = height.Find("ResetButton");
                 reset.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             }
