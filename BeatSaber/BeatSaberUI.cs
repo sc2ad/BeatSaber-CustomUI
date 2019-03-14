@@ -1,4 +1,5 @@
-﻿using CustomUI.Utilities;
+﻿using CustomUI.UIElements;
+using CustomUI.Utilities;
 using System;
 using System.Linq;
 using TMPro;
@@ -230,12 +231,13 @@ namespace CustomUI.BeatSaber
 
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
-            TextMeshProUGUI textMesh = new GameObject("CustomUIText").AddComponent<TextMeshProUGUI>();
+            TextMeshProUGUI textMesh = Instantiate(Resources.FindObjectsOfTypeAll<TextMeshProUGUI>().First(t => t.font?.name == "Teko-Medium SDF No Glow"));
+
             textMesh.rectTransform.SetParent(parent, false);
             textMesh.text = text;
             textMesh.fontSize = 4;
             textMesh.color = Color.white;
-            textMesh.font = Resources.Load<TMP_FontAsset>("Teko-Medium SDF No Glow");
+
             textMesh.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.sizeDelta = sizeDelta;
@@ -254,6 +256,45 @@ namespace CustomUI.BeatSaber
             return hoverHint;
         }
 
+        public static CustomSlider CreateUISlider(Transform parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
+        {
+            CustomSlider slider = new GameObject("CustomUISlider").AddComponent<CustomSlider>();
+            GameObject.DontDestroyOnLoad(slider.gameObject);
+            slider.Scrollbar = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<HMUI.Scrollbar>().First(s => s.name != "CustomUISlider"), parent, false);
+            slider.Scrollbar.name = "CustomUISlider";
+            slider.Scrollbar.transform.SetParent(parent, false);
 
+            slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().enableWordWrapping = false;
+            slider.Scrollbar.numberOfSteps = (int)((max - min) / increment) + 1;
+            slider.MinValue = min;
+            slider.MaxValue = max;
+            slider.IsIntValue = intValues;
+            slider.SetCurrentValueFromPercentage(slider.Scrollbar.value);
+            slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>().text = slider.CurrentValue.ToString("N1");
+            slider.Scrollbar.onValueChanged.RemoveAllListeners();
+            slider.Scrollbar.onValueChanged.AddListener(delegate (float value) {
+                TextMeshProUGUI valueLabel = slider.Scrollbar.GetComponentInChildren<TextMeshProUGUI>();
+                valueLabel.enableWordWrapping = false;
+                slider.SetCurrentValueFromPercentage(value);
+                valueLabel.text = slider.CurrentValue.ToString("N1");
+            });
+            if (onValueChanged != null)
+                slider.Scrollbar.onValueChanged.AddListener((percent) => 
+                {
+                    onValueChanged?.Invoke(slider.GetValueFromPercentage(percent));
+                });
+            return slider;
+        }
+
+        public static ColorPicker CreateColorPicker(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            ColorPicker colorPicker = new GameObject("ColorPicker").AddComponent<ColorPicker>();
+
+            colorPicker.transform.localScale = new Vector3(sizeDelta.x, sizeDelta.y, colorPicker.transform.localScale.z);
+            colorPicker.transform.SetParent(parent, false);
+            colorPicker.transform.localPosition = new Vector3(anchoredPosition.x, anchoredPosition.y);
+
+            return colorPicker;
+        }
     }
 }

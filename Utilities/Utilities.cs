@@ -11,6 +11,17 @@ namespace CustomUI.Utilities
 {
     public class UIUtilities
     {
+        private static Material _noGlowMaterial = null;
+        public static Material NoGlowMaterial
+        {
+            get
+            {
+                if(!_noGlowMaterial)
+                    _noGlowMaterial = new Material(Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "UINoGlow"));
+                return _noGlowMaterial;
+            }
+        }
+
         private static Sprite _blankSprite = null;
         public static Sprite BlankSprite
         {
@@ -27,9 +38,31 @@ namespace CustomUI.Utilities
         {
             get
             {
-                if(!_editIcon)
+                if (!_editIcon)
                     _editIcon = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Edit Icon.png");
                 return _editIcon;
+            }
+        }
+
+        private static Sprite _colorPickerBase = null;
+        public static Sprite ColorPickerBase
+        {
+            get
+            {
+                if (!_colorPickerBase)
+                    _colorPickerBase = LoadSpriteFromResources("BeatSaberCustomUI.Resources.Color Picker Base.png");
+                return _colorPickerBase;
+            }
+        }
+
+        private static Sprite _roundedRectangle = null;
+        public static Sprite RoundedRectangle
+        {
+            get
+            {
+                if (!_roundedRectangle)
+                    _roundedRectangle = LoadSpriteFromResources("BeatSaberCustomUI.Resources.RoundedRectangle.png");
+                return _roundedRectangle;
             }
         }
 
@@ -85,6 +118,17 @@ namespace CustomUI.Utilities
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);
             return data;
+        }
+
+        public static void PrintHierarchy(Transform transform, string spacing = "|-> ")
+        {
+            spacing = spacing.Insert(1, "  ");
+            var tempList = transform.Cast<Transform>().ToList();
+            foreach (var child in tempList)
+            {
+                Console.WriteLine($"{spacing}{child.name}");
+                PrintHierarchy(child, "|" + spacing);
+            }
         }
     }
 }

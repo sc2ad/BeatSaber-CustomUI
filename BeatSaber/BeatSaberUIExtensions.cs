@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomUI.UIElements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,7 +99,18 @@ namespace CustomUI.BeatSaber
             TextMeshProUGUI textMesh = BeatSaberUI.CreateText(parent.rectTransform, text, anchoredPosition);
             return textMesh;
         }
-        #endregion
+        
+        public static CustomSlider CreateUISlider(this VRUIViewController parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
+        {
+            CustomSlider scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, min, max, increment, intValues, onValueChanged);
+            return scrollbar;
+        }
 
+        public static ColorPicker CreateColorPicker(this VRUIViewController parent, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            ColorPicker colorPicker = BeatSaberUI.CreateColorPicker(parent.rectTransform, anchoredPosition, sizeDelta);
+            return colorPicker;
+        }
+        #endregion
     }
 }

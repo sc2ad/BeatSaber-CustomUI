@@ -1,9 +1,11 @@
-﻿using CustomUI.BeatSaber;
+﻿using CustomUI.UIElements;
+using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CustomUI.Settings
 {
@@ -17,6 +19,7 @@ namespace CustomUI.Settings
 
         public string EnabledText = "ON";
         public string DisabledText = "OFF";
+        public bool applyImmediately = false;
 
         protected override bool GetInitValue()
         {
@@ -26,6 +29,20 @@ namespace CustomUI.Settings
                 value = GetValue();
             }
             return value;
+        }
+
+        public override void IncButtonPressed()
+        {
+            base.IncButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
+        }
+
+        public override void DecButtonPressed()
+        {
+            base.DecButtonPressed();
+            if (applyImmediately)
+                ApplySettings();
         }
 
         protected override void ApplyValue(bool value)
@@ -47,7 +64,8 @@ namespace CustomUI.Settings
         private int _value;
         protected int _min;
         protected int _max;
-        protected int _increment;
+        protected int _increment = 1;
+        public bool applyImmediately = false;
 
         protected abstract int GetInitValue();
         protected abstract void ApplyValue(int value);
@@ -74,12 +92,16 @@ namespace CustomUI.Settings
             this._value += _increment;
             if (this._value > _max) this._value = _max;
             this.RefreshUI();
+            if (applyImmediately)
+                ApplySettings();
         }
         public override void DecButtonPressed()
         {
             this._value -= _increment;
             if (this._value < _min) this._value = _min;
             this.RefreshUI();
+            if (applyImmediately)
+                ApplySettings();
         }
     }
 
@@ -95,20 +117,23 @@ namespace CustomUI.Settings
         {
             _min = min;
             _max = max;
+            if (increment < 1)
+                increment = 1;
             _increment = increment;
         }
 
         public void UpdateIncrement(int increment)
         {
+            if (increment < 1)
+                increment = 1;
             _increment = increment;
         }
 
         private int FixValue(int value)
         {
             if (value % _increment != 0)
-            {
                 value -= (value % _increment);
-            }
+
             if (value > _max) value = _max;
             if (value < _min) value = _min;
             return value;
@@ -126,10 +151,7 @@ namespace CustomUI.Settings
 
         protected override void ApplyValue(int value)
         {
-            if (SetValue != null)
-            {
-                SetValue(FixValue(value));
-            }
+            SetValue?.Invoke(FixValue(value));
         }
 
         protected override string TextForValue(int value)
@@ -143,6 +165,7 @@ namespace CustomUI.Settings
         public Func<string> GetValue = () => String.Empty;
         public Action<string> SetValue = (_) => { };
         public string value = String.Empty;
+        public bool applyImmediately = false;
 
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
@@ -171,6 +194,8 @@ namespace CustomUI.Settings
 
         public override void DecButtonPressed()
         {
+            if (applyImmediately)
+                ApplySettings();
         }
     }
 
@@ -230,7 +255,7 @@ namespace CustomUI.Settings
         public Func<T, string> GetTextForValue = (_) => "?";
 
         public List<T> values;
-
+        
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
             numberOfElements = values.Count;
@@ -248,6 +273,134 @@ namespace CustomUI.Settings
         protected override string TextForValue(int idx)
         {
             return GetTextForValue(values[idx]);
+        }
+    }
+
+    public class SliderViewController : IncDecSettingsController
+    {
+        public delegate float GetFloat();
+        public event GetFloat GetValue;
+
+        public delegate void SetFloat(float value);
+        public event SetFloat SetValue;
+
+        private float _min;
+        private float _max;
+        private bool _intValues;
+
+        private CustomSlider _sliderInst;
+        private TMPro.TextMeshProUGUI _textInst;
+        
+        public override void Init()
+        {
+            _sliderInst = transform.GetComponent<CustomSlider>();
+            _sliderInst.CurrentValue = GetInitValue();
+            _textInst = _sliderInst.Scrollbar.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            _sliderInst.Scrollbar.value = _sliderInst.GetPercentageFromValue(_sliderInst.CurrentValue);
+            _sliderInst.Scrollbar.onValueChanged.AddListener(delegate (float value) {
+                _sliderInst.SetCurrentValueFromPercentage(value);
+                RefreshUI();
+            });
+            RefreshUI();
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_sliderInst.CurrentValue);
+        }
+
+        private void RefreshUI()
+        {
+            _textInst.text = TextForValue(_sliderInst.CurrentValue);
+        }
+
+        public override void IncButtonPressed()
+        {
+
+        }
+
+        public override void DecButtonPressed()
+        {
+
+        }
+
+        public void SetValues(float min, float max, bool intValues)
+        {
+            _min = min;
+            _max = max;
+            _intValues = intValues;
+        }
+
+        protected float GetInitValue()
+        {
+            float value = 0;
+            if (GetValue == null)
+                value = _min;
+            else
+                value = GetValue();
+            return value;
+        }
+
+        protected void ApplyValue(float value)
+        {
+            if (SetValue != null)
+                SetValue((_intValues) ? ((float)Math.Floor(value)) : (value));
+        }
+
+        protected string TextForValue(float value)
+        {
+            if (_intValues)
+                return Math.Floor(value).ToString("N0");
+            return value.ToString("N1");
+        }
+    }
+
+    public class ColorPickerViewController : SimpleSettingsController
+    {
+        public delegate Color GetColor();
+        public event GetColor GetValue;
+
+        public delegate void SetColor(Color value);
+        public event SetColor SetValue;
+
+        private ColorPickerPreviewClickable _ColorPickerPreviewClickableInst;
+
+        public override void Init()
+        {
+            _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
+        }
+
+        protected Color GetInitValue()
+        {
+            Color color = new Color(1, 1, 1, 1);
+            if (GetValue != null)
+                color = GetValue();
+            return color;
+        }
+
+        public override void ApplySettings()
+        {
+            ApplyValue(_ColorPickerPreviewClickableInst.ImagePreview.color);
+        }
+
+        public override void CancelSettings()
+        {
+            
+        }
+
+        public void SetPreviewInstance(ColorPickerPreviewClickable instance)
+        {
+            _ColorPickerPreviewClickableInst = instance;
+        }
+
+        public void SetValues(Color color)
+        {
+            _ColorPickerPreviewClickableInst.ImagePreview.color = color;
+        }
+
+        protected void ApplyValue(Color color)
+        {
+            SetValue?.Invoke(color);
         }
     }
 }

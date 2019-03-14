@@ -65,6 +65,21 @@ namespace CustomUI.GameplaySettings
             }
         }
 
+        public static void GetNumDefaultOptionsForPanel(GameplaySettingsPanels panel, ref int numDefaultOptions)
+        {
+            switch (panel)
+            {
+                case GameplaySettingsPanels.ModifiersRight:
+                case GameplaySettingsPanels.ModifiersLeft:
+                    numDefaultOptions = 5;
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsRight:
+                case GameplaySettingsPanels.PlayerSettingsLeft:
+                    numDefaultOptions = 4;
+                    break;
+            }
+        }
+
         public static void GetPanelNames(GameplaySettingsPanels panel, ref string pageName, ref string panelName)
         {
             switch (panel)
@@ -88,7 +103,7 @@ namespace CustomUI.GameplaySettings
             }
         }
 
-        public static void GetOptionTransforms(GameplaySettingsPanels panel, RectTransform container, ref Transform option1, ref Transform option2, ref Transform option3, ref Transform option4)
+        public static void GetOptionTransforms(GameplaySettingsPanels panel, RectTransform container, ref Transform option1, ref Transform option2, ref Transform option3, ref Transform option4, ref Transform option5)
         {
             switch (panel)
             {
@@ -97,24 +112,28 @@ namespace CustomUI.GameplaySettings
                     option2 = container.Find("NoObstacles");
                     option3 = container.Find("NoBombs");
                     option4 = container.Find("SlowerSong");
+                    option5 = container.Find("NoArrows");
                     break;
                 case GameplaySettingsPanels.ModifiersLeft:
                     option1 = container.Find("InstaFail");
                     option2 = container.Find("BatteryEnergy");
                     option3 = container.Find("DisappearingArrows");
-                    option4 = container.Find("FasterSong");
+                    option4 = container.Find("GhostNotes");
+                    option5 = container.Find("FasterSong");
                     break;
                 case GameplaySettingsPanels.PlayerSettingsRight:
                     option1 = container.Find("NoTextsAndHUDs");
                     option2 = container.Find("AdvancedHUD");
                     option3 = container.Find("SoundFX");
                     option4 = container.Find("ReduceDebris");
+                    option5 = null;
                     break;
                 case GameplaySettingsPanels.PlayerSettingsLeft:
                     option1 = container.Find("LeftHanded");
                     option2 = container.Find("SwapColors");
                     option3 = container.Find("StaticLights");
                     option4 = container.Find("PlayerHeight");
+                    option5 = null;
                     break;
             }
         }
@@ -147,6 +166,7 @@ namespace CustomUI.GameplaySettings
         public event Action<bool> OnToggle;
         public bool GetValue = false;
         public float multiplier;
+        public GameplayModifierToggle currentToggle;
 
         private readonly string ConflictText = "\r\n\r\n<size=60%><color=#ff0000ff><b>Conflicts </b></color>";
 
@@ -168,6 +188,12 @@ namespace CustomUI.GameplaySettings
                     Destroy(this);
                 }
             }
+        }
+        
+        public void SetToggleState(bool state)
+        {
+            if(currentToggle)
+                currentToggle.GetComponent<Toggle>().isOn = state;
         }
 
         public ToggleOption(GameplaySettingsPanels panel, string optionName, string hintText, Sprite optionIcon, float multiplier)
@@ -197,7 +223,7 @@ namespace CustomUI.GameplaySettings
             if (multiplier == 0)
                 gameObject.AddComponent<ToggleNameOverride>();
 
-            var currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
+            currentToggle = gameObject.GetComponent<GameplayModifierToggle>();
             if (currentToggle != null)
             {
                 currentToggle.toggle.isOn = GetValue;
@@ -260,7 +286,18 @@ namespace CustomUI.GameplaySettings
         private Dictionary<float, string> _options = new Dictionary<float, string>();
         public Func<float> GetValue;
         public event Action<float> OnChange;
+        public ListViewController multiSelectController;
 
+        public void InvokeIncButtonPress()
+        {
+            multiSelectController?.IncButtonPressed();
+        }
+
+        public void InvokeDecButtonPress()
+        {
+            multiSelectController?.DecButtonPressed();
+        }
+        
         public MultiSelectOption(GameplaySettingsPanels panel, string optionName, string hintText)
         {
             this.optionName = optionName;
@@ -277,34 +314,34 @@ namespace CustomUI.GameplaySettings
 
             // Add a separator for this menu option
             AddSeparator(Container);
-
+            
             //This magical nonsense is courtesy of Taz and his SettingsUI class
             VolumeSettingsController volume = gameObject.GetComponent<VolumeSettingsController>();
-            ListViewController newListSettingsController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
+            multiSelectController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
             UnityEngine.Object.DestroyImmediate(volume);
 
-            newListSettingsController.applyImmediately = true;
-            newListSettingsController.values = _options.Keys.ToList();
-            newListSettingsController.SetValue = OnChange;
-            newListSettingsController.GetValue = () =>
+            multiSelectController.applyImmediately = true;
+            multiSelectController.values = _options.Keys.ToList();
+            multiSelectController.SetValue = OnChange;
+            multiSelectController.GetValue = () =>
             {
                 if (GetValue != null) return GetValue.Invoke();
                 return _options.Keys.ElementAt(0);
             };
-            newListSettingsController.GetTextForValue = (v) =>
+            multiSelectController.GetTextForValue = (v) =>
             {
                 if (_options.ContainsKey(v)) return _options[v] != null ? _options[v] : v.ToString();
                 return "UNKNOWN";
             };
             //Initialize the controller, as if we had just opened the settings menu
-            newListSettingsController.Init();
-            var value = newListSettingsController.gameObject.transform.Find("Value");
+            multiSelectController.Init();
+            var value = multiSelectController.gameObject.transform.Find("Value");
             var valueText = value.Find("ValueText");
             TMP_Text valueTextObject = valueText.GetComponent<TMP_Text>();
             valueTextObject.lineSpacing = -50;
             valueTextObject.alignment = TextAlignmentOptions.CenterGeoAligned;
 
-            var nameText = newListSettingsController.gameObject.transform.Find("NameText");
+            var nameText = multiSelectController.gameObject.transform.Find("NameText");
             nameText.localScale = new Vector3(0.85f, 0.85f, 0.85f);
             value.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             if (hintText != String.Empty)

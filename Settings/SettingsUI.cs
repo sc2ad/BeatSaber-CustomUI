@@ -1,4 +1,5 @@
-﻿using CustomUI.BeatSaber;
+﻿using CustomUI.UIElements;
+using CustomUI.BeatSaber;
 using CustomUI.Utilities;
 using HMUI;
 using System;
@@ -12,6 +13,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRUI;
 using Image = UnityEngine.UI.Image;
+using static HMUI.Scrollbar;
+using System.Collections;
 
 namespace CustomUI.Settings
 {
@@ -78,9 +81,7 @@ namespace CustomUI.Settings
                 subMenuTableView = _mainSettingsTableView.GetComponentInChildren<TableView>();
                 subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableViewHelper>();
                 othersSubmenu = settingsMenu.transform.Find("OtherSettings");
-
-                AddPageButtons();
-
+                
                 if (tableCell == null)
                 {
                     tableCell = Resources.FindObjectsOfTypeAll<MainSettingsTableCell>().FirstOrDefault();
@@ -111,8 +112,8 @@ namespace CustomUI.Settings
                     _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
 
                     _pageUpButton.transform.SetParent(container.parent);
-                    _pageUpButton.transform.localScale = Vector3.one;
-                    _pageUpButton.transform.localPosition -= new Vector3(0, 4.5f);
+                    _pageUpButton.transform.localScale /= 1.4f;
+                    _pageUpButton.transform.localPosition -= new Vector3(0, 4f);
                     _pageUpButton.interactable = false;
                     _pageUpButton.onClick.AddListener(delegate ()
                     {
@@ -125,8 +126,8 @@ namespace CustomUI.Settings
                     _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
 
                     _pageDownButton.transform.SetParent(container.parent);
-                    _pageDownButton.transform.localScale = Vector3.one;
-                    _pageDownButton.transform.localPosition -= new Vector3(0, 6.5f);
+                    _pageDownButton.transform.localScale /= 1.4f;
+                    _pageDownButton.transform.localPosition -= new Vector3(0, 5f);
                     _pageDownButton.interactable = false;
                     _pageDownButton.onClick.AddListener(delegate ()
                     {
@@ -152,20 +153,27 @@ namespace CustomUI.Settings
                 subMenuGameObject.name = name.Replace(" ", "");
                 Transform mainContainer = CleanScreen(subMenuGameObject.transform);
 
+                DestroyImmediate(subMenuGameObject.GetComponent<VRUIViewController>());
+                var customSettingsViewController = subMenuGameObject.AddComponent<CustomSettingsListViewController>();
+                customSettingsViewController.name = name.Replace(" ", "");
+                customSettingsViewController.includePageButtons = false;
+                
                 var newSubMenuInfo = new SettingsSubMenuInfo();
                 newSubMenuInfo.SetPrivateField("_menuName", name);
-                newSubMenuInfo.SetPrivateField("_viewController", subMenuGameObject.GetComponent<VRUIViewController>());
+                newSubMenuInfo.SetPrivateField("_viewController", customSettingsViewController);
 
                 var subMenuInfos = Instance.mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
                 subMenuInfos.Add(newSubMenuInfo);
                 Instance.mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
 
-                 SubMenu menu = new SubMenu(mainContainer);
+                if (subMenuInfos.Count > 6)
+                    Instance.AddPageButtons();
+
+                SubMenu menu = new SubMenu(customSettingsViewController);
                 return menu;
             }
         }
-
-
+        
         static Transform CleanScreen(Transform screen)
         {
             var container = screen.Find("Content").Find("SettingsContainer");
@@ -175,147 +183,6 @@ namespace CustomUI.Settings
                 DestroyImmediate(child.gameObject);
             }
             return container;
-        }
-    }
-    
-    public class SubMenu
-    {
-        public Transform transform;
-
-        public SubMenu(Transform transform)
-        {
-            this.transform = transform;
-        }
-
-        public BoolViewController AddBool(string name)
-        {
-            return AddBool(name, "");
-        }
-        public BoolViewController AddBool(string name, string hintText)
-        {
-            return AddToggleSetting<BoolViewController>(name, hintText);
-        }
-
-        public IntViewController AddInt(string name, int min, int max, int increment)
-        {
-            return AddInt(name, "", min, max, increment);
-        }
-        public IntViewController AddInt(string name, string hintText, int min, int max, int increment)
-        {
-            var view = AddIntSetting<IntViewController>(name, hintText);
-            view.SetValues(min, max, increment);
-            return view;
-        }
-
-        public ListViewController AddList(string name, float[] values)
-        {
-            return AddList(name, values, "");
-        }
-        public ListViewController AddList(string name, float[] values, string hintText)
-        {
-            var view = AddListSetting<ListViewController>(name, hintText);
-            view.values = values.ToList();
-            return view;
-        }
-        
-        public StringViewController AddString(string name, string hintText = null)
-        {
-            var view = AddStringSetting<StringViewController>(name, hintText);
-            return view;
-        }
-
-        public T AddListSetting<T>(string name) where T : ListSettingsController
-        {
-            return AddListSetting<T>(name, "");
-        }
-        public T AddListSetting<T>(string name, string hintText) where T : ListSettingsController
-        {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
-            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
-            newSettingsObject.name = name;
-            
-            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
-            T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
-            MonoBehaviour.DestroyImmediate(volume);
-
-            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
-            tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
-
-            return newListSettingsController;
-        }
-
-        public T AddStringSetting<T>(string name) where T : ListSettingsController
-        {
-            return AddStringSetting<T>(name, "");
-        }
-        public T AddStringSetting<T>(string name, string hintText) where T : ListSettingsController
-        {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
-            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
-            newSettingsObject.name = name;
-            newSettingsObject.transform.Find("Value").gameObject.GetComponent<HorizontalLayoutGroup>().spacing += 2;
-            newSettingsObject.transform.Find("Value").Find("DecButton").gameObject.SetActive(false);
-            //var bgIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("BG").gameObject.GetComponent<Image>();
-            //(bgIcon.transform as RectTransform).localScale *= new Vector2(0.9f, 0.9f);
-            var arrowIcon = newSettingsObject.transform.Find("Value").Find("IncButton").Find("Arrow").gameObject.GetComponent<Image>();
-            arrowIcon.sprite = UIUtilities.EditIcon;
-            var valueText = newSettingsObject.transform.Find("Value").Find("ValueText").gameObject.GetComponent<TextMeshProUGUI>();
-            valueText.alignment = TextAlignmentOptions.MidlineRight;
-            valueText.enableWordWrapping = false;
-            BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
-            
-            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
-            T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
-            MonoBehaviour.DestroyImmediate(volume);
-
-            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
-            tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
-
-            return newListSettingsController;
-        }
-
-        public T AddToggleSetting<T>(string name) where T : SwitchSettingsController
-        {
-            return AddToggleSetting<T>(name, "");
-        }
-        public T AddToggleSetting<T>(string name, string hintText) where T : SwitchSettingsController
-        {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
-            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
-            newSettingsObject.name = name;
-
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
-            T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SwitchSettingsController), typeof(T), newSettingsObject);
-            MonoBehaviour.DestroyImmediate(volume);
-
-            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
-            tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
-
-            return newToggleSettingsController;
-        }
-
-        public T AddIntSetting<T>(string name) where T : IntSettingsController
-        {
-            return AddIntSetting<T>(name, "");
-        }
-        public T AddIntSetting<T>(string name, string hintText) where T : IntSettingsController
-        {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
-            GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
-            newSettingsObject.name = name;
-
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
-            T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
-            MonoBehaviour.DestroyImmediate(volume);
-
-            var tmpText = newSettingsObject.GetComponentInChildren<TMP_Text>();
-            tmpText.text = name;
-            BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
-
-            return newToggleSettingsController;
         }
     }
 }
