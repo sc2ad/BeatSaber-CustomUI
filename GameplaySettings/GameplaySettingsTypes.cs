@@ -65,6 +65,21 @@ namespace CustomUI.GameplaySettings
             }
         }
 
+        public static void GetNumDefaultOptionsForPanel(GameplaySettingsPanels panel, ref int numDefaultOptions)
+        {
+            switch (panel)
+            {
+                case GameplaySettingsPanels.ModifiersRight:
+                case GameplaySettingsPanels.ModifiersLeft:
+                    numDefaultOptions = 5;
+                    break;
+                case GameplaySettingsPanels.PlayerSettingsRight:
+                case GameplaySettingsPanels.PlayerSettingsLeft:
+                    numDefaultOptions = 4;
+                    break;
+            }
+        }
+
         public static void GetPanelNames(GameplaySettingsPanels panel, ref string pageName, ref string panelName)
         {
             switch (panel)
@@ -88,7 +103,7 @@ namespace CustomUI.GameplaySettings
             }
         }
 
-        public static void GetOptionTransforms(GameplaySettingsPanels panel, RectTransform container, ref Transform option1, ref Transform option2, ref Transform option3, ref Transform option4)
+        public static void GetOptionTransforms(GameplaySettingsPanels panel, RectTransform container, ref Transform option1, ref Transform option2, ref Transform option3, ref Transform option4, ref Transform option5)
         {
             switch (panel)
             {
@@ -97,24 +112,28 @@ namespace CustomUI.GameplaySettings
                     option2 = container.Find("NoObstacles");
                     option3 = container.Find("NoBombs");
                     option4 = container.Find("SlowerSong");
+                    option5 = container.Find("NoArrows");
                     break;
                 case GameplaySettingsPanels.ModifiersLeft:
                     option1 = container.Find("InstaFail");
                     option2 = container.Find("BatteryEnergy");
                     option3 = container.Find("DisappearingArrows");
-                    option4 = container.Find("FasterSong");
+                    option4 = container.Find("GhostNotes");
+                    option5 = container.Find("FasterSong");
                     break;
                 case GameplaySettingsPanels.PlayerSettingsRight:
                     option1 = container.Find("NoTextsAndHUDs");
                     option2 = container.Find("AdvancedHUD");
                     option3 = container.Find("SoundFX");
                     option4 = container.Find("ReduceDebris");
+                    option5 = null;
                     break;
                 case GameplaySettingsPanels.PlayerSettingsLeft:
                     option1 = container.Find("LeftHanded");
                     option2 = container.Find("SwapColors");
                     option3 = container.Find("StaticLights");
                     option4 = container.Find("PlayerHeight");
+                    option5 = null;
                     break;
             }
         }

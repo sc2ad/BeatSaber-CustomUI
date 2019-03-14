@@ -231,12 +231,13 @@ namespace CustomUI.BeatSaber
 
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
-            TextMeshProUGUI textMesh = new GameObject("CustomUIText").AddComponent<TextMeshProUGUI>();
+            TextMeshProUGUI textMesh = Instantiate(Resources.FindObjectsOfTypeAll<TextMeshProUGUI>().First(t => t.font?.name == "Teko-Medium SDF No Glow"));
+
             textMesh.rectTransform.SetParent(parent, false);
             textMesh.text = text;
             textMesh.fontSize = 4;
             textMesh.color = Color.white;
-            textMesh.font = Resources.Load<TMP_FontAsset>("Teko-Medium SDF No Glow");
+
             textMesh.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.sizeDelta = sizeDelta;

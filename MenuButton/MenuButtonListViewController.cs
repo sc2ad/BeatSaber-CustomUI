@@ -70,17 +70,17 @@ namespace CustomUI.MenuButton
         }
         
 
-        public override float RowHeight()
+        public override float CellSize()
         {
             return 10f;
         }
 
-        public override int NumberOfRows()
+        public override int NumberOfCells()
         {
             return (int)Math.Ceiling((float)buttons.Count / buttonsPerRow);
         }
 
-        public override TableCell CellForRow(int row)
+        public override TableCell CellForIdx(int row)
         {
             TableCell _tableCell = Instantiate(_modListTableCellInstance);
 

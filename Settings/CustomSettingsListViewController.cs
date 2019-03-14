@@ -65,11 +65,13 @@ namespace CustomUI.Settings
                     {
                         pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), rectTransform.parent, false);
                         pageUpButton.transform.localScale /= 1.4f;
+                        pageUpButton.interactable = true;
                     }
                     if (pageDownButton == null)
                     {
                         pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), rectTransform.parent, false);
                         pageDownButton.transform.localScale /= 1.4f;
+                        pageDownButton.interactable = true;
                     }
                     
                     // Set the size of the listTableView (this is the area where list items are displayed)
@@ -121,17 +123,17 @@ namespace CustomUI.Settings
             base.DidDeactivate(type);
         }
 
-        public override float RowHeight()
+        public override float CellSize()
         {
             return _rowHeight;
         }
 
-        public override int NumberOfRows()
+        public override int NumberOfCells()
         {
             return _submenuOptions.Count();
         }
 
-        public override TableCell CellForRow(int row)
+        public override TableCell CellForIdx(int row)
         {
             Vector2 cellSize = new Vector2(_settingsViewControllerWidth - _settingsViewControllerPadding*2, _rowHeight);
             TableCell _tableCell = Instantiate(_settingsTableCellInstance);

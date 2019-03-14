@@ -27,7 +27,8 @@ namespace CustomUI.GameplaySettings
         private List<Transform> _defaultSeparators = new List<Transform>();
         private List<GameOption> _currentOptions = null;
         private RectTransform _panelContainer = null;
-        private Transform[] _defaultOptions = new Transform[4];
+        private Transform[] _defaultOptions = new Transform[5];
+        private int numDefaultOptions = 4;
 
         private class MenuInfo {
             public List<GameOption> options = new List<GameOption>();
@@ -77,9 +78,9 @@ namespace CustomUI.GameplaySettings
                 Destroy(this.gameObject);
                 initialized = false;
             }
-            else if (to.name == "Menu")
+            else if (to.name == "MenuCore")
             {
-                Build();
+                StartCoroutine(Build());
             }
         }
 
@@ -93,9 +94,9 @@ namespace CustomUI.GameplaySettings
 
                 page--; //If the page isn't 0, we should pick from the 0th pagination of our list
             }
-
-            //Get 4 custom options and return them
-            return _customMenus[_currentSubmenu].options.Skip(4 * page).Take(4).ToList();
+            
+            //Get  custom options and return them
+            return _customMenus[_currentSubmenu].options.Skip(numDefaultOptions * page).Take(numDefaultOptions).ToList();
         }
 
         //Sets the active value for our game options depending on the active page
@@ -103,7 +104,7 @@ namespace CustomUI.GameplaySettings
         {
             _currentOptions = Instance[panel].GetOptionsForPage(Instance[panel]._pageIndex);
             bool defaultsActive = _currentOptions == null;
-            defaults?.ToList().ForEach(x => x.gameObject.SetActive(defaultsActive));
+            defaults?.ToList().ForEach(x => x?.gameObject.SetActive(defaultsActive));
             
             if (defaultsActive)
             {
@@ -126,7 +127,7 @@ namespace CustomUI.GameplaySettings
             }
             
             //Custom options
-            Instance[panel]._customMenus.Values.ToList().ForEach(m => m.options.ForEach(x => x.gameObject.SetActive(false)));
+            _customMenus.Values.ToList().ForEach(m => m.options.ForEach(x => x.gameObject.SetActive(false)));
             if (!defaultsActive) _currentOptions?.ToList().ForEach(x => x.gameObject.SetActive(true));
             
             RefreshScrollButtons();
@@ -159,7 +160,7 @@ namespace CustomUI.GameplaySettings
                 {
                     instance._currentSubmenu = menuName;
                     instance._pageIndex = 0;
-                    instance.ChangePage(0, instance._panelContainer, instance._defaultOptions[0], instance._defaultOptions[1], instance._defaultOptions[2], instance._defaultOptions[3]);
+                    instance.ChangePage(0, instance._panelContainer, instance._defaultOptions);
                 }
             }
         }
@@ -262,15 +263,18 @@ namespace CustomUI.GameplaySettings
             }
         }
          
-        public void Build()
+        public IEnumerator Build()
         {
+            yield return new WaitForSeconds(0.1f);
+
             string pageName = String.Empty, panelName = String.Empty;
             GameOption.GetPanelNames(panel, ref pageName, ref panelName);
+            GameOption.GetNumDefaultOptionsForPanel(panel, ref numDefaultOptions);
 
             //Grab necessary references
             SoloFreePlayFlowCoordinator sfpfc = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
             GameplaySetupViewController gsvc = sfpfc.GetField<GameplaySetupViewController>("_gameplaySetupViewController");
-
+            
             //Get reference to the switch container
             RectTransform page = (RectTransform)gsvc.transform.Find(pageName);
             Destroy(page.gameObject.GetComponent<HorizontalLayoutGroup>());
@@ -306,11 +310,11 @@ namespace CustomUI.GameplaySettings
                 var reset = height.Find("ResetButton");
                 reset.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             }
-
+           
             if (!initialized)
             {
                 //Get references to the original switches, so we can later duplicate then destroy them
-                GameOption.GetOptionTransforms(panel, _panelContainer, ref _defaultOptions[0], ref _defaultOptions[1], ref _defaultOptions[2], ref _defaultOptions[3]);
+                GameOption.GetOptionTransforms(panel, _panelContainer, ref _defaultOptions[0], ref _defaultOptions[1], ref _defaultOptions[2], ref _defaultOptions[3], ref _defaultOptions[4]);
                 
                 foreach (Transform t in _panelContainer)
                 {
@@ -329,20 +333,20 @@ namespace CustomUI.GameplaySettings
                 _pageUpButton.onClick.RemoveAllListeners();
                 _pageUpButton.onClick.AddListener(delegate ()
                 {
-                    Instance[panel].ChangePage(--Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
+                    Instance[panel].ChangePage(--Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions);
                 });
 
                 //Create down button
                 _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), _panelContainer);
                 _pageDownButton.transform.SetParent(_panelContainer.parent);
                 _pageDownButton.transform.localScale = Vector3.one / 2;
-                _pageDownButton.transform.localPosition = new Vector3(_pageDownButton.transform.localPosition.x, -34.3f, _pageDownButton.transform.localPosition.z);
+                _pageDownButton.transform.localPosition = new Vector3(_pageDownButton.transform.localPosition.x, -(numDefaultOptions * 8.5f), _pageDownButton.transform.localPosition.z);
                 _pageDownButton.interactable = true;
                 //(_pageDownButton.transform as RectTransform).sizeDelta = new Vector2((_pageDownButton.transform.parent as RectTransform).sizeDelta.x, (_pageDownButton.transform as RectTransform).sizeDelta.y);
                 _pageDownButton.onClick.RemoveAllListeners();
                 _pageDownButton.onClick.AddListener(delegate ()
                 {
-                    Instance[panel].ChangePage(++Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions[0], Instance[panel]._defaultOptions[1], Instance[panel]._defaultOptions[2], Instance[panel]._defaultOptions[3]);
+                    Instance[panel].ChangePage(++Instance[panel]._pageIndex, _panelContainer, Instance[panel]._defaultOptions);
                 });
 
                 RefreshScrollButtons();

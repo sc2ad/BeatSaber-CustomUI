@@ -45,7 +45,7 @@ namespace CustomUI.BeatSaber
                     _customListTableView.SetPrivateField("_isInitialized", false);
                     _customListTableView.dataSource = this;
 
-                    _customListTableView.didSelectRowEvent += _customListTableView_didSelectRowEvent;
+                    _customListTableView.didSelectCellWithIdxEvent += _customListTableView_didSelectRowEvent;
 
                     if (includePageButtons)
                     {
@@ -90,22 +90,22 @@ namespace CustomUI.BeatSaber
             DidSelectRowEvent?.Invoke(arg1, arg2);
         }
 
-        public virtual float RowHeight()
+        public virtual float CellSize()
         {
             return 10f;
         }
 
-        public virtual int NumberOfRows()
+        public virtual int NumberOfCells()
         {
             return Data.Count;
         }
 
-        public virtual TableCell CellForRow(int row)
+        public virtual TableCell CellForIdx(int idx)
         {
             LevelListTableCell _tableCell = Instantiate(_songListTableCellInstance);
-            _tableCell.songName = Data[row].text;
-            _tableCell.author = Data[row].subtext;
-            _tableCell.coverImage = Data[row].icon == null ? UIUtilities.BlankSprite : Data[row].icon;
+            _tableCell.SetPrivateField("_songNameText", Data[idx].text);
+            _tableCell.SetPrivateField("_authorText", Data[idx].subtext);
+            _tableCell.SetPrivateField("_coverImage", Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
             _tableCell.reuseIdentifier = "CustomListCell";
             return _tableCell;
         }
