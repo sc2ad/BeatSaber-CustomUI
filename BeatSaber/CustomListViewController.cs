@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -103,9 +104,9 @@ namespace CustomUI.BeatSaber
         public virtual TableCell CellForIdx(int idx)
         {
             LevelListTableCell _tableCell = Instantiate(_songListTableCellInstance);
-            _tableCell.SetPrivateField("_songNameText", Data[idx].text);
-            _tableCell.SetPrivateField("_authorText", Data[idx].subtext);
-            _tableCell.SetPrivateField("_coverImage", Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
+            _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").text = Data[idx].text;
+            _tableCell.GetPrivateField<TextMeshProUGUI>("_authorText").text = Data[idx].subtext;
+            _tableCell.GetPrivateField<UnityEngine.UI.Image>("_coverImage").sprite = Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon;
             _tableCell.reuseIdentifier = "CustomListCell";
             return _tableCell;
         }
