@@ -221,6 +221,7 @@ namespace CustomUI.BeatSaber
             textMesh.text = text;
             textMesh.fontSize = 4;
             textMesh.color = Color.white;
+
             textMesh.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             textMesh.rectTransform.sizeDelta = new Vector2(60f, 10f);
