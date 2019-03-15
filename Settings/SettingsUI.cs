@@ -52,6 +52,13 @@ namespace CustomUI.Settings
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
+
+            SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+        }
+
+        void OnDestroy()
+        {
+            SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
         }
         
         public void SceneManagerOnActiveSceneChanged(Scene from, Scene to)
@@ -78,7 +85,6 @@ namespace CustomUI.Settings
                 mainSettingsMenu = Resources.FindObjectsOfTypeAll<MainSettingsMenuViewController>().FirstOrDefault();
                 _mainSettingsTableView = mainSettingsMenu.GetPrivateField<MainSettingsTableView>("_mainSettingsTableView");
                 subMenuTableView = _mainSettingsTableView.GetPrivateField<TableView>("_tableView");
-                //subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableViewHelper>();
                 othersSubmenu = settingsMenu.transform.Find("OtherSettings");
                 
                 initialized = true;
@@ -98,7 +104,7 @@ namespace CustomUI.Settings
             //    viewport.anchorMax = new Vector2(1f, 0.5f);
             //    viewport.sizeDelta = new Vector2(0f, 48f);
             //    //viewport.anchoredPosition = new Vector2(0f, 0f);
-                
+
             //    RectTransform container = (RectTransform)_mainSettingsTableView.transform;
 
             //    subMenuTableView.selectionType = TableViewSelectionType.Single;
@@ -113,7 +119,7 @@ namespace CustomUI.Settings
             //        _pageUpButton.transform.localScale /= 1.4f;
             //        _pageUpButton.transform.localPosition += new Vector3(0, 4f);
             //        //_pageUpButton.interactable = false;
-                    
+
             //        _pageUpButton.onClick.RemoveAllListeners();
             //        _pageUpButton.onClick.AddListener(() => subMenuTableView.PageScrollUp());
             //    }
@@ -165,7 +171,7 @@ namespace CustomUI.Settings
                 var subMenuInfos = Instance.mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
                 subMenuInfos.Add(newSubMenuInfo);
                 Instance.mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
-                Instance._mainSettingsTableView.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
+                //Instance._mainSettingsTableView.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
 
                 if (subMenuInfos.Count > 6)
                     Instance.AddPageButtons();
