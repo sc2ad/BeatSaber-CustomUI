@@ -215,25 +215,16 @@ namespace CustomUI.BeatSaber
 
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition)
         {
-            TextMeshProUGUI textMesh = Instantiate(Resources.FindObjectsOfTypeAll<TextMeshProUGUI>().First(t => t.font?.name == "Teko-Medium SDF No Glow"));
-
-            textMesh.rectTransform.SetParent(parent, false);
-            textMesh.text = text;
-            textMesh.fontSize = 4;
-            textMesh.color = Color.white;
-
-            textMesh.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            textMesh.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            textMesh.rectTransform.sizeDelta = new Vector2(60f, 10f);
-            textMesh.rectTransform.anchoredPosition = anchoredPosition;
-
-            return textMesh;
+            return CreateText(parent, text, anchoredPosition, new Vector2(60f, 10f));
         }
 
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
-            TextMeshProUGUI textMesh = Instantiate(Resources.FindObjectsOfTypeAll<TextMeshProUGUI>().First(t => t.font?.name == "Teko-Medium SDF No Glow"));
+            GameObject gameObj = new GameObject("CustomUIText");
+            gameObj.SetActive(false);
 
+            TextMeshProUGUI textMesh = gameObj.AddComponent<TextMeshProUGUI>();
+            textMesh.font = Instantiate(Resources.FindObjectsOfTypeAll<TMP_FontAsset>().First(t => t.name == "Teko-Medium SDF No Glow"));
             textMesh.rectTransform.SetParent(parent, false);
             textMesh.text = text;
             textMesh.fontSize = 4;
@@ -244,6 +235,7 @@ namespace CustomUI.BeatSaber
             textMesh.rectTransform.sizeDelta = sizeDelta;
             textMesh.rectTransform.anchoredPosition = anchoredPosition;
 
+            gameObj.SetActive(true);
             return textMesh;
         }
 
