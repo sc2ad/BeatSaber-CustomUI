@@ -66,7 +66,7 @@ namespace CustomUI.Settings
 
         public void PageScrollUp()
         {
-            _targetPosition = _contentTransform.anchoredPosition.y - Mathf.Max(1f, GetNumberOfVisibleCells() - 1f) * _cellSize;
+            _targetPosition = _contentTransform.anchoredPosition.y - Mathf.Max(1f, table.GetNumberOfVisibleCells() - 1f) * _cellSize;
             if (_targetPosition < 0f)
             {
                 _targetPosition = 0f;
@@ -79,7 +79,7 @@ namespace CustomUI.Settings
         {
             float num = _scrollRectTransform.rect.height;
             float num2 = (float)_numberOfCells * _cellSize - num;
-            _targetPosition = _contentTransform.anchoredPosition.y + Mathf.Max(1f, GetNumberOfVisibleCells() - 1f) * this._cellSize;
+            _targetPosition = _contentTransform.anchoredPosition.y + Mathf.Max(1f, table.GetNumberOfVisibleCells() - 1f) * this._cellSize;
             if (_targetPosition > num2)
             {
                 _targetPosition = num2;
@@ -112,7 +112,7 @@ namespace CustomUI.Settings
             float height = viewport.rect.height;
             float num = _numberOfCells * _cellSize - height;
             int num2 = Mathf.CeilToInt(num / _cellSize);
-            return 1f / num2;
+            return -1f / num2;
         }
     }
 }

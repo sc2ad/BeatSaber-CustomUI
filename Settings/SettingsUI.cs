@@ -25,7 +25,7 @@ namespace CustomUI.Settings
         private MainSettingsMenuViewController mainSettingsMenu = null;
         private MainSettingsTableView _mainSettingsTableView = null;
         private TableView subMenuTableView = null;
-        //private TableViewHelper subMenuTableViewHelper = null;
+        private TableViewHelper subMenuTableViewHelper = null;
         private Transform othersSubmenu = null;
         private SimpleDialogPromptViewController prompt = null;
 
@@ -85,6 +85,7 @@ namespace CustomUI.Settings
                 mainSettingsMenu = Resources.FindObjectsOfTypeAll<MainSettingsMenuViewController>().FirstOrDefault();
                 _mainSettingsTableView = mainSettingsMenu.GetPrivateField<MainSettingsTableView>("_mainSettingsTableView");
                 subMenuTableView = _mainSettingsTableView.GetPrivateField<TableView>("_tableView");
+                subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableViewHelper>();
                 othersSubmenu = settingsMenu.transform.Find("OtherSettings");
                 
                 initialized = true;
@@ -97,57 +98,55 @@ namespace CustomUI.Settings
 
         private void AddPageButtons()
         {
-            //try
-            //{
-            //    RectTransform viewport = _mainSettingsTableView.GetComponentsInChildren<RectTransform>().First(x => x.name == "Viewport");
-            //    viewport.anchorMin = new Vector2(0f, 0.5f);
-            //    viewport.anchorMax = new Vector2(1f, 0.5f);
-            //    viewport.sizeDelta = new Vector2(0f, 48f);
-            //    //viewport.anchoredPosition = new Vector2(0f, 0f);
+            try
+            {
+                RectTransform viewport = _mainSettingsTableView.GetComponentsInChildren<RectTransform>().First(x => x.name == "Viewport");
+                viewport.anchorMin = new Vector2(0f, 0.5f);
+                viewport.anchorMax = new Vector2(1f, 0.5f);
+                viewport.sizeDelta = new Vector2(0f, 48f);
+                viewport.anchoredPosition = new Vector2(0f, 0f);
 
-            //    RectTransform container = (RectTransform)_mainSettingsTableView.transform;
+                RectTransform container = (RectTransform)_mainSettingsTableView.transform;
+                
 
-            //    subMenuTableView.selectionType = TableViewSelectionType.Single;
-            //    subMenuTableView.SetPrivateField("_tableType", TableView.TableType.Vertical);
+                if (_pageUpButton == null)
+                {
+                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
 
+                    _pageUpButton.transform.SetParent(container.parent);
+                    _pageUpButton.transform.localScale /= 1.4f;
+                    _pageUpButton.transform.localPosition += new Vector3(0, 4f);
+                    //_pageUpButton.interactable = false;
 
-            //    if (_pageUpButton == null)
-            //    {
-            //        _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
+                    _pageUpButton.onClick.RemoveAllListeners();
+                    _pageUpButton.onClick.AddListener(() =>
+                    {
+                        subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 48);
+                        subMenuTableViewHelper.PageScrollUp();
+                    });
+                }
 
-            //        _pageUpButton.transform.SetParent(container.parent);
-            //        _pageUpButton.transform.localScale /= 1.4f;
-            //        _pageUpButton.transform.localPosition += new Vector3(0, 4f);
-            //        //_pageUpButton.interactable = false;
+                if (_pageDownButton == null)
+                {
+                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
 
-            //        _pageUpButton.onClick.RemoveAllListeners();
-            //        _pageUpButton.onClick.AddListener(() => subMenuTableView.PageScrollUp());
-            //    }
+                    _pageDownButton.transform.SetParent(container.parent);
+                    _pageDownButton.transform.localScale /= 1.4f;
+                    _pageDownButton.transform.localPosition -= new Vector3(0, 5f);
+                    //_pageDownButton.interactable = false;
 
-            //    if (_pageDownButton == null)
-            //    {
-            //        _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
-
-            //        _pageDownButton.transform.SetParent(container.parent);
-            //        _pageDownButton.transform.localScale /= 1.4f;
-            //        _pageDownButton.transform.localPosition -= new Vector3(0, 5f);
-            //        //_pageDownButton.interactable = false;
-
-            //        _pageDownButton.onClick.RemoveAllListeners();
-            //        _pageDownButton.onClick.AddListener(() => {
-            //            /*subMenuTableView.PageScrollDown()*/
-            //            Plugin.Log($"SubmenuTableView has {subMenuTableView.dataSource.NumberOfCells() } cells of size {subMenuTableView.dataSource.CellSize()}. ScrollRectTransformHeight: {subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").rect.height}");
-            //            subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").sizeDelta = new Vector2(0, 48f);
-            //            subMenuTableView.PageScrollDown();
-            //            Plugin.Log($"{subMenuTableView.visibleCells.Count()} cells are visible!");
-
-            //            });
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"[SettingsUI] Crash when trying to add page buttons! Exception: {ex.ToString()}");
-            //}
+                    _pageDownButton.onClick.RemoveAllListeners();
+                    _pageDownButton.onClick.AddListener(() =>
+                    {
+                        subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 48);
+                        subMenuTableViewHelper.PageScrollDown();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SettingsUI] Crash when trying to add page buttons! Exception: {ex.ToString()}");
+            }
         }
 
         public static SubMenu CreateSubMenu(string name)

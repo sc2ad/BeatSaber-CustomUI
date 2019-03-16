@@ -20,24 +20,7 @@ namespace CustomUI.BeatSaber
         public List<CustomCellInfo> Data = new List<CustomCellInfo>();
         public Action<TableView, int> DidSelectRowEvent;
         public string reuseIdentifier = "CustomUIListTableCell";
-        
         private LevelListTableCell _songListTableCellInstance;
-        public LevelListTableCell songListTableCellPrefab
-        {
-            get
-            {
-                if(!_songListTableCellInstance)
-                {
-                    _songListTableCellInstance = Instantiate(Resources.FindObjectsOfTypeAll<LevelListTableCell>().First(x => (x.name == "LevelListTableCell")));
-                    foreach (UnityEngine.UI.Image i in _songListTableCellInstance.GetPrivateField<UnityEngine.UI.Image[]>("_beatmapCharacteristicImages"))
-                        i.enabled = false;
-                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicAlphas", new float[0]);
-                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicImages", new UnityEngine.UI.Image[0]);
-                    _songListTableCellInstance.reuseIdentifier = reuseIdentifier;
-                }
-                return _songListTableCellInstance;
-            }
-        }
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
@@ -45,7 +28,7 @@ namespace CustomUI.BeatSaber
             {
                 if (firstActivation)
                 {
-                    var prefab = songListTableCellPrefab;
+                    _songListTableCellInstance = Resources.FindObjectsOfTypeAll<LevelListTableCell>().First(x => (x.name == "LevelListTableCell"));
 
                     RectTransform container = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
                     container.SetParent(rectTransform, false);
@@ -54,7 +37,10 @@ namespace CustomUI.BeatSaber
                     _customListTableView = new GameObject("CustomListTableView").AddComponent<TableView>();
                     _customListTableView.gameObject.AddComponent<RectMask2D>();
                     _customListTableView.transform.SetParent(container, false);
-
+                    var dict = _customListTableView.GetPrivateField<Dictionary<string, List<TableCell>>>("_reusableCells");
+                    if (!dict.ContainsKey(reuseIdentifier))
+                        dict.Add(reuseIdentifier, new List<TableCell>());
+                    
                     (_customListTableView.transform as RectTransform).anchorMin = new Vector2(0f, 0f);
                     (_customListTableView.transform as RectTransform).anchorMax = new Vector2(1f, 1f);
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, 60f);
@@ -118,13 +104,27 @@ namespace CustomUI.BeatSaber
         {
             return Data.Count;
         }
-
-        public virtual TableCell CellForIdx(int idx)
+        
+        public LevelListTableCell GetTableCell(int row, bool beatmapCharacteristicImages = false)
         {
             LevelListTableCell _tableCell = (LevelListTableCell)_customListTableView.DequeueReusableCellForIdentifier(reuseIdentifier);
             if (!_tableCell)
-                _tableCell = Instantiate(songListTableCellPrefab);
-            
+                _tableCell = Instantiate(_songListTableCellInstance);
+
+            if (!beatmapCharacteristicImages)
+            {
+                foreach (UnityEngine.UI.Image i in _tableCell.GetPrivateField<UnityEngine.UI.Image[]>("_beatmapCharacteristicImages"))
+                    i.enabled = false;
+            }
+            _tableCell.SetPrivateField("_beatmapCharacteristicAlphas", new float[0]);
+            _tableCell.SetPrivateField("_beatmapCharacteristicImages", new UnityEngine.UI.Image[0]);
+            _tableCell.reuseIdentifier = reuseIdentifier;
+            return _tableCell;
+        }
+
+        public virtual TableCell CellForIdx(int idx)
+        {
+            LevelListTableCell _tableCell = GetTableCell(idx);
 
             _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").text = Data[idx].text;
             _tableCell.GetPrivateField<TextMeshProUGUI>("_authorText").text = Data[idx].subtext;
