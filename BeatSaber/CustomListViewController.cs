@@ -19,11 +19,24 @@ namespace CustomUI.BeatSaber
         public TableView _customListTableView;
         public List<CustomCellInfo> Data = new List<CustomCellInfo>();
         public Action<TableView, int> DidSelectRowEvent;
-
+        public string reuseIdentifier = "CustomUIListTableCell";
+        
         private LevelListTableCell _songListTableCellInstance;
-        public LevelListTableCell songListTableCellInstance
+        public LevelListTableCell songListTableCellPrefab
         {
-            get { return _songListTableCellInstance; }
+            get
+            {
+                if(!_songListTableCellInstance)
+                {
+                    _songListTableCellInstance = Instantiate(Resources.FindObjectsOfTypeAll<LevelListTableCell>().First(x => (x.name == "LevelListTableCell")));
+                    foreach (UnityEngine.UI.Image i in _songListTableCellInstance.GetPrivateField<UnityEngine.UI.Image[]>("_beatmapCharacteristicImages"))
+                        i.enabled = false;
+                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicAlphas", new float[0]);
+                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicImages", new UnityEngine.UI.Image[0]);
+                    _songListTableCellInstance.reuseIdentifier = reuseIdentifier;
+                }
+                return _songListTableCellInstance;
+            }
         }
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
@@ -32,16 +45,7 @@ namespace CustomUI.BeatSaber
             {
                 if (firstActivation)
                 {
-                    _songListTableCellInstance = Resources.FindObjectsOfTypeAll<LevelListTableCell>().First(x => (x.name == "LevelListTableCell"));
-                    
-                    // Destroy all the beatmapCharacteristic images
-                    var beatmapCharacteristicImages = songListTableCellInstance.GetPrivateField<UnityEngine.UI.Image[]>("_beatmapCharacteristicImages");
-                    foreach (UnityEngine.UI.Image i in beatmapCharacteristicImages)
-                        Destroy(i);
-
-                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicAlphas", new float[0]);
-                    _songListTableCellInstance.SetPrivateField("_beatmapCharacteristicImages", new UnityEngine.UI.Image[0]);
-                    _songListTableCellInstance.reuseIdentifier = "CustomListTableCell";
+                    var prefab = songListTableCellPrefab;
 
                     RectTransform container = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
                     container.SetParent(rectTransform, false);
@@ -117,10 +121,11 @@ namespace CustomUI.BeatSaber
 
         public virtual TableCell CellForIdx(int idx)
         {
-            LevelListTableCell _tableCell = (LevelListTableCell)_customListTableView.DequeueReusableCellForIdentifier("CustomListTableCell");
-            if(!_tableCell)
-                _tableCell = Instantiate(songListTableCellInstance);
+            LevelListTableCell _tableCell = (LevelListTableCell)_customListTableView.DequeueReusableCellForIdentifier(reuseIdentifier);
+            if (!_tableCell)
+                _tableCell = Instantiate(songListTableCellPrefab);
             
+
             _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").text = Data[idx].text;
             _tableCell.GetPrivateField<TextMeshProUGUI>("_authorText").text = Data[idx].subtext;
             _tableCell.GetPrivateField<UnityEngine.UI.Image>("_coverImage").sprite = Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon;
