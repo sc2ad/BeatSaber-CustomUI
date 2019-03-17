@@ -2,13 +2,13 @@
 This mod allows for Beat Saber mod developers to implement custom settings user interfaces in a simple and easy way. This mod does nothing on its own!
 
 # Example Usage
-*It's important that you setup your settings options in the SceneManager_sceneLoaded event when the "Menu" scene is loaded! It can't be the SceneManager_activeSceneChanged event!*
+*It's important that you setup your settings options in the SceneManager_sceneLoaded event when the "MenuCore" scene is loaded! It can't be the SceneManager_activeSceneChanged event!*
 
 ```cs
 bool toggleValue = false;
 private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1) 
 {
-  if (arg0.name == "Menu")
+  if (arg0.name == "MenuCore")
   {
     Sprite icon = UIUtilities.LoadSpriteFromResources("TestAssemblyName.TestFolderName.TestImageName.png");
   
