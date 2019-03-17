@@ -90,7 +90,10 @@ namespace CustomUI.BeatSaber
             _textChangedEvent = TextChangedEvent;
             _textEntrySuccessEvent = TextEntrySuccessEvent;
             _textEntryCancelledEvent = TextEntryCancelledEvent;
-            _keyboardMenu.Present();
+
+            if (!_keyboardMenu.Present(false))
+                return false;
+
             _isKeyboardOpen = true;
             return true;
         }
