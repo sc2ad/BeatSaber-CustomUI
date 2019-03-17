@@ -1,4 +1,5 @@
 ﻿using CustomUI.UIElements;
+using CustomUI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,7 +100,22 @@ namespace CustomUI.BeatSaber
             TextMeshProUGUI textMesh = BeatSaberUI.CreateText(parent.rectTransform, text, anchoredPosition);
             return textMesh;
         }
-        
+
+        public static void SetText(this LevelListTableCell cell, string text)
+        {
+            cell.GetPrivateField<TextMeshProUGUI>("_songNameText").text = text;
+        }
+
+        public static void SetSubText(this LevelListTableCell cell, string subtext)
+        {
+            cell.GetPrivateField<TextMeshProUGUI>("_authorText").text = subtext;
+        }
+
+        public static void SetIcon(this LevelListTableCell cell, Sprite icon)
+        {
+            cell.GetPrivateField<UnityEngine.UI.Image>("_coverImage").sprite = icon;
+        }
+
         public static CustomSlider CreateUISlider(this VRUIViewController parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
         {
             CustomSlider scrollbar = BeatSaberUI.CreateUISlider(parent.rectTransform, min, max, increment, intValues, onValueChanged);

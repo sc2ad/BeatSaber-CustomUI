@@ -24,6 +24,7 @@ namespace CustomUI.BeatSaber
         private static bool _isKeyboardOpen = false;
         private static string _initialValue;
         private static TextMeshProUGUI _inputText;
+        
 
         public static bool DisplayKeyboard(string title, string initialValue, Action<string> TextChangedEvent = null, Action<string> TextEntrySuccessEvent = null, Action TextEntryCancelledEvent = null)
         {

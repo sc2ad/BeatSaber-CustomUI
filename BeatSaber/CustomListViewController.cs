@@ -126,9 +126,9 @@ namespace CustomUI.BeatSaber
         {
             LevelListTableCell _tableCell = GetTableCell(idx);
 
-            _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").text = Data[idx].text;
-            _tableCell.GetPrivateField<TextMeshProUGUI>("_authorText").text = Data[idx].subtext;
-            _tableCell.GetPrivateField<UnityEngine.UI.Image>("_coverImage").sprite = Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon;
+            _tableCell.SetText(Data[idx].text);
+            _tableCell.SetSubText(Data[idx].subtext);
+            _tableCell.SetIcon(Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
 
             return _tableCell;
         }
