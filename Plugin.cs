@@ -11,7 +11,7 @@ namespace CustomUI
     public class Plugin : IPlugin
     {
         public string Name => "BeatSaberCustomUI";
-        public string Version => "1.3.7";
+        public string Version => "1.3.8";
 
         private HarmonyInstance _harmonyInstance;
         public void OnApplicationStart()
