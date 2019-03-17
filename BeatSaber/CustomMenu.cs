@@ -105,6 +105,8 @@ namespace CustomUI.BeatSaber
 
         private FlowCoordinator GetActiveFlowCoordinator()
         {
+            if (GameScenesManagerSO.IsInTransition) return null;
+
             FlowCoordinator[] flowCoordinators = Resources.FindObjectsOfTypeAll<FlowCoordinator>();
             foreach (FlowCoordinator f in flowCoordinators)
             {

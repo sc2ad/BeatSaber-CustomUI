@@ -36,7 +36,7 @@ namespace CustomUI.UIElements
                 (ColorPickerPreview.transform as RectTransform).localPosition = new Vector3(55f, -20, 0);
                 TextMeshProUGUI previewText = BeatSaberUI.CreateText(colorContainer, "Preview", new Vector2(0, 0), new Vector2(0, 0));
                 previewText.enableWordWrapping = false;
-                previewText.rectTransform.position = ColorPickerPreview.transform.TransformPoint(new Vector3(-previewText.preferredWidth * 1.5f - 2f, 0, 0));
+                previewText.rectTransform.position = ColorPickerPreview.transform.TransformPoint(new Vector3(-previewText.preferredWidth * 1.5f - 2f, 2.5f, 0));
             }
             else
                 Console.WriteLine("[BeatSaberCustomUI.ColorPicker]: The 'ColorPickerPreview' instance was null.");
@@ -62,7 +62,7 @@ namespace CustomUI.UIElements
             (_sliderR.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 4.5f);
             (_sliderR.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 28, 0);
             TextMeshProUGUI rText = BeatSaberUI.CreateText(colorContainer, "R", new Vector2(0, 0), new Vector2(0, 0));
-            rText.rectTransform.position = _sliderR.Scrollbar.transform.TransformPoint(new Vector3(-34,  0, 0));
+            rText.rectTransform.position = _sliderR.Scrollbar.transform.TransformPoint(new Vector3(-34, 3.74f, 0));
 
             _sliderG = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
             {
@@ -72,7 +72,7 @@ namespace CustomUI.UIElements
             (_sliderG.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 4.5f);
             (_sliderG.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 20, 0);
             TextMeshProUGUI gText = BeatSaberUI.CreateText(colorContainer, "G", new Vector2(0, 0), new Vector2(0, 0));
-            gText.rectTransform.position = _sliderG.Scrollbar.transform.TransformPoint(new Vector3(-34, 0, 0));
+            gText.rectTransform.position = _sliderG.Scrollbar.transform.TransformPoint(new Vector3(-34, 3.74f, 0));
 
             _sliderB = BeatSaberUI.CreateUISlider(transform, 0, 3000, 1, true, (val) =>
             {
@@ -82,7 +82,7 @@ namespace CustomUI.UIElements
             (_sliderB.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 4.5f);
             (_sliderB.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 12, 0);
             TextMeshProUGUI bText = BeatSaberUI.CreateText(colorContainer, "B", new Vector2(0, 0), new Vector2(0, 0));
-            bText.rectTransform.position = _sliderB.Scrollbar.transform.TransformPoint(new Vector3(-34, 0, 0));
+            bText.rectTransform.position = _sliderB.Scrollbar.transform.TransformPoint(new Vector3(-34, 3.74f, 0));
 
             _sliderA = BeatSaberUI.CreateUISlider(transform, 0, 255, 1, true, (val) =>
             {
@@ -92,7 +92,7 @@ namespace CustomUI.UIElements
             (_sliderA.Scrollbar.transform as RectTransform).sizeDelta = new Vector2(60f, 4.5f);
             (_sliderA.Scrollbar.transform as RectTransform).localPosition = new Vector3(70f, 4, 0);
             TextMeshProUGUI aText = BeatSaberUI.CreateText(colorContainer, "A", new Vector2(0, 0), new Vector2(0, 0));
-            aText.rectTransform.position = _sliderA.Scrollbar.transform.TransformPoint(new Vector3(-34, 0, 0));
+            aText.rectTransform.position = _sliderA.Scrollbar.transform.TransformPoint(new Vector3(-34, 3.74f, 0));
 
             // Ok button
             _okButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "QuitButton")), colorContainer, false);

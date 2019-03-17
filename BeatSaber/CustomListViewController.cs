@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ namespace CustomUI.BeatSaber
         public TableView _customListTableView;
         public List<CustomCellInfo> Data = new List<CustomCellInfo>();
         public Action<TableView, int> DidSelectRowEvent;
+        public string reuseIdentifier = "CustomUIListTableCell";
         private LevelListTableCell _songListTableCellInstance;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
@@ -35,7 +37,10 @@ namespace CustomUI.BeatSaber
                     _customListTableView = new GameObject("CustomListTableView").AddComponent<TableView>();
                     _customListTableView.gameObject.AddComponent<RectMask2D>();
                     _customListTableView.transform.SetParent(container, false);
-
+                    var dict = _customListTableView.GetPrivateField<Dictionary<string, List<TableCell>>>("_reusableCells");
+                    if (!dict.ContainsKey(reuseIdentifier))
+                        dict.Add(reuseIdentifier, new List<TableCell>());
+                    
                     (_customListTableView.transform as RectTransform).anchorMin = new Vector2(0f, 0f);
                     (_customListTableView.transform as RectTransform).anchorMax = new Vector2(1f, 1f);
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, 60f);
@@ -99,14 +104,32 @@ namespace CustomUI.BeatSaber
         {
             return Data.Count;
         }
+        
+        public LevelListTableCell GetTableCell(int row, bool beatmapCharacteristicImages = false)
+        {
+            LevelListTableCell _tableCell = (LevelListTableCell)_customListTableView.DequeueReusableCellForIdentifier(reuseIdentifier);
+            if (!_tableCell)
+                _tableCell = Instantiate(_songListTableCellInstance);
+
+            if (!beatmapCharacteristicImages)
+            {
+                foreach (UnityEngine.UI.Image i in _tableCell.GetPrivateField<UnityEngine.UI.Image[]>("_beatmapCharacteristicImages"))
+                    i.enabled = false;
+            }
+            _tableCell.SetPrivateField("_beatmapCharacteristicAlphas", new float[0]);
+            _tableCell.SetPrivateField("_beatmapCharacteristicImages", new UnityEngine.UI.Image[0]);
+            _tableCell.reuseIdentifier = reuseIdentifier;
+            return _tableCell;
+        }
 
         public virtual TableCell CellForIdx(int idx)
         {
-            LevelListTableCell _tableCell = Instantiate(_songListTableCellInstance);
-            _tableCell.SetPrivateField("_songNameText", Data[idx].text);
-            _tableCell.SetPrivateField("_authorText", Data[idx].subtext);
-            _tableCell.SetPrivateField("_coverImage", Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
-            _tableCell.reuseIdentifier = "CustomListCell";
+            LevelListTableCell _tableCell = GetTableCell(idx);
+
+            _tableCell.SetText(Data[idx].text);
+            _tableCell.SetSubText(Data[idx].subtext);
+            _tableCell.SetIcon(Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
+
             return _tableCell;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Harmony;
 using IllusionPlugin;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,7 @@ namespace CustomUI
     public class Plugin : IPlugin
     {
         public string Name => "BeatSaberCustomUI";
-        public string Version => "1.3.0";
+        public string Version => "1.3.9";
 
         private HarmonyInstance _harmonyInstance;
         public void OnApplicationStart()
@@ -49,7 +50,7 @@ namespace CustomUI
                        [CallerMemberName] string member = "",
                        [CallerLineNumber] int line = 0)
         {
-            Debug.Log($"[CustomUI] {Path.GetFileName(file)}->{member}({line}): {text}");
+            Console.WriteLine($"[CustomUI] {Path.GetFileName(file)}->{member}({line}): {text}");
         }
     }
 }

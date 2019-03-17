@@ -26,7 +26,6 @@ namespace CustomUI.Settings
         private MainSettingsTableView _mainSettingsTableView = null;
         private TableView subMenuTableView = null;
         private TableViewHelper subMenuTableViewHelper = null;
-        private MainSettingsTableCell tableCell = null;
         private Transform othersSubmenu = null;
         private SimpleDialogPromptViewController prompt = null;
 
@@ -53,6 +52,13 @@ namespace CustomUI.Settings
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
+
+            SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+        }
+
+        void OnDestroy()
+        {
+            SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
         }
         
         public void SceneManagerOnActiveSceneChanged(Scene from, Scene to)
@@ -78,16 +84,11 @@ namespace CustomUI.Settings
                 settingsMenu = Resources.FindObjectsOfTypeAll<SettingsNavigationController>().FirstOrDefault();
                 mainSettingsMenu = Resources.FindObjectsOfTypeAll<MainSettingsMenuViewController>().FirstOrDefault();
                 _mainSettingsTableView = mainSettingsMenu.GetPrivateField<MainSettingsTableView>("_mainSettingsTableView");
-                subMenuTableView = _mainSettingsTableView.GetComponentInChildren<TableView>();
+                subMenuTableView = _mainSettingsTableView.GetPrivateField<TableView>("_tableView");
                 subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableViewHelper>();
                 othersSubmenu = settingsMenu.transform.Find("OtherSettings");
                 
-                if (tableCell == null)
-                {
-                    tableCell = Resources.FindObjectsOfTypeAll<MainSettingsTableCell>().FirstOrDefault();
-                    // Get a refence to the Settings Table cell text in case we want to change font size, etc
-                    var text = tableCell.GetPrivateField<TextMeshProUGUI>("_settingsSubMenuText");
-                }
+                initialized = true;
             }
             catch (Exception ex)
             {
@@ -106,6 +107,7 @@ namespace CustomUI.Settings
                 viewport.anchoredPosition = new Vector2(0f, 0f);
 
                 RectTransform container = (RectTransform)_mainSettingsTableView.transform;
+                
 
                 if (_pageUpButton == null)
                 {
@@ -113,10 +115,13 @@ namespace CustomUI.Settings
 
                     _pageUpButton.transform.SetParent(container.parent);
                     _pageUpButton.transform.localScale /= 1.4f;
-                    _pageUpButton.transform.localPosition -= new Vector3(0, 4f);
-                    _pageUpButton.interactable = false;
-                    _pageUpButton.onClick.AddListener(delegate ()
+                    _pageUpButton.transform.localPosition += new Vector3(0, 4f);
+                    //_pageUpButton.interactable = false;
+
+                    _pageUpButton.onClick.RemoveAllListeners();
+                    _pageUpButton.onClick.AddListener(() =>
                     {
+                        subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 48);
                         subMenuTableViewHelper.PageScrollUp();
                     });
                 }
@@ -128,15 +133,15 @@ namespace CustomUI.Settings
                     _pageDownButton.transform.SetParent(container.parent);
                     _pageDownButton.transform.localScale /= 1.4f;
                     _pageDownButton.transform.localPosition -= new Vector3(0, 5f);
-                    _pageDownButton.interactable = false;
-                    _pageDownButton.onClick.AddListener(delegate ()
+                    //_pageDownButton.interactable = false;
+
+                    _pageDownButton.onClick.RemoveAllListeners();
+                    _pageDownButton.onClick.AddListener(() =>
                     {
+                        subMenuTableView.GetPrivateField<RectTransform>("_scrollRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 48);
                         subMenuTableViewHelper.PageScrollDown();
                     });
                 }
-
-                subMenuTableViewHelper._pageUpButton = _pageUpButton;
-                subMenuTableViewHelper._pageDownButton = _pageDownButton;
             }
             catch (Exception ex)
             {
@@ -165,6 +170,7 @@ namespace CustomUI.Settings
                 var subMenuInfos = Instance.mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
                 subMenuInfos.Add(newSubMenuInfo);
                 Instance.mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
+                //Instance._mainSettingsTableView.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
 
                 if (subMenuInfos.Count > 6)
                     Instance.AddPageButtons();

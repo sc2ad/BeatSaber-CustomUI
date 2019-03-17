@@ -24,22 +24,29 @@ namespace CustomUI.Settings
             set { table.SetPrivateField("_scrollRectTransform", value); }
         }
 
-        int _numberOfRows
+        int _numberOfCells
         {
-            get { return table.GetPrivateField<int>("_numberOfRows"); }
-            set { table.SetPrivateField("_numberOfRows", value); }
+            get { return table.GetPrivateField<int>("_numberOfCells"); }
+            set { table.SetPrivateField("_numberOfCells", value); }
         }
 
-        float _rowHeight
+        float _cellSize
         {
-            get { return table.GetPrivateField<float>("_rowHeight"); }
-            set { table.SetPrivateField("_rowHeight", value); }
+            get { return table.GetPrivateField<float>("_cellSize"); }
+            set { table.SetPrivateField("_cellSize", value); }
         }
 
-        float _targetVerticalNormalizedPosition
+        float _targetPosition
         {
-            get { return table.GetPrivateField<float>("_targetVerticalNormalizedPosition"); }
-            set { table.SetPrivateField("_targetVerticalNormalizedPosition", value); }
+            get { return table.GetPrivateField<float>("_targetPosition"); }
+            set { table.SetPrivateField("_targetPosition", value); }
+        }
+
+
+        RectTransform _contentTransform
+        {
+            get { return table.GetPrivateField<RectTransform>("_contentTransform"); }
+            set { table.SetPrivateField("_contentTransform", value); }
         }
 
         void Awake()
@@ -52,31 +59,30 @@ namespace CustomUI.Settings
 
         public void ScrollToTop()
         {
-            _targetVerticalNormalizedPosition = 1f;
+            _targetPosition = 1f;
             table.enabled = true;
             RefreshScrollButtons();
         }
 
         public void PageScrollUp()
         {
-            float scrollStep = GetScrollStep();
-            _targetVerticalNormalizedPosition = Mathf.RoundToInt(_targetVerticalNormalizedPosition / scrollStep + Mathf.Max(1f, GetNumberOfVisibleRows() - 1f)) * scrollStep;
-            if (_targetVerticalNormalizedPosition > 1f)
+            _targetPosition = _contentTransform.anchoredPosition.y - Mathf.Max(1f, table.GetNumberOfVisibleCells() - 1f) * _cellSize;
+            if (_targetPosition < 0f)
             {
-                _targetVerticalNormalizedPosition = 1f;
+                _targetPosition = 0f;
             }
             table.enabled = true;
             RefreshScrollButtons();
-            //_scrollRectTransform.sizeDelta = new Vector2(-20f, -10f);
         }
 
         public void PageScrollDown()
         {
-            float scrollStep = GetScrollStep();
-            _targetVerticalNormalizedPosition = Mathf.RoundToInt(_targetVerticalNormalizedPosition / scrollStep - Mathf.Max(1f, GetNumberOfVisibleRows() - 1f)) * scrollStep;
-            if (_targetVerticalNormalizedPosition < 0f)
+            float num = _scrollRectTransform.rect.height;
+            float num2 = (float)_numberOfCells * _cellSize - num;
+            _targetPosition = _contentTransform.anchoredPosition.y + Mathf.Max(1f, table.GetNumberOfVisibleCells() - 1f) * this._cellSize;
+            if (_targetPosition > num2)
             {
-                _targetVerticalNormalizedPosition = 0f;
+                _targetPosition = num2;
             }
             table.enabled = true;
             RefreshScrollButtons();
@@ -88,15 +94,15 @@ namespace CustomUI.Settings
             table.RefreshScrollButtons();
             if (_pageDownButton)
             {
-                _pageDownButton.interactable = !Mathf.Approximately(_targetVerticalNormalizedPosition, 0f);
+                _pageDownButton.interactable = !Mathf.Approximately(_targetPosition, 0f);
             }
             if (_pageUpButton)
             {
-                _pageUpButton.interactable = !Mathf.Approximately(_targetVerticalNormalizedPosition, 1f);
+                _pageUpButton.interactable = !Mathf.Approximately(_targetPosition, 1f);
             }
         }
 
-        private float GetNumberOfVisibleRows()
+        private float GetNumberOfVisibleCells()
         {
             return 6.0f;
         }
@@ -104,9 +110,9 @@ namespace CustomUI.Settings
         public virtual float GetScrollStep()
         {
             float height = viewport.rect.height;
-            float num = _numberOfRows * _rowHeight - height;
-            int num2 = Mathf.CeilToInt(num / _rowHeight);
-            return 1f / num2;
+            float num = _numberOfCells * _cellSize - height;
+            int num2 = Mathf.CeilToInt(num / _cellSize);
+            return -1f / num2;
         }
     }
 }
