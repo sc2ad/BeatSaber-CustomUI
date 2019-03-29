@@ -25,7 +25,15 @@ namespace CustomUI.BeatSaber
         private static string _initialValue;
         private static TextMeshProUGUI _inputText;
         
-
+        /// <summary>
+        /// Display a keyboard interface to accept user input.
+        /// </summary>
+        /// <param name="title">The title to be displayed above the keyboard.</param>
+        /// <param name="initialValue">The starting value of the keyboard.</param>
+        /// <param name="TextChangedEvent">Callback when the text is modified by the user (when any key is pressed basically).</param>
+        /// <param name="TextEntrySuccessEvent">Callback when the user successfully submits the changed text.</param>
+        /// <param name="TextEntryCancelledEvent">Callback when the user presses the cancel button.</param>
+        /// <returns></returns>
         public static bool DisplayKeyboard(string title, string initialValue, Action<string> TextChangedEvent = null, Action<string> TextEntrySuccessEvent = null, Action TextEntryCancelledEvent = null)
         {
             if (_isKeyboardOpen) return false;
@@ -98,7 +106,17 @@ namespace CustomUI.BeatSaber
             return true;
         }
 
-
+        /// <summary>
+        /// Creates a copy of a template button and returns it.
+        /// </summary>
+        /// <param name="parent">The transform to parent the button to.</param>
+        /// <param name="buttonTemplate">The name of the button to make a copy of. Example: "QuitButton", "PlayButton", etc.</param>
+        /// <param name="anchoredPosition">The position the button should be anchored to.</param>
+        /// <param name="sizeDelta">The size of the buttons RectTransform.</param>
+        /// <param name="onClick">Callback for when the button is pressed.</param>
+        /// <param name="buttonText">The text that should be shown on the button.</param>
+        /// <param name="icon">The icon that should be shown on the button.</param>
+        /// <returns>The newly created button.</returns>
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, Vector2 anchoredPosition, Vector2 sizeDelta, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
@@ -119,6 +137,17 @@ namespace CustomUI.BeatSaber
             return btn;
         }
 
+
+        /// <summary>
+        /// Creates a copy of a template button and returns it.
+        /// </summary>
+        /// <param name="parent">The transform to parent the button to.</param>
+        /// <param name="buttonTemplate">The name of the button to make a copy of. Example: "QuitButton", "PlayButton", etc.</param>
+        /// <param name="anchoredPosition">The position the button should be anchored to.</param>
+        /// <param name="onClick">Callback for when the button is pressed.</param>
+        /// <param name="buttonText">The text that should be shown on the button.</param>
+        /// <param name="icon">The icon that should be shown on the button.</param>
+        /// <returns>The newly created button.</returns>
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, Vector2 anchoredPosition, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
@@ -137,7 +166,17 @@ namespace CustomUI.BeatSaber
 
             return btn;
         }
-        
+
+
+        /// <summary>
+        /// Creates a copy of a template button and returns it.
+        /// </summary>
+        /// <param name="parent">The transform to parent the button to.</param>
+        /// <param name="buttonTemplate">The name of the button to make a copy of. Example: "QuitButton", "PlayButton", etc.</param>
+        /// <param name="onClick">Callback for when the button is pressed.</param>
+        /// <param name="buttonText">The text that should be shown on the button.</param>
+        /// <param name="icon">The icon that should be shown on the button.</param>
+        /// <returns>The newly created button.</returns>
         public static Button CreateUIButton(RectTransform parent, string buttonTemplate, UnityAction onClick = null, string buttonText = "BUTTON", Sprite icon = null)
         {
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
@@ -154,6 +193,12 @@ namespace CustomUI.BeatSaber
             return btn;
         }
 
+        /// <summary>
+        /// Creates a copy of a back button.
+        /// </summary>
+        /// <param name="parent">The transform to parent the new button to.</param>
+        /// <param name="onClick">Callback for when the button is pressed.</param>
+        /// <returns>The newly created back button.</returns>
         public static Button CreateBackButton(RectTransform parent, UnityAction onClick = null)
         {
             if (_backButtonInstance == null)
@@ -177,6 +222,11 @@ namespace CustomUI.BeatSaber
             return btn;
         }
 
+        /// <summary>
+        /// Creates a VRUIViewController of type T, and marks it to not be destroyed.
+        /// </summary>
+        /// <typeparam name="T">The variation of VRUIViewController you want to create.</typeparam>
+        /// <returns>The newly created VRUIViewController of type T.</returns>
         public static T CreateViewController<T>() where T : VRUIViewController
         {
             T vc = new GameObject("CustomViewController").AddComponent<T>();
@@ -189,7 +239,13 @@ namespace CustomUI.BeatSaber
             
             return vc;
         }
-        
+
+        /// <summary>
+        /// Creates a CustomMenu, which is basically a custom panel that handles UI transitions for you automatically.
+        /// </summary>
+        /// <typeparam name="T">The type of CustomMenu to instantiate.</typeparam>
+        /// <param name="title">The title of the new CustomMenu.</param>
+        /// <returns>The newly created CustomMenu of type T.</returns>
         public static T CreateCustomMenu<T>(string title) where T: CustomMenu
         {
             T customMenu = new GameObject("CustomUIMenu").AddComponent<T>();
@@ -197,6 +253,11 @@ namespace CustomUI.BeatSaber
             return customMenu;
         }
 
+        /// <summary>
+        /// Creates a loading spinner.
+        /// </summary>
+        /// <param name="parent">The transform to parent the new loading spinner to.</param>
+        /// <returns>The newly created loading spinner.</returns>
         public static GameObject CreateLoadingSpinner(Transform parent)
         {
             if (_loadingIndicatorInstance == null)
@@ -217,11 +278,26 @@ namespace CustomUI.BeatSaber
             return loadingSpinner;
         }
 
+        /// <summary>
+        /// Creates a TextMeshProUGUI component.
+        /// </summary>
+        /// <param name="parent">Thet ransform to parent the new TextMeshProUGUI component to.</param>
+        /// <param name="text">The text to be displayed.</param>
+        /// <param name="anchoredPosition">The position the button should be anchored to.</param>
+        /// <returns>The newly created TextMeshProUGUI component.</returns>
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition)
         {
             return CreateText(parent, text, anchoredPosition, new Vector2(60f, 10f));
         }
 
+        /// <summary>
+        /// Creates a TextMeshProUGUI component.
+        /// </summary>
+        /// <param name="parent">Thet transform to parent the new TextMeshProUGUI component to.</param>
+        /// <param name="text">The text to be displayed.</param>
+        /// <param name="anchoredPosition">The position the text component should be anchored to.</param>
+        /// <param name="sizeDelta">The size of the text components RectTransform.</param>
+        /// <returns>The newly created TextMeshProUGUI component.</returns>
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
             GameObject gameObj = new GameObject("CustomUIText");
@@ -243,6 +319,12 @@ namespace CustomUI.BeatSaber
             return textMesh;
         }
 
+        /// <summary>
+        /// Adds hint text to any component that handles pointer events.
+        /// </summary>
+        /// <param name="parent">Thet transform to parent the new HoverHint component to.</param>
+        /// <param name="text">The text to be displayed on the HoverHint panel.</param>
+        /// <returns>The newly created HoverHint component.</returns>
         public static HoverHint AddHintText(RectTransform parent, string text)
         {
             var hoverHint = parent.gameObject.AddComponent<HoverHint>();
@@ -253,6 +335,16 @@ namespace CustomUI.BeatSaber
             return hoverHint;
         }
 
+        /// <summary>
+        /// Creates a custom slider.
+        /// </summary>
+        /// <param name="parent">Thet transform to parent the new slider component to.</param>
+        /// <param name="min">The minimum value of the slider.</param>
+        /// <param name="max">The maximum value of the slider.</param>
+        /// <param name="increment">The amount to increment the slider by.</param>
+        /// <param name="intValues">True if the value represented by the slider is an int, false if it's a float.</param>
+        /// <param name="onValueChanged">Callback when the sliders value changes.</param>
+        /// <returns></returns>
         public static CustomSlider CreateUISlider(Transform parent, float min, float max, float increment, bool intValues, UnityAction<float> onValueChanged = null)
         {
             CustomSlider slider = new GameObject("CustomUISlider").AddComponent<CustomSlider>();
@@ -283,6 +375,13 @@ namespace CustomUI.BeatSaber
             return slider;
         }
 
+        /// <summary>
+        /// Creates a color picker.
+        /// </summary>
+        /// <param name="parent">Thet transform to parent the new color picker to.</param>
+        /// <param name="anchoredPosition">The position the color picker should be anchored to.</param>
+        /// <param name="sizeDelta">The size of the color picker's RectTransform.</param>
+        /// <returns></returns>
         public static ColorPicker CreateColorPicker(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
             ColorPicker colorPicker = new GameObject("ColorPicker").AddComponent<ColorPicker>();
