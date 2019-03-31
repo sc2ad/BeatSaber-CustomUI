@@ -38,7 +38,8 @@ namespace CustomUI.BeatSaber
 
         public void Dismiss(bool immediately)
         {
-            parentFlowCoordinator.InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, immediately });
+            if(this.isActivated)
+                parentFlowCoordinator.InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, immediately });
         }
 
         public void Dismiss()
