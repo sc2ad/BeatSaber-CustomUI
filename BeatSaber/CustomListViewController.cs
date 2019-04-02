@@ -34,13 +34,13 @@ namespace CustomUI.BeatSaber
                     container.SetParent(rectTransform, false);
                     container.sizeDelta = new Vector2(60f, 0f);
 
-                    _customListTableView = new GameObject("CustomListTableView").AddComponent<TableView>();
+                    var newGameObj = new GameObject("CustomListTableView");
+                    // Disable the new gameobject containing the tableview to avoid HMUI.Init error spam in the output_log
+                    newGameObj.SetActive(false);
+                    _customListTableView = newGameObj.AddComponent<TableView>();
                     _customListTableView.gameObject.AddComponent<RectMask2D>();
                     _customListTableView.transform.SetParent(container, false);
-                    var dict = _customListTableView.GetPrivateField<Dictionary<string, List<TableCell>>>("_reusableCells");
-                    if (!dict.ContainsKey(reuseIdentifier))
-                        dict.Add(reuseIdentifier, new List<TableCell>());
-                    
+
                     (_customListTableView.transform as RectTransform).anchorMin = new Vector2(0f, 0f);
                     (_customListTableView.transform as RectTransform).anchorMax = new Vector2(1f, 1f);
                     (_customListTableView.transform as RectTransform).sizeDelta = new Vector2(0f, 60f);
@@ -49,6 +49,7 @@ namespace CustomUI.BeatSaber
                     _customListTableView.SetPrivateField("_preallocatedCells", new TableView.CellsGroup[0]);
                     _customListTableView.SetPrivateField("_isInitialized", false);
                     _customListTableView.dataSource = this;
+                    newGameObj.SetActive(true);
 
                     _customListTableView.didSelectCellWithIdxEvent += _customListTableView_didSelectRowEvent;
 
