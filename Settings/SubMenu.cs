@@ -287,7 +287,7 @@ namespace CustomUI.Settings
                 if (obj is CustomSetting)
                 {
                     CustomSetting customSetting = (obj as CustomSetting);
-                    if (finishAction == FinishAction.Apply)
+                    if (finishAction == FinishAction.Apply || finishAction == FinishAction.Ok)
                     {
                         customSetting.ApplySettings();
                     }
@@ -295,7 +295,7 @@ namespace CustomUI.Settings
                     {
                         customSetting.CancelSettings();
                     }
-                    //navInstance.didFinishEvent -= del;
+                    navInstance.didFinishEvent -= del;
                 }
             };
             navInstance.didFinishEvent += del;

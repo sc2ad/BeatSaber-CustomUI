@@ -54,6 +54,7 @@ namespace CustomUI.Settings
             DontDestroyOnLoad(this.gameObject);
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+            InitSettings();
 
         }
 
@@ -70,11 +71,16 @@ namespace CustomUI.Settings
                     Destroy(Instance.gameObject);
                 initialized = false;
             }
-            if(to.name == "MenuCore")
+            if(from.name == "MenuCore")
             {
-                StartCoroutine(DelayedInit());
+                InitSettings();
             }
         }
+        public void InitSettings()
+        {
+            StartCoroutine(DelayedInit());
+        }
+
         IEnumerator DelayedInit()
         {
             yield return new WaitForSeconds(0.1f);
@@ -85,7 +91,6 @@ namespace CustomUI.Settings
             }
             SubMenu.needsInit.Clear();
         }
-
         private void SetupUI()
         {
             if (initialized) return;

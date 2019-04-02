@@ -296,6 +296,7 @@ namespace CustomUI.Settings
         public void Init()
         {
             GetInitValues(out int idx, out int numEl);
+            OnEnable();
         }
     }
 
