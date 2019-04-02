@@ -54,6 +54,7 @@ namespace CustomUI.Settings
             DontDestroyOnLoad(this.gameObject);
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+
         }
 
         void OnDestroy()
@@ -69,6 +70,20 @@ namespace CustomUI.Settings
                     Destroy(Instance.gameObject);
                 initialized = false;
             }
+            if(to.name == "MenuCore")
+            {
+                StartCoroutine(DelayedInit());
+            }
+        }
+        IEnumerator DelayedInit()
+        {
+            yield return new WaitForSeconds(0.1f);
+            //Init settings
+            foreach (CustomSetting customSetting in SubMenu.needsInit)
+            {
+                customSetting.Init();
+            }
+            SubMenu.needsInit.Clear();
         }
 
         private void SetupUI()
@@ -111,7 +126,7 @@ namespace CustomUI.Settings
 
                 if (_pageUpButton == null)
                 {
-                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), container);
+                    _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), container);
 
                     _pageUpButton.transform.SetParent(container.parent);
                     _pageUpButton.transform.localScale /= 1.4f;
@@ -128,7 +143,7 @@ namespace CustomUI.Settings
 
                 if (_pageDownButton == null)
                 {
-                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container);
+                    _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageDownButton")), container);
 
                     _pageDownButton.transform.SetParent(container.parent);
                     _pageDownButton.transform.localScale /= 1.4f;

@@ -24,6 +24,7 @@ namespace CustomUI.Settings
 
         private static TableCell _settingsTableCellInstance;
         private static Button pageUpButton, pageDownButton;
+        
         protected override void DidActivate(bool firstActivation, ActivationType type)
         { 
             try
@@ -63,13 +64,13 @@ namespace CustomUI.Settings
                     // have a lot of settings pages and theres no reason to use separate buttons for each one
                     if (pageUpButton == null)
                     {
-                        pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), rectTransform.parent, false);
+                        pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), rectTransform.parent, false);
                         pageUpButton.transform.localScale /= 1.4f;
                         pageUpButton.interactable = true;
                     }
                     if (pageDownButton == null)
                     {
-                        pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), rectTransform.parent, false);
+                        pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageDownButton")), rectTransform.parent, false);
                         pageDownButton.transform.localScale /= 1.4f;
                         pageDownButton.interactable = true;
                     }
@@ -87,6 +88,7 @@ namespace CustomUI.Settings
 
                     // Fit the tableview to our window
                     (_customListTableView.transform.parent as RectTransform).sizeDelta = new Vector2(_settingsViewControllerWidth, 0);
+
                 }
                 // Attach the page buttons to the current settings page
                 pageUpButton.transform.SetParent(rectTransform.Find("CustomListContainer"));

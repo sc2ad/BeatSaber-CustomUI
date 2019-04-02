@@ -6,10 +6,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using TMPro;
 
 namespace CustomUI.Settings
 {
-    public class BoolViewController : SwitchSettingsController
+    public interface CustomSetting
+    {
+        void Init();
+        
+        void ApplySettings();
+
+        void CancelSettings();
+    }
+
+    public class BoolViewController : SwitchSettingsController, CustomSetting
     {
         public delegate bool GetBool();
         public event GetBool GetValue;
@@ -21,6 +31,8 @@ namespace CustomUI.Settings
         public string DisabledText = "OFF";
         public bool applyImmediately = false;
 
+        bool lastValue;
+
         protected override bool GetInitValue()
         {
             bool value = false;
@@ -31,35 +43,37 @@ namespace CustomUI.Settings
             return value;
         }
 
-        public override void IncButtonPressed()
-        {
-            base.IncButtonPressed();
-            if (applyImmediately)
-                ApplySettings();
-        }
-
-        public override void DecButtonPressed()
-        {
-            base.DecButtonPressed();
-            if (applyImmediately)
-                ApplySettings();
-        }
-
         protected override void ApplyValue(bool value)
+        {
+            lastValue = value;
+            if (applyImmediately) ApplySettings();
+        }
+
+        public void ApplySettings()
         {
             if (SetValue != null)
             {
-                SetValue(value);
+                SetValue(lastValue);
             }
+        }
+
+        public void CancelSettings()
+        {
         }
 
         protected override string TextForValue(bool value)
         {
             return (value) ? EnabledText : DisabledText;
         }
+
+        public void Init()
+        {
+            if (GetInitValue()) IncButtonPressed();
+            else DecButtonPressed();
+        }
     }
 
-    public abstract class IntSettingsController : IncDecSettingsController
+    public abstract class IntSettingsController : IncDecSettingsController, CustomSetting
     {
         private int _value;
         protected int _min;
@@ -70,16 +84,19 @@ namespace CustomUI.Settings
         protected abstract int GetInitValue();
         protected abstract void ApplyValue(int value);
         protected abstract string TextForValue(int value);
-
-
-        public override void Init()
+        
+        public void Init()
         {
             _value = this.GetInitValue();
             this.RefreshUI();
         }
-        public override void ApplySettings()
+        public void ApplySettings()
         {
             this.ApplyValue(this._value);
+        }
+        public void CancelSettings()
+        {
+
         }
         private void RefreshUI()
         {
@@ -160,23 +177,27 @@ namespace CustomUI.Settings
         }
     }
     
-    public class StringViewController : ListSettingsController
+    public class StringViewController : ListSettingsController, CustomSetting
     {
         public Func<string> GetValue = () => String.Empty;
         public Action<string> SetValue = (_) => { };
         public string value = String.Empty;
         public bool applyImmediately = false;
 
+        private bool _hasInited;
+
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
             numberOfElements = 2;
-            value = GetValue();
             idx = 0;
+            if (_hasInited) return;
+            _hasInited = true;
+            value = GetValue();
         }
 
         protected override void ApplyValue(int idx)
         {
-            SetValue(value);
+            
         }
 
         protected override string TextForValue(int idx)
@@ -191,15 +212,29 @@ namespace CustomUI.Settings
         {
             BeatSaberUI.DisplayKeyboard("Enter Text Below", value, (text) => { }, (text) => { value = text; base.IncButtonPressed(); base.DecButtonPressed(); });
         }
-
         public override void DecButtonPressed()
         {
             if (applyImmediately)
                 ApplySettings();
         }
+
+        public void ApplySettings()
+        {
+            SetValue(value);
+        }
+
+        public void CancelSettings()
+        {
+
+        }
+
+        public void Init()
+        {
+            GetInitValues(out int idx,out int numEl);
+        }
     }
 
-    public class ListViewController : ListSettingsController
+    public class ListViewController : ListSettingsController, CustomSetting
     {
         public Func<float> GetValue = () => 0f;
         public Action<float> SetValue = (_) => { };
@@ -211,18 +246,23 @@ namespace CustomUI.Settings
         public List<float> values = new List<float>();
         public bool applyImmediately = false;
 
+        int lastidx;
+
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
             numberOfElements = values.Count();
             var value = GetValue();
             idx = values.FindIndex(v => v == value);
+            lastidx = idx;
             if (idx == -1)
                 idx = 0;
         }
 
         protected override void ApplyValue(int idx)
         {
-            SetValue(values[idx]);
+            lastidx = idx;
+            if (applyImmediately)
+                ApplySettings();
         }
 
         protected override string TextForValue(int idx)
@@ -236,25 +276,38 @@ namespace CustomUI.Settings
         public override void IncButtonPressed()
         {
             base.IncButtonPressed();
-            if (applyImmediately)
-                ApplySettings();
         }
 
         public override void DecButtonPressed()
         {
             base.DecButtonPressed();
-            if (applyImmediately)
-                ApplySettings();
+        }
+
+        public void ApplySettings()
+        {
+            SetValue(values[lastidx]);
+        }
+
+        public void CancelSettings()
+        {
+
+        }
+
+        public void Init()
+        {
+            GetInitValues(out int idx, out int numEl);
         }
     }
 
-    public class TupleViewController<T> : ListSettingsController
+    public class TupleViewController<T> : ListSettingsController, CustomSetting
     {
         public Func<T> GetValue = () => default(T);
         public Action<T> SetValue = (_) => { };
         public Func<T, string> GetTextForValue = (_) => "?";
 
         public List<T> values;
+
+        int lastidx;
         
         protected override void GetInitValues(out int idx, out int numberOfElements)
         {
@@ -267,16 +320,31 @@ namespace CustomUI.Settings
 
         protected override void ApplyValue(int idx)
         {
-            SetValue(values[idx]);
+            lastidx = idx;
         }
 
         protected override string TextForValue(int idx)
         {
             return GetTextForValue(values[idx]);
         }
+
+        public void ApplySettings()
+        {
+            SetValue(values[lastidx]);
+        }
+
+        public void CancelSettings()
+        {
+
+        }
+
+        public void Init()
+        {
+            GetInitValues(out int idx, out int numEl);
+        }
     }
 
-    public class SliderViewController : IncDecSettingsController
+    public class SliderViewController : IncDecSettingsController, CustomSetting
     {
         public delegate float GetFloat();
         public event GetFloat GetValue;
@@ -290,23 +358,28 @@ namespace CustomUI.Settings
 
         private CustomSlider _sliderInst;
         private TMPro.TextMeshProUGUI _textInst;
-        
-        public override void Init()
+
+        private float lastVal;
+
+        public void Init()
         {
             _sliderInst = transform.GetComponent<CustomSlider>();
             _sliderInst.CurrentValue = GetInitValue();
+            lastVal = GetInitValue();
             _textInst = _sliderInst.Scrollbar.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             _sliderInst.Scrollbar.value = _sliderInst.GetPercentageFromValue(_sliderInst.CurrentValue);
             _sliderInst.Scrollbar.onValueChanged.AddListener(delegate (float value) {
                 _sliderInst.SetCurrentValueFromPercentage(value);
+                ApplyValue(_sliderInst.CurrentValue);
                 RefreshUI();
             });
             RefreshUI();
         }
 
-        public override void ApplySettings()
+        public void ApplySettings()
         {
-            ApplyValue(_sliderInst.CurrentValue);
+            if (SetValue != null)
+                SetValue((_intValues) ? ((float)Math.Floor(lastVal)) : (lastVal));
         }
 
         private void RefreshUI()
@@ -343,8 +416,7 @@ namespace CustomUI.Settings
 
         protected void ApplyValue(float value)
         {
-            if (SetValue != null)
-                SetValue((_intValues) ? ((float)Math.Floor(value)) : (value));
+            lastVal = value;
         }
 
         protected string TextForValue(float value)
@@ -353,9 +425,13 @@ namespace CustomUI.Settings
                 return Math.Floor(value).ToString("N0");
             return value.ToString("N1");
         }
-    }
 
-    public class ColorPickerViewController : SimpleSettingsController
+        public void CancelSettings()
+        {
+
+        }
+    }
+    public class ColorPickerViewController : MonoBehaviour, CustomSetting
     {
         public delegate Color GetColor();
         public event GetColor GetValue;
@@ -364,8 +440,7 @@ namespace CustomUI.Settings
         public event SetColor SetValue;
 
         private ColorPickerPreviewClickable _ColorPickerPreviewClickableInst;
-
-        public override void Init()
+        public void Init()
         {
             _ColorPickerPreviewClickableInst.ImagePreview.color = GetInitValue();
         }
@@ -378,14 +453,14 @@ namespace CustomUI.Settings
             return color;
         }
 
-        public override void ApplySettings()
+        public void ApplySettings()
         {
-            ApplyValue(_ColorPickerPreviewClickableInst.ImagePreview.color);
+            SetValue?.Invoke(_ColorPickerPreviewClickableInst.ImagePreview.color);
         }
 
-        public override void CancelSettings()
+        public void CancelSettings()
         {
-            
+
         }
 
         public void SetPreviewInstance(ColorPickerPreviewClickable instance)
@@ -396,11 +471,6 @@ namespace CustomUI.Settings
         public void SetValues(Color color)
         {
             _ColorPickerPreviewClickableInst.ImagePreview.color = color;
-        }
-
-        protected void ApplyValue(Color color)
-        {
-            SetValue?.Invoke(color);
         }
     }
 }
