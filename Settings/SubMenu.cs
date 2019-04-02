@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static SettingsNavigationController;
 using Image = UnityEngine.UI.Image;
 
 namespace CustomUI.Settings
 {
     public class SubMenu
     {
+        public static List<CustomSetting> needsInit = new List<CustomSetting>();
+        public static SettingsNavigationController navInstance;
         public Transform transform;
         public CustomSettingsListViewController viewController;
 
@@ -72,7 +75,6 @@ namespace CustomUI.Settings
             view.SetValues(min, max, intValues);
             return view;
         }
-
         public ColorPickerViewController AddColorPicker(string name, string hintText, Color color)
         {
             var view = AddColorPickerSetting<ColorPickerViewController>(name, hintText, color, out var clickablePreview);
@@ -87,7 +89,7 @@ namespace CustomUI.Settings
         }
         public T AddListSetting<T>(string name, string hintText) where T : ListSettingsController
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+            var volumeSettings = GetVolumeSettings();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
@@ -96,7 +98,7 @@ namespace CustomUI.Settings
             var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
             (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
 
-            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
+            ListSettingsController volume = newSettingsObject.GetComponent<ListSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
@@ -106,6 +108,7 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newListSettingsController);
             return newListSettingsController;
         }
 
@@ -115,7 +118,7 @@ namespace CustomUI.Settings
         }
         public T AddStringSetting<T>(string name, string hintText) where T : ListSettingsController
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+            var volumeSettings = GetVolumeSettings();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
             newSettingsObject.transform.Find("Value").gameObject.GetComponent<HorizontalLayoutGroup>().spacing += 2;
@@ -129,7 +132,7 @@ namespace CustomUI.Settings
             valueText.enableWordWrapping = false;
             BeatSaberUI.AddHintText(valueText.rectTransform, hintText);
 
-            VolumeSettingsController volume = newSettingsObject.GetComponent<VolumeSettingsController>();
+            ListSettingsController volume = newSettingsObject.GetComponent<ListSettingsController>();
             T newListSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
@@ -139,6 +142,7 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newListSettingsController);
             return newListSettingsController;
         }
 
@@ -148,7 +152,7 @@ namespace CustomUI.Settings
         }
         public T AddToggleSetting<T>(string name, string hintText) where T : SwitchSettingsController
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
+            var volumeSettings = GetWindowSettings();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
@@ -157,7 +161,7 @@ namespace CustomUI.Settings
             var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
             (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
 
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
+            SwitchSettingsController volume = newSettingsObject.GetComponent<SwitchSettingsController>();
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SwitchSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
@@ -167,6 +171,7 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newToggleSettingsController);
             return newToggleSettingsController;
         }
 
@@ -176,7 +181,7 @@ namespace CustomUI.Settings
         }
         public T AddIntSetting<T>(string name, string hintText) where T : IntSettingsController
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
+            var volumeSettings = GetWindowSettings();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
@@ -185,7 +190,7 @@ namespace CustomUI.Settings
             var decBg = newSettingsObject.transform.Find("Value").Find("DecButton").Find("BG").gameObject.GetComponent<Image>();
             (decBg.transform as RectTransform).localScale *= new Vector2(0.8f, 0.8f);
 
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
+            SwitchSettingsController volume = newSettingsObject.GetComponent<SwitchSettingsController>();
             T newToggleSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
@@ -195,16 +200,17 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newToggleSettingsController);
             return newToggleSettingsController;
         }
 
         public T AddSliderSetting<T>(string name, string hintText, float min, float max, float increment, bool intValues) where T : IncDecSettingsController
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
+            var volumeSettings = GetWindowSettings();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
+            SwitchSettingsController volume = newSettingsObject.GetComponent<SwitchSettingsController>();
             T newSliderSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(IncDecSettingsController), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
@@ -231,21 +237,21 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newSliderSettingsController);
             return newSliderSettingsController;
         }
-
-        public T AddColorPickerSetting<T>(string name, Color color, out ColorPickerPreviewClickable clickablePreview) where T : SimpleSettingsController
+        public T AddColorPickerSetting<T>(string name, Color color, out ColorPickerPreviewClickable clickablePreview) where T : MonoBehaviour
         {
             return AddColorPickerSetting<T>(name, "", color, out clickablePreview);
         }
-        public T AddColorPickerSetting<T>(string name, string hintText, Color color, out ColorPickerPreviewClickable clickablePreview) where T : SimpleSettingsController
+        public T AddColorPickerSetting<T>(string name, string hintText, Color color, out ColorPickerPreviewClickable clickablePreview) where T : MonoBehaviour
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<WindowModeSettingsController>().FirstOrDefault();
+            var volumeSettings = Resources.FindObjectsOfTypeAll<SwitchSettingsController>().FirstOrDefault();
             GameObject newSettingsObject = MonoBehaviour.Instantiate(volumeSettings.gameObject, transform);
             newSettingsObject.name = name;
 
-            WindowModeSettingsController volume = newSettingsObject.GetComponent<WindowModeSettingsController>();
-            T newColorPickerSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(SimpleSettingsController), typeof(T), newSettingsObject);
+            SwitchSettingsController volume = newSettingsObject.GetComponent<SwitchSettingsController>();
+            T newColorPickerSettingsController = (T)ReflectionUtil.CopyComponent(volume, typeof(MonoBehaviour), typeof(T), newSettingsObject);
             MonoBehaviour.DestroyImmediate(volume);
 
             GameObject.Destroy(newSettingsObject.GetComponentInChildren<HorizontalLayoutGroup>());
@@ -266,7 +272,41 @@ namespace CustomUI.Settings
                 BeatSaberUI.AddHintText(tmpText.rectTransform, hintText);
 
             viewController?.AddSubmenuOption(newSettingsObject);
+            AddHooks(newColorPickerSettingsController);
             return newColorPickerSettingsController;
+        }
+        private void AddHooks(object obj)
+        {
+            if (navInstance == null)
+            {
+                navInstance = Resources.FindObjectsOfTypeAll<SettingsNavigationController>().First();
+            }
+            Action<FinishAction> del = null;
+            needsInit.Add(obj as CustomSetting);
+            del = delegate (FinishAction finishAction){
+                if (obj is CustomSetting)
+                {
+                    CustomSetting customSetting = (obj as CustomSetting);
+                    if (finishAction == FinishAction.Apply || finishAction == FinishAction.Ok)
+                    {
+                        customSetting.ApplySettings();
+                    }
+                    if (finishAction == FinishAction.Cancel)
+                    {
+                        customSetting.CancelSettings();
+                    }
+                    navInstance.didFinishEvent -= del;
+                }
+            };
+            navInstance.didFinishEvent += del;
+        }
+        private ListSettingsController GetVolumeSettings()
+        {
+            return Resources.FindObjectsOfTypeAll<FormattedFloatListSettingsController>().FirstOrDefault();
+        }
+        private SwitchSettingsController GetWindowSettings()
+        {
+            return Resources.FindObjectsOfTypeAll<BoolSettingsController>().FirstOrDefault();
         }
     }
 }

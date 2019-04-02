@@ -307,16 +307,16 @@ namespace CustomUI.GameplaySettings
 
         public override void Instantiate()
         {
-            var volumeSettings = Resources.FindObjectsOfTypeAll<VolumeSettingsController>().FirstOrDefault();
+            var volumeSettings = Resources.FindObjectsOfTypeAll<ListSettingsController>().FirstOrDefault();
             gameObject = UnityEngine.Object.Instantiate(volumeSettings.gameObject, Container);
             gameObject.name = optionName;
             gameObject.GetComponentInChildren<TMP_Text>().text = optionName;
 
             // Add a separator for this menu option
             AddSeparator(Container);
-            
+
             //This magical nonsense is courtesy of Taz and his SettingsUI class
-            VolumeSettingsController volume = gameObject.GetComponent<VolumeSettingsController>();
+            ListSettingsController volume = gameObject.GetComponent<ListSettingsController>();
             multiSelectController = (ListViewController)ReflectionUtil.CopyComponent(volume, typeof(ListSettingsController), typeof(ListViewController), gameObject);
             UnityEngine.Object.DestroyImmediate(volume);
 
@@ -334,7 +334,7 @@ namespace CustomUI.GameplaySettings
                 return "UNKNOWN";
             };
             //Initialize the controller, as if we had just opened the settings menu
-            multiSelectController.Init();
+            //multiSelectController.Init(); TODO figure out if replacement necessary
             var value = multiSelectController.gameObject.transform.Find("Value");
             var valueText = value.Find("ValueText");
             TMP_Text valueTextObject = valueText.GetComponent<TMP_Text>();

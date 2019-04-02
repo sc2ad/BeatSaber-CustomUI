@@ -324,7 +324,7 @@ namespace CustomUI.GameplaySettings
                 _defaultSeparators.Reverse();
                 
                 //Create up button
-                _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), _panelContainer);
+                _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), _panelContainer);
                 _pageUpButton.transform.SetParent(_panelContainer.parent);
                 _pageUpButton.transform.localScale = Vector3.one / 2;
                 _pageUpButton.transform.localPosition = new Vector3(_pageUpButton.transform.localPosition.x,  -2.2f, _pageUpButton.transform.localPosition.z);
@@ -337,7 +337,7 @@ namespace CustomUI.GameplaySettings
                 });
 
                 //Create down button
-                _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), _panelContainer);
+                _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageDownButton")), _panelContainer);
                 _pageDownButton.transform.SetParent(_panelContainer.parent);
                 _pageDownButton.transform.localScale = Vector3.one / 2;
                 _pageDownButton.transform.localPosition = new Vector3(_pageDownButton.transform.localPosition.x, -(numDefaultOptions * 8.5f), _pageDownButton.transform.localPosition.z);
